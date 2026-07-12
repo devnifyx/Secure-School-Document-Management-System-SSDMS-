@@ -30,12 +30,12 @@ const Login: React.FC = () => {
         }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1.75rem' }}>
                 <div style={{
-                    width: '38px', height: '38px', borderRadius: '4px',
-                    background: 'var(--navy)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    width: '38px', height: '38px', borderRadius: '10px',
+                    background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center',
                     fontSize: '1.1rem',
                 }}>🏫</div>
                 <div>
-                    <div style={{ fontWeight: 800, fontSize: '1.05rem', color: 'var(--navy)' }}>SSDMS</div>
+                    <div style={{ fontWeight: 800, fontSize: '1.05rem', color: 'var(--text)' }}>SSDMS</div>
                     <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Secure School Document Management System</div>
                 </div>
             </div>

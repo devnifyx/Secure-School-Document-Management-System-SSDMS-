@@ -270,34 +270,40 @@ const DocumentDetailsModal: React.FC<Props> = ({ document: doc, onClose, onChang
                 <div className="modal-footer">
                     {!resubmitMode ? (
                         <>
-                            {(doc.status === 'Approved' || isAdmin) && isPreviewable && (
-                                <button className="btn btn-secondary" onClick={handlePreview} disabled={previewing}>
-                                    {previewing ? 'Opening…' : 'Preview'}
-                                </button>
-                            )}
-                            {(doc.status === 'Approved' || isAdmin) && (
-                                <button className="btn btn-secondary" onClick={handleDownload}>Download</button>
-                            )}
-                            {isAdmin && (
-                                <button className="btn btn-secondary" onClick={handleVerify} disabled={verifying}>
-                                    {verifying ? 'Verifying…' : 'Verify Integrity'}
-                                </button>
-                            )}
-                            {isAdmin && doc.status === 'Pending' && (
-                                <>
-                                    <button className="btn btn-danger" onClick={handleReject} disabled={actionLoading}>Reject</button>
-                                    <button className="btn btn-success" onClick={handleApprove} disabled={actionLoading}>Approve</button>
-                                </>
-                            )}
-                            {!isAdmin && isOwner && doc.status === 'Rejected' && (
-                                <button className="btn btn-primary" onClick={() => setResubmitMode(true)}>Resubmit Document</button>
-                            )}
-                            <button className="btn btn-secondary" onClick={onClose}>Close</button>
+                            <div className="modal-footer-group">
+                                {(doc.status === 'Approved' || isAdmin) && isPreviewable && (
+                                    <button className="btn btn-secondary btn-sm" onClick={handlePreview} disabled={previewing}>
+                                        {previewing ? 'Opening…' : '⬡ Preview'}
+                                    </button>
+                                )}
+                                {(doc.status === 'Approved' || isAdmin) && (
+                                    <button className="btn btn-secondary btn-sm" onClick={handleDownload}>⤓ Download</button>
+                                )}
+                                {isAdmin && (
+                                    <button className="btn btn-secondary btn-sm" onClick={handleVerify} disabled={verifying}>
+                                        {verifying ? 'Verifying…' : '⛊ Verify'}
+                                    </button>
+                                )}
+                            </div>
+                            <div className="modal-footer-spacer" />
+                            <div className="modal-footer-group">
+                                {isAdmin && doc.status === 'Pending' && (
+                                    <>
+                                        <button className="btn btn-danger btn-sm" onClick={handleReject} disabled={actionLoading}>Reject</button>
+                                        <button className="btn btn-success btn-sm" onClick={handleApprove} disabled={actionLoading}>Approve</button>
+                                    </>
+                                )}
+                                {!isAdmin && isOwner && doc.status === 'Rejected' && (
+                                    <button className="btn btn-primary btn-sm" onClick={() => setResubmitMode(true)}>Resubmit</button>
+                                )}
+                                <button className="btn btn-secondary btn-sm" onClick={onClose}>Close</button>
+                            </div>
                         </>
                     ) : (
                         <>
-                            <button className="btn btn-secondary" onClick={() => setResubmitMode(false)} disabled={resubLoading}>Back</button>
-                            <button className="btn btn-primary" onClick={handleResubmit} disabled={resubLoading}>
+                            <button className="btn btn-secondary btn-sm" onClick={() => setResubmitMode(false)} disabled={resubLoading}>Back</button>
+                            <div className="modal-footer-spacer" />
+                            <button className="btn btn-primary btn-sm" onClick={handleResubmit} disabled={resubLoading}>
                                 {resubLoading ? 'Submitting…' : 'Resubmit for Approval'}
                             </button>
                         </>

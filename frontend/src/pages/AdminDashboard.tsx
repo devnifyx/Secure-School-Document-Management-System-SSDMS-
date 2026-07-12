@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 import api from '../services/api';
-import { useAuth } from '../contexts/AuthContext';
 
 interface Stats {
     documents: { total: number; pending: number; approved: number; rejected: number };
@@ -36,7 +35,6 @@ const AdminDashboard: React.FC = () => {
     const [stats, setStats] = useState<Stats | null>(null);
     const [pending, setPending] = useState<PendingDoc[]>([]);
     const [loading, setLoading] = useState(true);
-    const { user } = useAuth();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -50,7 +48,7 @@ const AdminDashboard: React.FC = () => {
     }, []);
 
     return (
-        <Layout title="Dashboard" subtitle={`Welcome back, ${user?.name}`}>
+        <Layout title="Dashboard Overview" subtitle="System status and document processing metrics.">
             {loading || !stats ? (
                 <div className="empty-state"><div className="icon">⏳</div>Loading dashboard…</div>
             ) : (
@@ -58,24 +56,31 @@ const AdminDashboard: React.FC = () => {
                     {/* Summary cards */}
                     <div className="summary-grid">
                         <div className="summary-card" onClick={() => navigate('/documents')}>
-                            <div className="label">Total Documents</div>
+                            <div className="label">Total Documents 🗎</div>
                             <div className="value">{stats.documents.total}</div>
                         </div>
-                        <div className="summary-card" style={{ borderLeftColor: 'var(--warning)' }} onClick={() => navigate('/approvals')}>
-                            <div className="label">Pending Approval</div>
+                        <div className="summary-card" onClick={() => navigate('/approvals')}>
+                            <div className="label">Pending Approval ◔</div>
                             <div className="value" style={{ color: 'var(--warning)' }}>{stats.documents.pending}</div>
+                            <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.4rem' }}>
+                                {stats.documents.pending > 0 ? 'Requires attention' : 'Queue is clear'}
+                            </div>
                         </div>
-                        <div className="summary-card" style={{ borderLeftColor: 'var(--success)' }} onClick={() => navigate('/documents?status=Approved')}>
-                            <div className="label">Approved Documents</div>
+                        <div className="summary-card" onClick={() => navigate('/documents?status=Approved')}>
+                            <div className="label">Approved ✓</div>
                             <div className="value" style={{ color: 'var(--success)' }}>{stats.documents.approved}</div>
+                            <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.4rem' }}>On track</div>
                         </div>
-                        <div className="summary-card" style={{ borderLeftColor: 'var(--danger)' }} onClick={() => navigate('/documents?status=Rejected')}>
-                            <div className="label">Rejected Documents</div>
+                        <div className="summary-card" onClick={() => navigate('/documents?status=Rejected')}>
+                            <div className="label">Rejected ⊘</div>
                             <div className="value" style={{ color: 'var(--danger)' }}>{stats.documents.rejected}</div>
+                            <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.4rem' }}>
+                                {stats.documents.rejected > 0 ? 'Action needed' : 'None rejected'}
+                            </div>
                         </div>
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '1.25rem', alignItems: 'start'}}>
+                    <div className="dashboard-grid">
                         {/* Left column */}
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem'}}>
                             {/* Pending approval table */}

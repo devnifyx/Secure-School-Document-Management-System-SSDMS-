@@ -69,55 +69,86 @@ const Layout: React.FC<LayoutProps> = ({ children, title, subtitle, actions }) =
     const isActive = (path: string) =>
         path === '/' ? location.pathname === '/' : location.pathname.startsWith(path);
 
-    const navGroups: Array<{ label?: string; items: Array<{ label: string; path: string; icon: string }> }> = [
-        {
-            items: [
-                { label: 'Dashboard', path: '/', icon: '▤' },
-            ],
-        },
-        {
-            label: 'Documents',
-            items: isAdmin
-                ? [
-                    { label: 'Document Repository', path: '/documents', icon: '▥' },
-                    { label: 'Search Documents', path: '/search', icon: '⌕' },
-                    { label: 'Approval Queue', path: '/approvals', icon: '☑' },
-                ]
-                : [
-                    { label: 'Upload Document', path: '/upload', icon: '⤒' },
-                    { label: 'Document Repository', path: '/documents', icon: '▥' },
-                    { label: 'Search Documents', path: '/search', icon: '⌕' },
-                ],
-        },
-        ...(isAdmin ? [{
-            label: 'Administration',
-            items: [
-                { label: 'User Management', path: '/users', icon: '⚇' },
-                { label: 'Audit Logs', path: '/audit-logs', icon: '▦' },
-            ],
-        }] : []),
-        {
-            label: 'Account',
-            items: [
-                { label: 'Notifications', path: '/notifications', icon: '◔' },
-                { label: 'Settings', path: '/settings', icon: '⚙' },
-            ],
-        },
-    ];
+    const navItems: Array<{ label: string; path: string; icon: string }> = isAdmin
+        ? [
+            { label: 'Dashboard', path: '/', icon: '▤' },
+            { label: 'Repository', path: '/documents', icon: '🗀' },
+            { label: 'Search', path: '/search', icon: '⌕' },
+            { label: 'Approval Queue', path: '/approvals', icon: '☰' },
+            { label: 'User Management', path: '/users', icon: '⚇' },
+            { label: 'Audit Logs', path: '/audit-logs', icon: '↺' },
+            { label: 'Notifications', path: '/notifications', icon: '◔' },
+        ]
+        : [
+            { label: 'Dashboard', path: '/', icon: '▤' },
+            { label: 'Repository', path: '/documents', icon: '🗀' },
+            { label: 'Search', path: '/search', icon: '⌕' },
+            { label: 'Notifications', path: '/notifications', icon: '◔' },
+        ];
 
     return (
         <div className="app-shell">
-            {/* Top bar */}
-            <header className="topbar">
-                <div className="topbar-brand" onClick={() => navigate('/')}>
-                    <div className="topbar-brand-mark">🏫</div>
-                    <div className="topbar-title">
-                        <span>SSDMS</span>
-                        <small>Secure School Document Mgmt.</small>
+            {/* Sidebar */}
+            <nav className="sidebar">
+                <div className="sidebar-brand" onClick={() => navigate('/')}>
+                    <div className="card-icon">
+                        <img
+                            src="/SSDMSLogo.png"
+                            alt="SSDMS Logo"
+                            style={{
+                                width: "40px",
+                                height: "40px",
+                                objectFit: "cover",
+                                borderRadius: "8px", // Rounded corners
+                            }}
+                            />
+                    </div>
+                    <div className="sidebar-brand-text">
+                        <div className="name">SSDMS {isAdmin ? 'Admin' : ''}</div>
+                        <div className="sub">Academic Document System</div>
                     </div>
                 </div>
 
-                <div className="topbar-right">
+                {!isAdmin && (
+                    <button className="sidebar-upload-btn" onClick={() => navigate('/upload')} title="Upload Document">
+                        <span className="icon">⤒</span>
+                        <span className="label">Upload Document</span>
+                    </button>
+                )}
+
+                <div className="sidebar-nav">
+                    {navItems.map((item) => (
+                        <div
+                            key={item.path}
+                            className={`sidebar-link ${isActive(item.path) ? 'active' : ''}`}
+                            onClick={() => navigate(item.path)}
+                            title={item.label}
+                        >
+                            <span className="icon">{item.icon}</span>
+                            <span className="label">{item.label}</span>
+                        </div>
+                    ))}
+                </div>
+
+                <div className="sidebar-footer">
+                    <div
+                        className={`sidebar-link ${isActive('/settings') ? 'active' : ''}`}
+                        onClick={() => navigate('/settings')}
+                        title="Settings"
+                    >
+                        <span className="icon">⚙</span>
+                        <span className="label">Settings</span>
+                    </div>
+                    <div className="sidebar-link" onClick={logout} title="Logout">
+                        <span className="icon">⎋</span>
+                        <span className="label">Logout</span>
+                    </div>
+                </div>
+            </nav>
+
+            {/* Topbar */}
+            <header className="topbar">
+                <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     {/* Notifications */}
                     <div ref={notifRef} style={{ position: 'relative' }}>
                         <button className="topbar-icon-btn" onClick={() => setShowNotifs((v) => !v)} title="Notifications">
@@ -128,16 +159,16 @@ const Layout: React.FC<LayoutProps> = ({ children, title, subtitle, actions }) =
                         </button>
                         {showNotifs && (
                             <div style={{
-                                position: 'absolute', right: 0, top: '2.6rem', width: '340px',
+                                position: 'absolute', right: 0, top: '2.8rem', width: '340px',
                                 background: '#fff', border: '1px solid var(--border)',
-                                borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-md)',
+                                borderRadius: '12px', boxShadow: 'var(--shadow-md)',
                                 maxHeight: '400px', overflowY: 'auto', zIndex: 200,
                             }}>
                                 <div style={{
                                     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                                    padding: '0.7rem 1rem', borderBottom: '1px solid var(--border)',
+                                    padding: '0.75rem 1rem', borderBottom: '1px solid var(--border)',
                                 }}>
-                                    <strong style={{ fontSize: '0.85rem', color: 'var(--navy)' }}>Notifications</strong>
+                                    <strong style={{ fontSize: '0.85rem', color: 'var(--text)' }}>Notifications</strong>
                                     <div style={{ display: 'flex', gap: '0.6rem' }}>
                                         {unreadCount > 0 && (
                                             <button className="btn-link" onClick={markAllRead}>Mark all read</button>
@@ -151,9 +182,9 @@ const Layout: React.FC<LayoutProps> = ({ children, title, subtitle, actions }) =
                                     </div>
                                 ) : notifications.map((n) => (
                                     <div key={n.id} onClick={() => !n.is_read && markOneRead(n.id)} style={{
-                                        padding: '0.65rem 1rem',
-                                        borderBottom: '1px solid #F0F1F3',
-                                        background: n.is_read ? '#fff' : '#F5F9FD',
+                                        padding: '0.7rem 1rem',
+                                        borderBottom: '1px solid #F3F4F6',
+                                        background: n.is_read ? '#fff' : 'var(--primary-soft)',
                                         cursor: n.is_read ? 'default' : 'pointer',
                                     }}>
                                         <div style={{ fontSize: '0.8rem', color: 'var(--text)' }}>{n.message}</div>
@@ -169,18 +200,17 @@ const Layout: React.FC<LayoutProps> = ({ children, title, subtitle, actions }) =
                     {/* User dropdown */}
                     <div ref={userRef} style={{ position: 'relative' }}>
                         <div className="topbar-user" onClick={() => setShowUserMenu((v) => !v)}>
-                            <div className="topbar-avatar">{user?.name?.charAt(0).toUpperCase()}</div>
-                            <div className="topbar-user-info">
+                            <div className="topbar-user-info" style={{ textAlign: 'right' }}>
                                 <div className="name">{user?.name}</div>
-                                <div className="role">{user?.role}</div>
+                                <div className="role">{user?.email}</div>
                             </div>
-                            <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.7rem' }}>▾</span>
+                            <div className="topbar-avatar">{user?.name?.charAt(0).toUpperCase()}</div>
                         </div>
                         {showUserMenu && (
                             <div style={{
-                                position: 'absolute', right: 0, top: '2.8rem', width: '200px',
+                                position: 'absolute', right: 0, top: '3rem', width: '200px',
                                 background: '#fff', border: '1px solid var(--border)',
-                                borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-md)',
+                                borderRadius: '12px', boxShadow: 'var(--shadow-md)',
                                 zIndex: 200, overflow: 'hidden',
                             }}>
                                 <button onClick={() => { setShowUserMenu(false); navigate('/settings'); }} style={dropdownItem}>
@@ -194,25 +224,6 @@ const Layout: React.FC<LayoutProps> = ({ children, title, subtitle, actions }) =
                     </div>
                 </div>
             </header>
-
-            {/* Sidebar */}
-            <nav className="sidebar">
-                {navGroups.map((group, gi) => (
-                    <div key={gi}>
-                        {group.label && <div className="sidebar-section-label">{group.label}</div>}
-                        {group.items.map((item) => (
-                            <div
-                                key={item.path}
-                                className={`sidebar-link ${isActive(item.path) ? 'active' : ''}`}
-                                onClick={() => navigate(item.path)}
-                            >
-                                <span className="icon">{item.icon}</span>
-                                {item.label}
-                            </div>
-                        ))}
-                    </div>
-                ))}
-            </nav>
 
             {/* Content */}
             <div className="content">
@@ -233,7 +244,7 @@ const Layout: React.FC<LayoutProps> = ({ children, title, subtitle, actions }) =
 
 const dropdownItem: React.CSSProperties = {
     display: 'block', width: '100%', textAlign: 'left',
-    padding: '0.65rem 1rem', background: 'none', border: 'none',
+    padding: '0.7rem 1rem', background: 'none', border: 'none',
     cursor: 'pointer', fontSize: '0.82rem', color: 'var(--text)',
 };
 

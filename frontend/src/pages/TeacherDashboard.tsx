@@ -51,20 +51,25 @@ const TeacherDashboard: React.FC = () => {
                 <>
                     <div className="summary-grid">
                         <div className="summary-card" onClick={() => navigate('/documents')}>
-                            <div className="label">Total Submitted</div>
+                            <div className="label">Total Submitted 🗎</div>
                             <div className="value">{stats.documents.total}</div>
                         </div>
-                        <div className="summary-card" style={{ borderLeftColor: 'var(--warning)' }} onClick={() => navigate('/documents?status=Pending')}>
-                            <div className="label">Pending Review</div>
+                        <div className="summary-card" onClick={() => navigate('/documents?status=Pending')}>
+                            <div className="label">Pending Review ◔</div>
                             <div className="value" style={{ color: 'var(--warning)' }}>{stats.documents.pending}</div>
+                            <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.4rem' }}>Awaiting admin review</div>
                         </div>
-                        <div className="summary-card" style={{ borderLeftColor: 'var(--success)' }} onClick={() => navigate('/documents?status=Approved')}>
-                            <div className="label">Approved</div>
+                        <div className="summary-card" onClick={() => navigate('/documents?status=Approved')}>
+                            <div className="label">Approved ✓</div>
                             <div className="value" style={{ color: 'var(--success)' }}>{stats.documents.approved}</div>
+                            <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.4rem' }}>Ready to download</div>
                         </div>
-                        <div className="summary-card" style={{ borderLeftColor: 'var(--danger)' }} onClick={() => navigate('/documents?status=Rejected')}>
-                            <div className="label">Rejected</div>
+                        <div className="summary-card" onClick={() => navigate('/documents?status=Rejected')}>
+                            <div className="label">Rejected ⊘</div>
                             <div className="value" style={{ color: 'var(--danger)' }}>{stats.documents.rejected}</div>
+                            <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.4rem' }}>
+                                {stats.documents.rejected > 0 ? 'Action needed' : 'None rejected'}
+                            </div>
                         </div>
                     </div>
 
