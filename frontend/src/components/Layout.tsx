@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import api from '../services/api';
 
-interface Notification {
+interface NotificationItem {
     id: number;
     message: string;
     is_read: boolean;
@@ -13,31 +13,22 @@ interface Notification {
 interface LayoutProps {
     children: React.ReactNode;
     title?: string;
+    subtitle?: string;
+    actions?: React.ReactNode;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children, title }) => {
+const Layout: React.FC<LayoutProps> = ({ children, title, subtitle, actions }) => {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
-    const [notifications, setNotifications] = useState<Notification[]>([]);
-    const [unreadCount, setUnreadCount] = useState(0);
-    const [showNotifs, setShowNotifs] = useState(false);
-    const bellRef = useRef<HTMLDivElement>(null);
-
     const isAdmin = user?.role === 'Admin';
 
-    const navLinks = isAdmin
-        ? [
-            { label: 'Dashboard',   path: '/',            icon: '📊' },
-            { label: 'Documents',   path: '/documents',   icon: '📁' },
-            { label: 'Users',       path: '/users',       icon: '👥' },
-            { label: 'Audit Logs',  path: '/audit-logs',  icon: '📋' },
-        ]
-        : [
-            { label: 'Dashboard',    path: '/',             icon: '🏠' },
-            { label: 'My Documents', path: '/documents',    icon: '📁' },
-            { label: 'Upload',       path: '/upload',       icon: '⬆️' },
-        ];
+    const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+    const [unreadCount, setUnreadCount] = useState(0);
+    const [showNotifs, setShowNotifs] = useState(false);
+    const [showUserMenu, setShowUserMenu] = useState(false);
+    const notifRef = useRef<HTMLDivElement>(null);
+    const userRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         fetchNotifications();
@@ -47,9 +38,8 @@ const Layout: React.FC<LayoutProps> = ({ children, title }) => {
 
     useEffect(() => {
         const handleClick = (e: MouseEvent) => {
-            if (bellRef.current && !bellRef.current.contains(e.target as Node)) {
-                setShowNotifs(false);
-            }
+            if (notifRef.current && !notifRef.current.contains(e.target as Node)) setShowNotifs(false);
+            if (userRef.current && !userRef.current.contains(e.target as Node)) setShowUserMenu(false);
         };
         document.addEventListener('mousedown', handleClick);
         return () => document.removeEventListener('mousedown', handleClick);
@@ -58,8 +48,8 @@ const Layout: React.FC<LayoutProps> = ({ children, title }) => {
     const fetchNotifications = async () => {
         try {
             const res = await api.get('/notifications');
-            const items: Notification[] = res.data.data;
-            setNotifications(items.slice(0, 15));
+            const items: NotificationItem[] = res.data.data;
+            setNotifications(items.slice(0, 8));
             setUnreadCount(items.filter((n) => !n.is_read).length);
         } catch { /* silent */ }
     };
@@ -79,276 +69,172 @@ const Layout: React.FC<LayoutProps> = ({ children, title }) => {
     const isActive = (path: string) =>
         path === '/' ? location.pathname === '/' : location.pathname.startsWith(path);
 
+    const navGroups: Array<{ label?: string; items: Array<{ label: string; path: string; icon: string }> }> = [
+        {
+            items: [
+                { label: 'Dashboard', path: '/', icon: '▤' },
+            ],
+        },
+        {
+            label: 'Documents',
+            items: isAdmin
+                ? [
+                    { label: 'Document Repository', path: '/documents', icon: '▥' },
+                    { label: 'Search Documents', path: '/search', icon: '⌕' },
+                    { label: 'Approval Queue', path: '/approvals', icon: '☑' },
+                ]
+                : [
+                    { label: 'Upload Document', path: '/upload', icon: '⤒' },
+                    { label: 'Document Repository', path: '/documents', icon: '▥' },
+                    { label: 'Search Documents', path: '/search', icon: '⌕' },
+                ],
+        },
+        ...(isAdmin ? [{
+            label: 'Administration',
+            items: [
+                { label: 'User Management', path: '/users', icon: '⚇' },
+                { label: 'Audit Logs', path: '/audit-logs', icon: '▦' },
+            ],
+        }] : []),
+        {
+            label: 'Account',
+            items: [
+                { label: 'Notifications', path: '/notifications', icon: '◔' },
+                { label: 'Settings', path: '/settings', icon: '⚙' },
+            ],
+        },
+    ];
+
     return (
-        <div style={{ minHeight: '100vh', background: '#f0f4f8', display: 'flex', flexDirection: 'column' }}>
-            {/* Sidebar + content layout */}
-            <div style={{ display: 'flex', minHeight: '100vh' }}>
-
-                {/* Sidebar */}
-                <aside style={{
-                    width: '220px',
-                    background: isAdmin
-                        ? 'linear-gradient(180deg, #1a2332 0%, #2c3e50 100%)'
-                        : 'linear-gradient(180deg, #1a6b3c 0%, #27ae60 100%)',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    height: '100vh',
-                    zIndex: 50,
-                    boxShadow: '2px 0 12px rgba(0,0,0,0.15)',
-                }}>
-                    {/* Logo area */}
-                    <div style={{
-                        padding: '1.5rem 1.25rem',
-                        borderBottom: 'rgba(255,255,255,0.12) 1px solid',
-                    }}>
-                        <div
-                            onClick={() => navigate('/')}
-                            style={{ cursor: 'pointer' }}
-                        >
-                            <div style={{ color: 'white', fontWeight: 800, fontSize: '1.1rem', letterSpacing: '0.5px' }}>
-                                📚 SSDMS
-                            </div>
-                            <div style={{ color: 'rgba(255,255,255,0.55)', fontSize: '0.7rem', marginTop: '2px' }}>
-                                Secure Document System
-                            </div>
-                        </div>
+        <div className="app-shell">
+            {/* Top bar */}
+            <header className="topbar">
+                <div className="topbar-brand" onClick={() => navigate('/')}>
+                    <div className="topbar-brand-mark">🏫</div>
+                    <div className="topbar-title">
+                        <span>SSDMS</span>
+                        <small>Secure School Document Mgmt.</small>
                     </div>
+                </div>
 
-                    {/* User info */}
-                    <div style={{
-                        padding: '1rem 1.25rem',
-                        borderBottom: 'rgba(255,255,255,0.12) 1px solid',
-                    }}>
-                        <div style={{
-                            width: '36px', height: '36px',
-                            borderRadius: '50%',
-                            background: 'rgba(255,255,255,0.2)',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            fontSize: '1rem', marginBottom: '0.5rem',
-                            color: 'white', fontWeight: 700,
-                        }}>
-                            {user?.name?.charAt(0).toUpperCase()}
-                        </div>
-                        <div style={{ color: 'white', fontSize: '0.875rem', fontWeight: 600 }}>{user?.name}</div>
-                        <div style={{
-                            display: 'inline-block',
-                            background: 'rgba(255,255,255,0.15)',
-                            color: 'rgba(255,255,255,0.85)',
-                            fontSize: '0.7rem',
-                            padding: '0.15rem 0.5rem',
-                            borderRadius: '20px',
-                            marginTop: '0.25rem',
-                            fontWeight: 500,
-                        }}>
-                            {user?.role}
-                        </div>
-                    </div>
-
-                    {/* Nav links */}
-                    <nav style={{ flex: 1, padding: '0.75rem 0.75rem' }}>
-                        {navLinks.map((link) => {
-                            const active = isActive(link.path);
-                            return (
-                                <button
-                                    key={link.path}
-                                    onClick={() => navigate(link.path)}
-                                    style={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '0.6rem',
-                                        width: '100%',
-                                        padding: '0.6rem 0.75rem',
-                                        borderRadius: '8px',
-                                        border: 'none',
-                                        background: active ? 'rgba(255,255,255,0.2)' : 'transparent',
-                                        color: active ? 'white' : 'rgba(255,255,255,0.65)',
-                                        fontSize: '0.875rem',
-                                        fontWeight: active ? 600 : 400,
-                                        cursor: 'pointer',
-                                        textAlign: 'left',
-                                        marginBottom: '0.25rem',
-                                        transition: 'all 0.15s',
-                                    }}
-                                    onMouseEnter={(e) => {
-                                        if (!active) (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.1)';
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        if (!active) (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
-                                    }}
-                                >
-                                    <span style={{ fontSize: '0.9rem' }}>{link.icon}</span>
-                                    {link.label}
-                                </button>
-                            );
-                        })}
-                    </nav>
-
-                    {/* Bottom: profile + notifications + logout */}
-                    <div style={{ padding: '0.75rem', borderTop: 'rgba(255,255,255,0.12) 1px solid' }}>
-                        <button
-                            onClick={() => navigate('/profile')}
-                            style={{
-                                display: 'flex', alignItems: 'center', gap: '0.6rem',
-                                width: '100%', padding: '0.6rem 0.75rem',
-                                borderRadius: '8px', border: 'none',
-                                background: isActive('/profile') ? 'rgba(255,255,255,0.2)' : 'transparent',
-                                color: isActive('/profile') ? 'white' : 'rgba(255,255,255,0.65)',
-                                fontSize: '0.875rem', cursor: 'pointer', textAlign: 'left',
-                                marginBottom: '0.25rem',
-                            }}
-                            onMouseEnter={(e) => { if (!isActive('/profile')) (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.1)'; }}
-                            onMouseLeave={(e) => { if (!isActive('/profile')) (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}
-                        >
-                            <span>👤</span> My Profile
+                <div className="topbar-right">
+                    {/* Notifications */}
+                    <div ref={notifRef} style={{ position: 'relative' }}>
+                        <button className="topbar-icon-btn" onClick={() => setShowNotifs((v) => !v)} title="Notifications">
+                            🔔
+                            {unreadCount > 0 && (
+                                <span className="topbar-badge">{unreadCount > 9 ? '9+' : unreadCount}</span>
+                            )}
                         </button>
-                        {/* Notification bell */}
-                        <div ref={bellRef} style={{ position: 'relative', marginBottom: '0.5rem' }}>
-                            <button
-                                onClick={() => setShowNotifs((v) => !v)}
-                                style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '0.6rem',
-                                    width: '100%',
-                                    padding: '0.6rem 0.75rem',
-                                    borderRadius: '8px',
-                                    border: 'none',
-                                    background: showNotifs ? 'rgba(255,255,255,0.2)' : 'transparent',
-                                    color: 'rgba(255,255,255,0.75)',
-                                    fontSize: '0.875rem',
-                                    cursor: 'pointer',
-                                    textAlign: 'left',
-                                }}
-                            >
-                                <span>🔔</span>
-                                <span>Notifications</span>
-                                {unreadCount > 0 && (
-                                    <span style={{
-                                        marginLeft: 'auto',
-                                        background: '#e74c3c',
-                                        color: 'white',
-                                        borderRadius: '20px',
-                                        padding: '0.1rem 0.45rem',
-                                        fontSize: '0.7rem',
-                                        fontWeight: 700,
-                                    }}>
-                                        {unreadCount > 9 ? '9+' : unreadCount}
-                                    </span>
-                                )}
-                            </button>
-
-                            {/* Notification dropdown - pops right */}
-                            {showNotifs && (
+                        {showNotifs && (
+                            <div style={{
+                                position: 'absolute', right: 0, top: '2.6rem', width: '340px',
+                                background: '#fff', border: '1px solid var(--border)',
+                                borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-md)',
+                                maxHeight: '400px', overflowY: 'auto', zIndex: 200,
+                            }}>
                                 <div style={{
-                                    position: 'fixed',
-                                    left: '228px',
-                                    bottom: '60px',
-                                    width: '320px',
-                                    background: 'white',
-                                    borderRadius: '10px',
-                                    boxShadow: '0 8px 30px rgba(0,0,0,0.18)',
-                                    maxHeight: '380px',
-                                    overflowY: 'auto',
-                                    zIndex: 200,
+                                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                                    padding: '0.7rem 1rem', borderBottom: '1px solid var(--border)',
                                 }}>
-                                    <div style={{
-                                        display: 'flex',
-                                        justifyContent: 'space-between',
-                                        alignItems: 'center',
-                                        padding: '0.75rem 1rem',
-                                        borderBottom: '1px solid #eee',
-                                        position: 'sticky',
-                                        top: 0,
-                                        background: 'white',
+                                    <strong style={{ fontSize: '0.85rem', color: 'var(--navy)' }}>Notifications</strong>
+                                    <div style={{ display: 'flex', gap: '0.6rem' }}>
+                                        {unreadCount > 0 && (
+                                            <button className="btn-link" onClick={markAllRead}>Mark all read</button>
+                                        )}
+                                        <button className="btn-link" onClick={() => { setShowNotifs(false); navigate('/notifications'); }}>View all</button>
+                                    </div>
+                                </div>
+                                {notifications.length === 0 ? (
+                                    <div style={{ padding: '1.75rem', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.82rem' }}>
+                                        No notifications
+                                    </div>
+                                ) : notifications.map((n) => (
+                                    <div key={n.id} onClick={() => !n.is_read && markOneRead(n.id)} style={{
+                                        padding: '0.65rem 1rem',
+                                        borderBottom: '1px solid #F0F1F3',
+                                        background: n.is_read ? '#fff' : '#F5F9FD',
+                                        cursor: n.is_read ? 'default' : 'pointer',
                                     }}>
-                                        <strong style={{ fontSize: '0.9rem', color: '#333' }}>Notifications</strong>
-                                        <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                            {unreadCount > 0 && (
-                                                <button onClick={markAllRead} style={{
-                                                    background: 'none', border: 'none',
-                                                    color: '#3498db', cursor: 'pointer', fontSize: '0.78rem',
-                                                }}>Mark all read</button>
-                                            )}
-                                            <button onClick={() => { setShowNotifs(false); navigate('/notifications'); }} style={{
-                                                background: 'none', border: 'none',
-                                                color: '#6b7280', cursor: 'pointer', fontSize: '0.78rem',
-                                            }}>View all</button>
+                                        <div style={{ fontSize: '0.8rem', color: 'var(--text)' }}>{n.message}</div>
+                                        <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
+                                            {new Date(n.created_at).toLocaleString()}
                                         </div>
                                     </div>
-                                    {notifications.length === 0 ? (
-                                        <div style={{ padding: '2rem', textAlign: 'center', color: '#aaa', fontSize: '0.875rem' }}>
-                                            No notifications yet
-                                        </div>
-                                    ) : notifications.map((n) => (
-                                        <div key={n.id} onClick={() => !n.is_read && markOneRead(n.id)}
-                                            style={{
-                                                padding: '0.75rem 1rem',
-                                                borderBottom: '1px solid #f5f5f5',
-                                                background: n.is_read ? 'white' : '#eff6ff',
-                                                cursor: n.is_read ? 'default' : 'pointer',
-                                            }}>
-                                            <div style={{ fontSize: '0.8rem', color: '#333', marginBottom: '0.2rem' }}>{n.message}</div>
-                                            <div style={{ fontSize: '0.72rem', color: '#aaa' }}>
-                                                {new Date(n.created_at).toLocaleString()}
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-
-                        <button
-                            onClick={logout}
-                            style={{
-                                display: 'flex', alignItems: 'center', gap: '0.6rem',
-                                width: '100%', padding: '0.6rem 0.75rem',
-                                borderRadius: '8px', border: 'none',
-                                background: 'transparent',
-                                color: 'rgba(255,255,255,0.65)',
-                                fontSize: '0.875rem', cursor: 'pointer', textAlign: 'left',
-                            }}
-                            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(231,76,60,0.3)'; }}
-                            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}
-                        >
-                            <span>🚪</span> Logout
-                        </button>
-                    </div>
-                </aside>
-
-                {/* Main content area */}
-                <div style={{ marginLeft: '220px', flex: 1, display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-                    {/* Top bar */}
-                    <header style={{
-                        background: 'white',
-                        padding: '0 2rem',
-                        height: '60px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
-                        position: 'sticky',
-                        top: 0,
-                        zIndex: 40,
-                    }}>
-                        {title && (
-                            <h1 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 700, color: '#2c3e50' }}>
-                                {title}
-                            </h1>
+                                ))}
+                            </div>
                         )}
-                        <div style={{ marginLeft: 'auto', color: '#999', fontSize: '0.8rem' }}>
-                            {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-                        </div>
-                    </header>
+                    </div>
 
-                    <main style={{ flex: 1, padding: '2rem' }}>
-                        {children}
-                    </main>
+                    {/* User dropdown */}
+                    <div ref={userRef} style={{ position: 'relative' }}>
+                        <div className="topbar-user" onClick={() => setShowUserMenu((v) => !v)}>
+                            <div className="topbar-avatar">{user?.name?.charAt(0).toUpperCase()}</div>
+                            <div className="topbar-user-info">
+                                <div className="name">{user?.name}</div>
+                                <div className="role">{user?.role}</div>
+                            </div>
+                            <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.7rem' }}>▾</span>
+                        </div>
+                        {showUserMenu && (
+                            <div style={{
+                                position: 'absolute', right: 0, top: '2.8rem', width: '200px',
+                                background: '#fff', border: '1px solid var(--border)',
+                                borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-md)',
+                                zIndex: 200, overflow: 'hidden',
+                            }}>
+                                <button onClick={() => { setShowUserMenu(false); navigate('/settings'); }} style={dropdownItem}>
+                                    ⚙ Account Settings
+                                </button>
+                                <button onClick={logout} style={{ ...dropdownItem, color: 'var(--danger)' }}>
+                                    ⎋ Log Out
+                                </button>
+                            </div>
+                        )}
+                    </div>
                 </div>
+            </header>
+
+            {/* Sidebar */}
+            <nav className="sidebar">
+                {navGroups.map((group, gi) => (
+                    <div key={gi}>
+                        {group.label && <div className="sidebar-section-label">{group.label}</div>}
+                        {group.items.map((item) => (
+                            <div
+                                key={item.path}
+                                className={`sidebar-link ${isActive(item.path) ? 'active' : ''}`}
+                                onClick={() => navigate(item.path)}
+                            >
+                                <span className="icon">{item.icon}</span>
+                                {item.label}
+                            </div>
+                        ))}
+                    </div>
+                ))}
+            </nav>
+
+            {/* Content */}
+            <div className="content">
+                {(title || actions) && (
+                    <div className="page-header">
+                        <div>
+                            {title && <div className="page-title">{title}</div>}
+                            {subtitle && <div className="page-subtitle">{subtitle}</div>}
+                        </div>
+                        {actions && <div>{actions}</div>}
+                    </div>
+                )}
+                {children}
             </div>
         </div>
     );
+};
+
+const dropdownItem: React.CSSProperties = {
+    display: 'block', width: '100%', textAlign: 'left',
+    padding: '0.65rem 1rem', background: 'none', border: 'none',
+    cursor: 'pointer', fontSize: '0.82rem', color: 'var(--text)',
 };
 
 export default Layout;

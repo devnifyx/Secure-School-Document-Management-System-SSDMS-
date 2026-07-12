@@ -5,11 +5,13 @@ import Login from './pages/Login';
 import AdminDashboard from './pages/AdminDashboard';
 import TeacherDashboard from './pages/TeacherDashboard';
 import DocumentUpload from './pages/DocumentUpload';
-import DocumentList from './pages/DocumentList';
+import DocumentRepository from './pages/DocumentRepository';
+import SearchDocuments from './pages/SearchDocuments';
+import ApprovalQueue from './pages/ApprovalQueue';
 import UserManagement from './pages/UserManagement';
 import AuditLogs from './pages/AuditLogs';
 import Notifications from './pages/Notifications';
-import Profile from './pages/Profile';
+import Settings from './pages/Settings';
 import ProtectedRoute from './components/ProtectedRoute';
 
 const AppRoutes: React.FC = () => {
@@ -27,13 +29,25 @@ const AppRoutes: React.FC = () => {
 
             <Route path="/documents" element={
                 <ProtectedRoute>
-                    <DocumentList />
+                    <DocumentRepository />
+                </ProtectedRoute>
+            } />
+
+            <Route path="/search" element={
+                <ProtectedRoute>
+                    <SearchDocuments />
                 </ProtectedRoute>
             } />
 
             <Route path="/upload" element={
-                <ProtectedRoute>
+                <ProtectedRoute requiredRole="Teacher">
                     <DocumentUpload />
+                </ProtectedRoute>
+            } />
+
+            <Route path="/approvals" element={
+                <ProtectedRoute requiredRole="Admin">
+                    <ApprovalQueue />
                 </ProtectedRoute>
             } />
 
@@ -55,9 +69,9 @@ const AppRoutes: React.FC = () => {
                 </ProtectedRoute>
             } />
 
-            <Route path="/profile" element={
+            <Route path="/settings" element={
                 <ProtectedRoute>
-                    <Profile />
+                    <Settings />
                 </ProtectedRoute>
             } />
 

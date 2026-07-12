@@ -19,6 +19,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Documents
     Route::apiResource('documents', \App\Http\Controllers\DocumentController::class);
     Route::get('documents/{document}/download', [\App\Http\Controllers\DocumentController::class, 'download']);
+    Route::get('documents/{document}/preview', [\App\Http\Controllers\DocumentController::class, 'preview']);
     Route::post('documents/{document}/approve', [\App\Http\Controllers\DocumentController::class, 'approve'])->middleware('role:Admin');
     Route::post('documents/{document}/reject', [\App\Http\Controllers\DocumentController::class, 'reject'])->middleware('role:Admin');
     Route::post('documents/{document}/verify', [\App\Http\Controllers\DocumentController::class, 'verify'])->middleware('role:Admin');

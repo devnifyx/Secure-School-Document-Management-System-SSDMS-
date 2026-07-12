@@ -2,11 +2,11 @@
 
 use App\Models\AuditLog;
 
-function logAudit(string $action, ?string $entityType = null, ?int $entityId = null, ?string $details = null): void
+function logAudit(string $action, ?string $entityType = null, ?int $entityId = null, ?string $details = null, ?int $actorId = null): void
 {
-    $user = auth()->user();
+    $userId = $actorId ?? auth()->id();
     AuditLog::create([
-        'user_id' => $user?->id,
+        'user_id' => $userId,
         'action' => $action,
         'entity_type' => $entityType,
         'entity_id' => $entityId,

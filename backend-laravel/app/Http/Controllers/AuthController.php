@@ -27,7 +27,7 @@ class AuthController extends Controller
                         $user->update(['locked_until' => now()->addMinutes(15)]);
                     }
                 }
-                logAudit('LOGIN_FAILED', 'User', $user->id, 'Failed login attempt');
+                logAudit('LOGIN_FAILED', 'User', $user->id, 'Failed login attempt', $user->id);
             } else {
                 logAudit('LOGIN_FAILED', null, null, "Failed login attempt for email: {$request->email}");
             }
@@ -38,7 +38,7 @@ class AuthController extends Controller
 
         // Check if account is locked (Admin accounts are never locked)
         if ($user->role !== 'Admin' && $user->locked_until && $user->locked_until->isFuture()) {
-            logAudit('LOGIN_FAILED_LOCKED', 'User', $user->id, 'Account locked');
+            logAudit('LOGIN_FAILED_LOCKED', 'User', $user->id, 'Account locked', $user->id);
             $minutes = (int) now()->diffInMinutes($user->locked_until, true);
             throw ValidationException::withMessages([
                 'email' => ["Your account is locked. Try again in {$minutes} minute(s)."],
@@ -47,7 +47,7 @@ class AuthController extends Controller
 
         // Check if account is active
         if (!$user->is_active) {
-            logAudit('LOGIN_FAILED_INACTIVE', 'User', $user->id, 'Account inactive');
+            logAudit('LOGIN_FAILED_INACTIVE', 'User', $user->id, 'Account inactive', $user->id);
             throw ValidationException::withMessages([
                 'email' => ['Your account is inactive.'],
             ]);
@@ -59,7 +59,7 @@ class AuthController extends Controller
         // Create token
         $token = $user->createToken('auth-token')->plainTextToken;
 
-        logAudit('LOGIN_SUCCESS', 'User', $user->id);
+        logAudit('LOGIN_SUCCESS', 'User', $user->id, null, $user->id);
 
         return response()->json([
             'user' => $user,

@@ -27,8 +27,23 @@ class DocumentController extends Controller
             $query->where('category', $request->category);
         }
 
-        if ($request->has('search')) {
-            $query->where('title', 'like', '%' . $request->search . '%');
+        if ($request->has('search') && $request->search !== '') {
+            $query->where(function ($q) use ($request) {
+                $q->where('title', 'like', '%' . $request->search . '%')
+                  ->orWhere('description', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        if ($request->has('tag') && $request->tag !== '') {
+            $query->where('tags', 'like', '%"' . $request->tag . '"%');
+        }
+
+        if ($request->has('date_from') && $request->date_from !== '') {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+
+        if ($request->has('date_to') && $request->date_to !== '') {
+            $query->whereDate('created_at', '<=', $request->date_to);
         }
 
         $documents = $query->orderBy('created_at', 'desc')->paginate(20);
@@ -39,6 +54,7 @@ class DocumentController extends Controller
     {
         $request->validate([
             'title' => 'required|string|max:255',
+            'description' => 'nullable|string|max:2000',
             'file' => 'required|file|max:10240', // 10MB
             'category' => 'required|string|max:100',
             'tags' => 'nullable|array',
@@ -69,6 +85,7 @@ class DocumentController extends Controller
         // Create document record
         $document = Document::create([
             'title'         => $request->title,
+            'description'   => $request->description,
             'file_path'     => 'documents/' . $fileName,
             'file_name'     => $file->getClientOriginalName(),
             'file_type'     => $file->getMimeType(),
@@ -143,6 +160,42 @@ class DocumentController extends Controller
         );
     }
 
+    public function preview($id)
+    {
+        $user = request()->user();
+        $document = Document::findOrFail($id);
+
+        if ($user->role === 'Teacher' && $document->uploaded_by !== $user->id) {
+            abort(403, 'Unauthorized');
+        }
+
+        if ($document->status !== 'Approved' && $user->role === 'Teacher') {
+            abort(403, 'Document not approved yet');
+        }
+
+        // Decrypt the file
+        $encryptedContent = Storage::disk('local')->get($document->file_path);
+        $key = base64_decode($document->encrypted_key);
+        $ivLength = openssl_cipher_iv_length('aes-256-cbc');
+        $iv = substr($encryptedContent, 0, $ivLength);
+        $encryptedData = substr($encryptedContent, $ivLength);
+        $decryptedContent = openssl_decrypt($encryptedData, 'aes-256-cbc', $key, OPENSSL_RAW_DATA, $iv);
+
+        logAudit('DOCUMENT_PREVIEWED', 'Document', $document->id);
+
+        // Stream inline so the browser renders it (PDF/JPG/PNG) instead of downloading
+        return response()->streamDownload(
+            function () use ($decryptedContent) {
+                echo $decryptedContent;
+            },
+            $document->file_name,
+            [
+                'Content-Type' => $document->file_type,
+            ],
+            'inline'
+        );
+    }
+
     public function update(Request $request, $id)
     {
         $user = $request->user();
@@ -158,13 +211,14 @@ class DocumentController extends Controller
         }
 
         $request->validate([
-            'title'    => 'string|max:255',
-            'category' => 'string|max:100',
-            'tags'     => 'nullable|array',
-            'file'     => 'nullable|file|max:10240',
+            'title'       => 'string|max:255',
+            'description' => 'nullable|string|max:2000',
+            'category'    => 'string|max:100',
+            'tags'        => 'nullable|array',
+            'file'        => 'nullable|file|max:10240',
         ]);
 
-        $document->update($request->only(['title', 'category', 'tags']));
+        $document->update($request->only(['title', 'description', 'category', 'tags']));
 
         // Handle new file upload (replace encrypted file)
         if ($request->hasFile('file')) {

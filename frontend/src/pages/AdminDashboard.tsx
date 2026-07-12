@@ -11,153 +11,169 @@ interface Stats {
         id: number;
         action: string;
         entity_type: string | null;
-        entity_id: number | null;
         details: string | null;
-        ip_address: string | null;
         created_at: string;
         user: { id: number; name: string } | null;
     }>;
 }
 
-const ACTION_COLORS: Record<string, { bg: string; color: string }> = {
-    LOGIN_SUCCESS:        { bg: '#ecfdf5', color: '#059669' },
-    LOGOUT:              { bg: '#f3f4f6', color: '#6b7280' },
-    LOGIN_FAILED:        { bg: '#fef2f2', color: '#dc2626' },
-    ACCOUNT_LOCKED:      { bg: '#fef2f2', color: '#dc2626' },
-    DOCUMENT_UPLOADED:   { bg: '#eff6ff', color: '#3b82f6' },
-    DOCUMENT_APPROVED:   { bg: '#ecfdf5', color: '#059669' },
-    DOCUMENT_REJECTED:   { bg: '#fef2f2', color: '#dc2626' },
-    DOCUMENT_DOWNLOADED: { bg: '#eff6ff', color: '#2563eb' },
-    USER_CREATED:        { bg: '#f5f3ff', color: '#7c3aed' },
-    USER_UPDATED:        { bg: '#fdf4ff', color: '#9333ea' },
-    USER_DELETED:        { bg: '#fef2f2', color: '#dc2626' },
+interface PendingDoc {
+    id: number;
+    title: string;
+    category: string;
+    created_at: string;
+    uploaded_by: { name: string };
+}
+
+const actionBadge = (action: string): { cls: string } => {
+    if (action.includes('FAILED') || action.includes('REJECTED') || action.includes('DELETED') || action.includes('LOCKED')) return { cls: 'badge-danger' };
+    if (action.includes('APPROVED') || action.includes('SUCCESS') || action.includes('PASSED')) return { cls: 'badge-success' };
+    if (action.includes('UPLOADED') || action.includes('CREATED')) return { cls: 'badge-info' };
+    return { cls: 'badge-neutral' };
 };
 
 const AdminDashboard: React.FC = () => {
     const [stats, setStats] = useState<Stats | null>(null);
+    const [pending, setPending] = useState<PendingDoc[]>([]);
     const [loading, setLoading] = useState(true);
     const { user } = useAuth();
     const navigate = useNavigate();
 
     useEffect(() => {
-        api.get('/dashboard/stats')
-            .then((res) => setStats(res.data))
-            .catch(console.error)
-            .finally(() => setLoading(false));
+        Promise.all([
+            api.get('/dashboard/stats'),
+            api.get('/documents', { params: { status: 'Pending', page: 1 } }),
+        ]).then(([statsRes, docsRes]) => {
+            setStats(statsRes.data);
+            setPending(docsRes.data.data.slice(0, 6));
+        }).catch(console.error).finally(() => setLoading(false));
     }, []);
 
-    const docCards = stats ? [
-        { label: 'Pending Approvals', value: stats.documents.pending, color: '#f59e0b', bg: '#fffbeb', border: '#fde68a', icon: '⏳', path: '/documents?status=Pending' },
-        { label: 'Approved',          value: stats.documents.approved, color: '#10b981', bg: '#ecfdf5', border: '#a7f3d0', icon: '✅', path: '/documents?status=Approved' },
-        { label: 'Rejected',          value: stats.documents.rejected, color: '#ef4444', bg: '#fef2f2', border: '#fecaca', icon: '❌', path: '/documents?status=Rejected' },
-        { label: 'Total Documents',   value: stats.documents.total,    color: '#3b82f6', bg: '#eff6ff', border: '#bfdbfe', icon: '📄', path: '/documents' },
-        { label: 'Active Users',      value: stats.users.active,       color: '#8b5cf6', bg: '#f5f3ff', border: '#ddd6fe', icon: '👥', path: '/users' },
-        { label: 'Total Users',       value: stats.users.total,        color: '#6366f1', bg: '#eef2ff', border: '#c7d2fe', icon: '🧑‍💼', path: '/users' },
-    ] : [];
-
     return (
-        <Layout title={`Admin Dashboard`}>
-            {loading ? (
-                <div style={{ textAlign: 'center', padding: '4rem', color: '#9ca3af' }}>
-                    <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>⏳</div>Loading…
-                </div>
-            ) : stats ? (
+        <Layout title="Dashboard" subtitle={`Welcome back, ${user?.name}`}>
+            {loading || !stats ? (
+                <div className="empty-state"><div className="icon">⏳</div>Loading dashboard…</div>
+            ) : (
                 <>
-                    <div style={{ marginBottom: '0.5rem', color: '#6b7280', fontSize: '0.85rem' }}>
-                        Welcome back, <strong>{user?.name}</strong>
-                    </div>
-
-                    {/* Stat cards */}
-                    <div style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))',
-                        gap: '1rem', marginBottom: '2rem',
-                    }}>
-                        {docCards.map((card) => (
-                            <div key={card.label} onClick={() => navigate(card.path)}
-                                style={{
-                                    background: card.bg, border: `1px solid ${card.border}`,
-                                    borderRadius: '12px', padding: '1.25rem',
-                                    cursor: 'pointer', transition: 'transform 0.15s, box-shadow 0.15s',
-                                }}
-                                onMouseEnter={(e) => {
-                                    (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-3px)';
-                                    (e.currentTarget as HTMLDivElement).style.boxShadow = '0 6px 20px rgba(0,0,0,0.1)';
-                                }}
-                                onMouseLeave={(e) => {
-                                    (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)';
-                                    (e.currentTarget as HTMLDivElement).style.boxShadow = 'none';
-                                }}
-                            >
-                                <div style={{ fontSize: '1.4rem', marginBottom: '0.5rem' }}>{card.icon}</div>
-                                <div style={{ fontSize: '2rem', fontWeight: 800, color: card.color, lineHeight: 1 }}>{card.value}</div>
-                                <div style={{ fontSize: '0.78rem', fontWeight: 600, color: '#374151', marginTop: '0.3rem' }}>{card.label}</div>
-                            </div>
-                        ))}
-                    </div>
-
-                    {/* Recent audit logs */}
-                    <div style={{ background: 'white', borderRadius: '12px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', overflow: 'hidden' }}>
-                        <div style={{
-                            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                            padding: '1rem 1.5rem', borderBottom: '1px solid #f3f4f6',
-                        }}>
-                            <h3 style={{ margin: 0, color: '#1f2937', fontSize: '0.95rem', fontWeight: 700 }}>
-                                📋 Recent Activity
-                            </h3>
-                            <button onClick={() => navigate('/audit-logs')} style={{
-                                background: 'none', border: 'none', color: '#3b82f6', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 500,
-                            }}>View all →</button>
+                    {/* Summary cards */}
+                    <div className="summary-grid">
+                        <div className="summary-card" onClick={() => navigate('/documents')}>
+                            <div className="label">Total Documents</div>
+                            <div className="value">{stats.documents.total}</div>
                         </div>
+                        <div className="summary-card" style={{ borderLeftColor: 'var(--warning)' }} onClick={() => navigate('/approvals')}>
+                            <div className="label">Pending Approval</div>
+                            <div className="value" style={{ color: 'var(--warning)' }}>{stats.documents.pending}</div>
+                        </div>
+                        <div className="summary-card" style={{ borderLeftColor: 'var(--success)' }} onClick={() => navigate('/documents?status=Approved')}>
+                            <div className="label">Approved Documents</div>
+                            <div className="value" style={{ color: 'var(--success)' }}>{stats.documents.approved}</div>
+                        </div>
+                        <div className="summary-card" style={{ borderLeftColor: 'var(--danger)' }} onClick={() => navigate('/documents?status=Rejected')}>
+                            <div className="label">Rejected Documents</div>
+                            <div className="value" style={{ color: 'var(--danger)' }}>{stats.documents.rejected}</div>
+                        </div>
+                    </div>
 
-                        {stats.recent_audit_logs.length === 0 ? (
-                            <div style={{ padding: '2.5rem', textAlign: 'center', color: '#9ca3af' }}>No activity yet</div>
-                        ) : (
-                            <div style={{ overflowX: 'auto' }}>
-                                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.825rem' }}>
-                                    <thead>
-                                        <tr style={{ background: '#f9fafb' }}>
-                                            {['Time', 'User', 'Action', 'Details'].map((h) => (
-                                                <th key={h} style={{
-                                                    padding: '0.65rem 1rem', textAlign: 'left',
-                                                    color: '#6b7280', fontWeight: 600, borderBottom: '1px solid #f3f4f6',
-                                                    whiteSpace: 'nowrap',
-                                                }}>{h}</th>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '1.25rem', alignItems: 'start'}}>
+                        {/* Left column */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem'}}>
+                            {/* Pending approval table */}
+                            <div className="panel">
+                                <div className="panel-header">
+                                    <h3>Pending Approval Queue</h3>
+                                    <button className="btn-link" onClick={() => navigate('/approvals')}>View all →</button>
+                                </div>
+                                <div className="table-wrap">
+                                    <table className="data-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Document Name</th>
+                                                <th>Category</th>
+                                                <th>Uploaded By</th>
+                                                <th>Submitted</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {pending.length === 0 ? (
+                                                <tr><td colSpan={4} className="table-empty">No documents awaiting approval</td></tr>
+                                            ) : pending.map((d) => (
+                                                <tr key={d.id}>
+                                                    <td style={{ fontWeight: 600 }}>{d.title}</td>
+                                                    <td>{d.category}</td>
+                                                    <td>{d.uploaded_by.name}</td>
+                                                    <td>{new Date(d.created_at).toLocaleDateString()}</td>
+                                                </tr>
                                             ))}
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {stats.recent_audit_logs.map((log) => {
-                                            const ac = ACTION_COLORS[log.action] ?? { bg: '#f3f4f6', color: '#374151' };
-                                            return (
-                                                <tr key={log.id} style={{ borderBottom: '1px solid #f9fafb' }}>
-                                                    <td style={{ padding: '0.7rem 1rem', color: '#9ca3af', whiteSpace: 'nowrap' }}>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            {/* Recent activity */}
+                            <div className="panel">
+                                <div className="panel-header">
+                                    <h3>Recent Activities</h3>
+                                    <button className="btn-link" onClick={() => navigate('/audit-logs')}>View all →</button>
+                                </div>
+                                <div className="table-wrap">
+                                    <table className="data-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Time</th>
+                                                <th>User</th>
+                                                <th>Action</th>
+                                                <th>Details</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {stats.recent_audit_logs.length === 0 ? (
+                                                <tr><td colSpan={4} className="table-empty">No activity yet</td></tr>
+                                            ) : stats.recent_audit_logs.map((log) => (
+                                                <tr key={log.id}>
+                                                    <td style={{ color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
                                                         {new Date(log.created_at).toLocaleString()}
                                                     </td>
-                                                    <td style={{ padding: '0.7rem 1rem', color: '#374151', fontWeight: 500 }}>
-                                                        {log.user?.name ?? <em style={{ color: '#aaa' }}>System</em>}
-                                                    </td>
-                                                    <td style={{ padding: '0.7rem 1rem' }}>
-                                                        <span style={{
-                                                            background: ac.bg, color: ac.color,
-                                                            padding: '0.2rem 0.55rem', borderRadius: '4px',
-                                                            fontSize: '0.72rem', fontFamily: 'monospace', fontWeight: 700,
-                                                        }}>{log.action}</span>
-                                                    </td>
-                                                    <td style={{ padding: '0.7rem 1rem', color: '#6b7280', maxWidth: '300px' }}>
-                                                        {log.details ?? '—'}
-                                                    </td>
+                                                    <td>{log.user?.name ?? <em>System</em>}</td>
+                                                    <td><span className={`badge ${actionBadge(log.action).cls}`}>{log.action}</span></td>
+                                                    <td style={{ color: 'var(--text-secondary)', maxWidth: '260px' }}>{log.details ?? '—'}</td>
                                                 </tr>
-                                            );
-                                        })}
-                                    </tbody>
-                                </table>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
-                        )}
+                        </div>
+
+                        {/* Right column */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem'}}>
+                            <div className="panel">
+                                <div className="panel-header"><h3>User Overview</h3></div>
+                                <div className="panel-body">
+                                    <div className="detail-grid">
+                                        <dt>Total Users</dt><dd>{stats.users.total}</dd>
+                                        <dt>Active Users</dt><dd style={{ color: 'var(--success)', fontWeight: 700 }}>{stats.users.active}</dd>
+                                        <dt>Inactive</dt><dd>{stats.users.total - stats.users.active}</dd>
+                                    </div>
+                                    <button className="btn btn-secondary btn-sm" style={{ marginTop: '1rem', width: '100%' }} onClick={() => navigate('/users')}>
+                                        Manage Users
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="panel">
+                                <div className="panel-header"><h3>System Status</h3></div>
+                                <div className="panel-body">
+                                    <div className="detail-grid">
+                                        <dt>Encryption</dt><dd><span className="badge badge-success">AES-256 Active</span></dd>
+                                        <dt>Session Policy</dt><dd>8-hour expiry</dd>
+                                        <dt>Lockout Policy</dt><dd>3 attempts / 15 min</dd>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </>
-            ) : (
-                <div style={{ color: '#ef4444' }}>Failed to load dashboard data.</div>
             )}
         </Layout>
     );
