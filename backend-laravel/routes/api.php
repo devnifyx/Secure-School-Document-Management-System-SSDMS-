@@ -21,9 +21,18 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('documents/{document}/download', [\App\Http\Controllers\DocumentController::class, 'download']);
     Route::post('documents/{document}/approve', [\App\Http\Controllers\DocumentController::class, 'approve'])->middleware('role:Admin');
     Route::post('documents/{document}/reject', [\App\Http\Controllers\DocumentController::class, 'reject'])->middleware('role:Admin');
+    Route::post('documents/{document}/verify', [\App\Http\Controllers\DocumentController::class, 'verify'])->middleware('role:Admin');
     
+    // Dashboard stats
+    Route::get('dashboard/stats', [\App\Http\Controllers\DashboardController::class, 'stats']);
+
+    // Profile
+    Route::get('profile', [\App\Http\Controllers\ProfileController::class, 'show']);
+    Route::put('profile', [\App\Http\Controllers\ProfileController::class, 'update']);
+
     // Audit logs (Admin only)
     Route::get('audit-logs', [\App\Http\Controllers\AuditLogController::class, 'index'])->middleware('role:Admin');
+    Route::get('audit-logs/export', [\App\Http\Controllers\AuditLogController::class, 'export'])->middleware('role:Admin');
     
     // Notifications
     Route::get('notifications', [\App\Http\Controllers\NotificationController::class, 'index']);

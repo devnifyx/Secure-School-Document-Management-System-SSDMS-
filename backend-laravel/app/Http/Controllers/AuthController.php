@@ -19,12 +19,13 @@ class AuthController extends Controller
         $user = User::where('email', $request->email)->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
-            // Increment failed attempts
             if ($user) {
-                $user->increment('failed_attempts');
-                // Lock account after 3 failed attempts
-                if ($user->failed_attempts >= 3) {
-                    $user->update(['locked_until' => now()->addMinutes(15)]);
+                // Admin accounts are never locked out
+                if ($user->role !== 'Admin') {
+                    $user->increment('failed_attempts');
+                    if ($user->failed_attempts >= 3) {
+                        $user->update(['locked_until' => now()->addMinutes(15)]);
+                    }
                 }
                 logAudit('LOGIN_FAILED', 'User', $user->id, 'Failed login attempt');
             } else {
@@ -35,11 +36,12 @@ class AuthController extends Controller
             ]);
         }
 
-        // Check if account is locked
-        if ($user->locked_until && $user->locked_until->isFuture()) {
+        // Check if account is locked (Admin accounts are never locked)
+        if ($user->role !== 'Admin' && $user->locked_until && $user->locked_until->isFuture()) {
             logAudit('LOGIN_FAILED_LOCKED', 'User', $user->id, 'Account locked');
+            $minutes = (int) now()->diffInMinutes($user->locked_until, true);
             throw ValidationException::withMessages([
-                'email' => ['Your account is locked. Please try again later.'],
+                'email' => ["Your account is locked. Try again in {$minutes} minute(s)."],
             ]);
         }
 

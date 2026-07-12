@@ -31,6 +31,8 @@ class UserController extends Controller
             'is_active' => true,
         ]);
 
+        logAudit('USER_CREATED', 'User', $user->id, "Created user: {$user->name} ({$user->role})");
+
         return response()->json($user, 201);
     }
 
@@ -57,12 +59,20 @@ class UserController extends Controller
             $user->update(['password' => Hash::make($request->password)]);
         }
 
+        // Immediately revoke all tokens when account is deactivated
+        if ($request->has('is_active') && !$request->boolean('is_active')) {
+            $user->tokens()->delete();
+        }
+
+        logAudit('USER_UPDATED', 'User', $user->id, "Updated user: {$user->name}");
+
         return response()->json($user);
     }
 
     public function destroy($id)
     {
         $user = User::findOrFail($id);
+        logAudit('USER_DELETED', 'User', $user->id, "Deleted user: {$user->name}");
         $user->delete();
         return response()->json(null, 204);
     }

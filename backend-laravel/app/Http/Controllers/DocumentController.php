@@ -53,7 +53,10 @@ class DocumentController extends Controller
         // Upload and encrypt file
         $file = $request->file('file');
         $fileContent = $file->get();
-        
+
+        // Hash the original plaintext for future integrity checks
+        $fileHash = hash('sha256', $fileContent);
+
         // Encrypt the file content
         $iv = random_bytes(openssl_cipher_iv_length('aes-256-cbc'));
         $encryptedContent = openssl_encrypt($fileContent, 'aes-256-cbc', $key, OPENSSL_RAW_DATA, $iv);
@@ -65,16 +68,17 @@ class DocumentController extends Controller
 
         // Create document record
         $document = Document::create([
-            'title' => $request->title,
-            'file_path' => 'documents/' . $fileName,
-            'file_name' => $file->getClientOriginalName(),
-            'file_type' => $file->getMimeType(),
-            'file_size' => $file->getSize(),
-            'category' => $request->category,
-            'tags' => $request->tags,
-            'uploaded_by' => $user->id,
-            'status' => 'Pending',
+            'title'         => $request->title,
+            'file_path'     => 'documents/' . $fileName,
+            'file_name'     => $file->getClientOriginalName(),
+            'file_type'     => $file->getMimeType(),
+            'file_size'     => $file->getSize(),
+            'category'      => $request->category,
+            'tags'          => $request->tags,
+            'uploaded_by'   => $user->id,
+            'status'        => 'Pending',
             'encrypted_key' => $encryptedKey,
+            'file_hash'     => $fileHash,
         ]);
 
         logAudit('DOCUMENT_UPLOADED', 'Document', $document->id, "Document uploaded: " . $document->title);
@@ -154,12 +158,35 @@ class DocumentController extends Controller
         }
 
         $request->validate([
-            'title' => 'string|max:255',
+            'title'    => 'string|max:255',
             'category' => 'string|max:100',
-            'tags' => 'nullable|array',
+            'tags'     => 'nullable|array',
+            'file'     => 'nullable|file|max:10240',
         ]);
 
         $document->update($request->only(['title', 'category', 'tags']));
+
+        // Handle new file upload (replace encrypted file)
+        if ($request->hasFile('file')) {
+            Storage::disk('local')->delete($document->file_path);
+
+            $key        = random_bytes(32);
+            $file       = $request->file('file');
+            $plaintext  = $file->get();
+            $iv         = random_bytes(openssl_cipher_iv_length('aes-256-cbc'));
+            $encrypted  = openssl_encrypt($plaintext, 'aes-256-cbc', $key, OPENSSL_RAW_DATA, $iv);
+            $fileName   = $file->hashName();
+            Storage::disk('local')->put('documents/' . $fileName, $iv . $encrypted);
+
+            $document->update([
+                'file_path'     => 'documents/' . $fileName,
+                'file_name'     => $file->getClientOriginalName(),
+                'file_type'     => $file->getMimeType(),
+                'file_size'     => $file->getSize(),
+                'encrypted_key' => base64_encode($key),
+                'file_hash'     => hash('sha256', $plaintext),
+            ]);
+        }
 
         // If teacher is updating, reset status to pending
         if ($user->role === 'Teacher') {
@@ -223,6 +250,68 @@ class DocumentController extends Controller
         ]);
 
         return response()->json($document->load('uploadedBy'));
+    }
+
+    public function verify($id)
+    {
+        $document = Document::findOrFail($id);
+
+        // Document uploaded before integrity feature existed
+        if (empty($document->file_hash)) {
+            return response()->json([
+                'status'  => 'no_hash',
+                'message' => 'No integrity record found. This document was uploaded before the integrity check feature was enabled.',
+            ]);
+        }
+
+        // Check the encrypted file actually exists on disk
+        if (!Storage::disk('local')->exists($document->file_path)) {
+            logAudit('DOCUMENT_VERIFY_FAILED', 'Document', $document->id, 'File missing from storage');
+            return response()->json([
+                'status'  => 'missing',
+                'message' => 'Encrypted file is missing from storage. The document may have been deleted externally.',
+            ]);
+        }
+
+        // Decrypt the stored file
+        $encryptedContent = Storage::disk('local')->get($document->file_path);
+        $key              = base64_decode($document->encrypted_key);
+        $ivLength         = openssl_cipher_iv_length('aes-256-cbc');
+        $iv               = substr($encryptedContent, 0, $ivLength);
+        $encryptedData    = substr($encryptedContent, $ivLength);
+        $decrypted        = openssl_decrypt($encryptedData, 'aes-256-cbc', $key, OPENSSL_RAW_DATA, $iv);
+
+        if ($decrypted === false) {
+            logAudit('DOCUMENT_VERIFY_FAILED', 'Document', $document->id, 'Decryption failed — file may be corrupted');
+            return response()->json([
+                'status'  => 'corrupted',
+                'message' => 'Decryption failed. The encrypted file appears to be corrupted.',
+            ]);
+        }
+
+        // Compare SHA-256 hashes
+        $currentHash = hash('sha256', $decrypted);
+        $intact      = hash_equals($document->file_hash, $currentHash);
+
+        $status = $intact ? 'intact' : 'tampered';
+        logAudit(
+            $intact ? 'DOCUMENT_VERIFY_PASSED' : 'DOCUMENT_VERIFY_FAILED',
+            'Document',
+            $document->id,
+            $intact
+                ? 'Integrity check passed — file hash matches'
+                : "Integrity check FAILED — stored hash: {$document->file_hash}, current hash: {$currentHash}"
+        );
+
+        return response()->json([
+            'status'       => $status,
+            'message'      => $intact
+                ? 'File integrity verified. The document has not been modified since upload.'
+                : 'WARNING: File hash mismatch! The document may have been tampered with or corrupted.',
+            'stored_hash'  => $document->file_hash,
+            'current_hash' => $currentHash,
+            'checked_at'   => now()->toISOString(),
+        ]);
     }
 
     public function destroy($id)

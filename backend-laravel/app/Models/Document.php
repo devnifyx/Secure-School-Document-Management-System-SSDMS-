@@ -19,6 +19,7 @@ class Document extends Model
         'status',
         'rejection_reason',
         'encrypted_key',
+        'file_hash',
     ];
 
     protected function casts(): array

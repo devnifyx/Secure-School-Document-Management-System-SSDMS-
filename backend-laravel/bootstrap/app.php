@@ -13,8 +13,10 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
-            'role' => \App\Http\Middleware\RoleMiddleware::class,
+            'role'        => \App\Http\Middleware\RoleMiddleware::class,
+            'user.active' => \App\Http\Middleware\CheckUserActive::class,
         ]);
+        $middleware->appendToGroup('api', \App\Http\Middleware\CheckUserActive::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
