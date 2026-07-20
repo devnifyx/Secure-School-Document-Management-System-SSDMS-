@@ -11,18 +11,19 @@ class DatabaseSeeder extends Seeder
 {
     use WithoutModelEvents;
 
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
+        $this->call(PanitiaSeeder::class);
+
         User::updateOrCreate(
             ['email' => 'admin@ssdms.local'],
             [
                 'name' => 'Administrator',
+                'username' => 'admin',
                 'password' => Hash::make('admin123'),
                 'role' => 'Admin',
                 'is_active' => true,
+                'account_status' => 'Approved',
             ]
         );
     }

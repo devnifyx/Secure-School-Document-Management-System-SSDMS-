@@ -436,6 +436,7 @@ table.data-table {
   color: var(--text);
 }
 .form-hint { font-size: 0.72rem; color: var(--text-muted); font-weight: 400; }
+.form-error { font-size: 0.72rem; color: var(--danger); margin-top: 0.25rem; }
 
 .form-control {
   width: 100%;

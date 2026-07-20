@@ -3,24 +3,32 @@ import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 const Login: React.FC = () => {
-    const [email, setEmail] = useState('');
+    const [login, setLogin] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-    const { login } = useAuth();
+    const { login: doLogin, needsPanitiaSelection } = useAuth();
     const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(''); setLoading(true);
         try {
-            await login(email, password);
-            navigate('/');
+            await doLogin(login, password);
         } catch (err: any) {
             const data = err.response?.data;
-            setError(data?.errors?.email?.[0] || data?.message || 'Login failed');
-        } finally { setLoading(false); }
+            setError(data?.errors?.login?.[0] || data?.message || 'Login failed');
+            setLoading(false);
+            return;
+        }
+        setLoading(false);
     };
+
+    React.useEffect(() => {
+        if (needsPanitiaSelection) {
+            navigate('/select-panitia');
+        }
+    }, [needsPanitiaSelection, navigate]);
 
     return (
         <div style={{
@@ -29,18 +37,11 @@ const Login: React.FC = () => {
             padding: '1.5rem',
         }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1.75rem' }}>
-                <div className="card-icon">
-                        <img
-                            src="/SSDMSLogo.png"
-                            alt="SSDMS Logo"
-                            style={{
-                                width: "40px",
-                                height: "40px",
-                                objectFit: "cover",
-                                borderRadius: "8px", // Rounded corners
-                            }}
-                            />
-                    </div>
+                <div style={{
+                    width: '38px', height: '38px', borderRadius: '10px',
+                    background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '1.1rem',
+                }}>🏫</div>
                 <div>
                     <div style={{ fontWeight: 800, fontSize: '1.05rem', color: 'var(--text)' }}>SSDMS</div>
                     <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Secure School Document Management System</div>
@@ -58,11 +59,11 @@ const Login: React.FC = () => {
 
                     <form onSubmit={handleSubmit}>
                         <div className="form-group">
-                            <label className="form-label">Email Address</label>
+                            <label className="form-label">Email or Username</label>
                             <input
-                                className="form-control" type="email" value={email} required
-                                onChange={(e) => setEmail(e.target.value)}
-                                placeholder="you@school.edu"
+                                className="form-control" type="text" value={login} required
+                                onChange={(e) => setLogin(e.target.value)}
+                                placeholder="Email or username"
                                 autoFocus
                             />
                         </div>
@@ -78,6 +79,11 @@ const Login: React.FC = () => {
                             {loading ? 'Signing in…' : 'Sign In'}
                         </button>
                     </form>
+
+                    <div style={{ textAlign: 'center', marginTop: '1rem', fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
+                        Don't have an account?{' '}
+                        <button className="btn-link" onClick={() => navigate('/register')}>Register</button>
+                    </div>
                 </div>
             </div>
 

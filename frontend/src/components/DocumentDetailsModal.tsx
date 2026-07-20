@@ -14,6 +14,7 @@ export interface DocumentItem {
     status: 'Pending' | 'Approved' | 'Rejected';
     rejection_reason: string | null;
     uploaded_by: { id: number; name: string };
+    panitia?: { id: number; name: string } | null;
     created_at: string;
     updated_at: string;
 }
@@ -179,6 +180,7 @@ const DocumentDetailsModal: React.FC<Props> = ({ document: doc, onClose, onChang
 
                             <dl className="detail-grid" style={{ marginBottom: '1rem' }}>
                                 <dt>Owner</dt><dd>{doc.uploaded_by.name}</dd>
+                                <dt>Panitia</dt><dd>{doc.panitia?.name || '—'}</dd>
                                 <dt>Category</dt><dd>{doc.category}</dd>
                                 <dt>Tags</dt>
                                 <dd>

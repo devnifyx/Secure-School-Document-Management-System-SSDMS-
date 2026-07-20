@@ -8,7 +8,7 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole }) => {
-  const { user, loading } = useAuth();
+  const { user, loading, needsPanitiaSelection } = useAuth();
 
   if (loading) {
     return (
@@ -26,6 +26,10 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole 
 
   if (!user) {
     return <Navigate to="/login" replace />;
+  }
+
+  if (needsPanitiaSelection && user.role === 'Teacher') {
+    return <Navigate to="/select-panitia" replace />;
   }
 
   if (requiredRole && user.role !== requiredRole) {

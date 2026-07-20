@@ -2,6 +2,8 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Login from './pages/Login';
+import Register from './pages/Register';
+import PanitiaSelection from './pages/PanitiaSelection';
 import AdminDashboard from './pages/AdminDashboard';
 import TeacherDashboard from './pages/TeacherDashboard';
 import DocumentUpload from './pages/DocumentUpload';
@@ -9,17 +11,22 @@ import DocumentRepository from './pages/DocumentRepository';
 import SearchDocuments from './pages/SearchDocuments';
 import ApprovalQueue from './pages/ApprovalQueue';
 import UserManagement from './pages/UserManagement';
+import PanitiaManagement from './pages/PanitiaManagement';
 import AuditLogs from './pages/AuditLogs';
 import Notifications from './pages/Notifications';
 import Settings from './pages/Settings';
 import ProtectedRoute from './components/ProtectedRoute';
 
 const AppRoutes: React.FC = () => {
-    const { user } = useAuth();
+    const { user, needsPanitiaSelection } = useAuth();
 
     return (
         <Routes>
             <Route path="/login" element={!user ? <Login /> : <Navigate to="/" replace />} />
+            <Route path="/register" element={!user ? <Register /> : <Navigate to="/" replace />} />
+            <Route path="/select-panitia" element={
+                user && needsPanitiaSelection ? <PanitiaSelection /> : <Navigate to={user ? '/' : '/login'} replace />
+            } />
 
             <Route path="/" element={
                 <ProtectedRoute>
@@ -57,6 +64,12 @@ const AppRoutes: React.FC = () => {
                 </ProtectedRoute>
             } />
 
+            <Route path="/panitia" element={
+                <ProtectedRoute requiredRole="Admin">
+                    <PanitiaManagement />
+                </ProtectedRoute>
+            } />
+
             <Route path="/audit-logs" element={
                 <ProtectedRoute requiredRole="Admin">
                     <AuditLogs />
@@ -75,7 +88,6 @@ const AppRoutes: React.FC = () => {
                 </ProtectedRoute>
             } />
 
-            {/* Catch-all */}
             <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
     );

@@ -18,7 +18,7 @@ interface LayoutProps {
 }
 
 const Layout: React.FC<LayoutProps> = ({ children, title, subtitle, actions }) => {
-    const { user, logout } = useAuth();
+    const { user, logout, activePanitia, panitiaList, switchPanitia } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
     const isAdmin = user?.role === 'Admin';
@@ -27,8 +27,11 @@ const Layout: React.FC<LayoutProps> = ({ children, title, subtitle, actions }) =
     const [unreadCount, setUnreadCount] = useState(0);
     const [showNotifs, setShowNotifs] = useState(false);
     const [showUserMenu, setShowUserMenu] = useState(false);
+    const [showPanitia, setShowPanitia] = useState(false);
+    const [switching, setSwitching] = useState(false);
     const notifRef = useRef<HTMLDivElement>(null);
     const userRef = useRef<HTMLDivElement>(null);
+    const panitiaRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         fetchNotifications();
@@ -40,6 +43,7 @@ const Layout: React.FC<LayoutProps> = ({ children, title, subtitle, actions }) =
         const handleClick = (e: MouseEvent) => {
             if (notifRef.current && !notifRef.current.contains(e.target as Node)) setShowNotifs(false);
             if (userRef.current && !userRef.current.contains(e.target as Node)) setShowUserMenu(false);
+            if (panitiaRef.current && !panitiaRef.current.contains(e.target as Node)) setShowPanitia(false);
         };
         document.addEventListener('mousedown', handleClick);
         return () => document.removeEventListener('mousedown', handleClick);
@@ -66,6 +70,19 @@ const Layout: React.FC<LayoutProps> = ({ children, title, subtitle, actions }) =
         setUnreadCount((c) => Math.max(0, c - 1));
     };
 
+    const handleSwitchPanitia = async (panitiaId: number) => {
+        setSwitching(true);
+        try {
+            await switchPanitia(panitiaId);
+            setShowPanitia(false);
+            window.location.reload();
+        } catch (e: any) {
+            alert(e.response?.data?.message || 'Failed to switch Panitia.');
+        } finally {
+            setSwitching(false);
+        }
+    };
+
     const isActive = (path: string) =>
         path === '/' ? location.pathname === '/' : location.pathname.startsWith(path);
 
@@ -76,6 +93,7 @@ const Layout: React.FC<LayoutProps> = ({ children, title, subtitle, actions }) =
             { label: 'Search', path: '/search', icon: '⌕' },
             { label: 'Approval Queue', path: '/approvals', icon: '☰' },
             { label: 'User Management', path: '/users', icon: '⚇' },
+            { label: 'Panitia', path: '/panitia', icon: '⊞' },
             { label: 'Audit Logs', path: '/audit-logs', icon: '↺' },
             { label: 'Notifications', path: '/notifications', icon: '◔' },
         ]
@@ -88,21 +106,9 @@ const Layout: React.FC<LayoutProps> = ({ children, title, subtitle, actions }) =
 
     return (
         <div className="app-shell">
-            {/* Sidebar */}
             <nav className="sidebar">
                 <div className="sidebar-brand" onClick={() => navigate('/')}>
-                    <div className="card-icon">
-                        <img
-                            src="/SSDMSLogo.png"
-                            alt="SSDMS Logo"
-                            style={{
-                                width: "40px",
-                                height: "40px",
-                                objectFit: "cover",
-                                borderRadius: "8px", // Rounded corners
-                            }}
-                            />
-                    </div>
+                    <div className="sidebar-brand-mark">🏫</div>
                     <div className="sidebar-brand-text">
                         <div className="name">SSDMS {isAdmin ? 'Admin' : ''}</div>
                         <div className="sub">Academic Document System</div>
@@ -146,9 +152,60 @@ const Layout: React.FC<LayoutProps> = ({ children, title, subtitle, actions }) =
                 </div>
             </nav>
 
-            {/* Topbar */}
             <header className="topbar">
                 <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    {/* Panitia switcher (Teacher with multiple Panitia) */}
+                    {!isAdmin && panitiaList.length > 1 && activePanitia && (
+                        <div ref={panitiaRef} style={{ position: 'relative' }}>
+                            <button onClick={() => setShowPanitia((v) => !v)}
+                                style={{
+                                    background: 'var(--primary-soft)', border: '1px solid var(--primary)',
+                                    borderRadius: '8px', padding: '0.35rem 0.75rem', cursor: 'pointer',
+                                    fontSize: '0.78rem', fontWeight: 600, color: 'var(--primary)',
+                                    display: 'flex', alignItems: 'center', gap: '0.35rem',
+                                }}>
+                                {activePanitia.name} <span style={{ fontSize: '0.6rem' }}>▼</span>
+                            </button>
+                            {showPanitia && (
+                                <div style={{
+                                    position: 'absolute', right: 0, top: '2.5rem', width: '220px',
+                                    background: '#fff', border: '1px solid var(--border)',
+                                    borderRadius: '12px', boxShadow: 'var(--shadow-md)',
+                                    zIndex: 200, overflow: 'hidden',
+                                }}>
+                                    <div style={{ padding: '0.6rem 0.85rem', borderBottom: '1px solid var(--border)', fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+                                        Switch Panitia
+                                    </div>
+                                    {panitiaList.map((p) => (
+                                        <button key={p.id} disabled={switching}
+                                            onClick={() => p.id !== activePanitia.id && handleSwitchPanitia(p.id)}
+                                            style={{
+                                                display: 'block', width: '100%', textAlign: 'left',
+                                                padding: '0.6rem 0.85rem', background: p.id === activePanitia.id ? 'var(--primary-soft)' : 'none',
+                                                border: 'none', cursor: p.id === activePanitia.id ? 'default' : 'pointer',
+                                                fontSize: '0.8rem', color: 'var(--text)',
+                                                fontWeight: p.id === activePanitia.id ? 700 : 400,
+                                            }}>
+                                            {p.name}
+                                            {p.pivot?.is_primary && <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', marginLeft: '0.4rem' }}>(Primary)</span>}
+                                            {p.id === activePanitia.id && <span style={{ float: 'right', color: 'var(--primary)' }}>✓</span>}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Single Panitia indicator */}
+                    {!isAdmin && panitiaList.length === 1 && activePanitia && (
+                        <span style={{
+                            fontSize: '0.75rem', color: 'var(--primary)', fontWeight: 600,
+                            background: 'var(--primary-soft)', padding: '0.3rem 0.65rem', borderRadius: '6px',
+                        }}>
+                            {activePanitia.name}
+                        </span>
+                    )}
+
                     {/* Notifications */}
                     <div ref={notifRef} style={{ position: 'relative' }}>
                         <button className="topbar-icon-btn" onClick={() => setShowNotifs((v) => !v)} title="Notifications">
@@ -225,7 +282,6 @@ const Layout: React.FC<LayoutProps> = ({ children, title, subtitle, actions }) =
                 </div>
             </header>
 
-            {/* Content */}
             <div className="content">
                 {(title || actions) && (
                     <div className="page-header">

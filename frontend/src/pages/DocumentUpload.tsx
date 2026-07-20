@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import api from '../services/api';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import Layout from '../components/Layout';
 
 const ALLOWED_TYPES = [
@@ -11,11 +12,13 @@ const ALLOWED_TYPES = [
 ];
 
 const DocumentUpload: React.FC = () => {
+    const { activePanitia, panitiaList } = useAuth();
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [file, setFile] = useState<File | null>(null);
     const [category, setCategory] = useState('');
     const [tagsInput, setTagsInput] = useState('');
+    const [panitiaId, setPanitiaId] = useState<string>(String(activePanitia?.id || ''));
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
@@ -38,6 +41,7 @@ const DocumentUpload: React.FC = () => {
         e.preventDefault();
         if (!file) { setError('Please attach a file.'); return; }
         if (!category) { setError('Please select a category.'); return; }
+        if (!panitiaId) { setError('Please select a Panitia.'); return; }
         setLoading(true); setError('');
         try {
             const formData = new FormData();
@@ -45,6 +49,7 @@ const DocumentUpload: React.FC = () => {
             formData.append('description', description);
             formData.append('file', file);
             formData.append('category', category);
+            formData.append('panitia_id', panitiaId);
             const tags = tagsInput.split(',').map((t) => t.trim()).filter(Boolean);
             tags.forEach((tag, i) => formData.append(`tags[${i}]`, tag));
             await api.post('/documents', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
@@ -85,15 +90,29 @@ const DocumentUpload: React.FC = () => {
                                 />
                             </div>
 
-                            <div className="form-group">
-                                <label className="form-label">Category <span style={{ color: 'var(--danger)' }}>*</span></label>
-                                <select className="form-control" value={category} onChange={(e) => setCategory(e.target.value)} required>
-                                    <option value="">Select a category</option>
-                                    <option value="Lesson Plans">Lesson Plans</option>
-                                    <option value="Assessments">Assessments</option>
-                                    <option value="Reports">Reports</option>
-                                    <option value="Other">Other</option>
-                                </select>
+                            <div className="form-row">
+                                <div className="form-group">
+                                    <label className="form-label">Category <span style={{ color: 'var(--danger)' }}>*</span></label>
+                                    <select className="form-control" value={category} onChange={(e) => setCategory(e.target.value)} required>
+                                        <option value="">Select a category</option>
+                                        <option value="Lesson Plans">Lesson Plans</option>
+                                        <option value="Assessments">Assessments</option>
+                                        <option value="Reports">Reports</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                                <div className="form-group">
+                                    <label className="form-label">Upload For Panitia <span style={{ color: 'var(--danger)' }}>*</span></label>
+                                    {panitiaList.length <= 1 ? (
+                                        <input className="form-control" value={activePanitia?.name || ''} disabled />
+                                    ) : (
+                                        <select className="form-control" value={panitiaId} onChange={(e) => setPanitiaId(e.target.value)} required>
+                                            {panitiaList.map((p) => (
+                                                <option key={p.id} value={p.id}>{p.name}</option>
+                                            ))}
+                                        </select>
+                                    )}
+                                </div>
                             </div>
 
                             <div className="form-group">

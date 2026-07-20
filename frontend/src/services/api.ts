@@ -7,25 +7,35 @@ const api = axios.create({
   },
 });
 
-// Add auth token to requests
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    const activePanitia = localStorage.getItem('activePanitia');
+    if (activePanitia) {
+      try {
+        const parsed = JSON.parse(activePanitia);
+        if (parsed?.id) {
+          config.headers['X-Active-Panitia'] = String(parsed.id);
+        }
+      } catch { /* ignore */ }
+    }
     return config;
   },
   (error) => Promise.reject(error)
 );
 
-// Handle 401 errors
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
+      localStorage.removeItem('activePanitia');
+      localStorage.removeItem('panitiaList');
+      localStorage.removeItem('needsPanitiaSelection');
       window.location.href = '/login';
     }
     return Promise.reject(error);

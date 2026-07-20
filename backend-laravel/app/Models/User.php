@@ -5,6 +5,8 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -21,12 +23,16 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'username',
         'email',
         'password',
         'role',
         'is_active',
         'failed_attempts',
         'locked_until',
+        'account_status',
+        'approved_by',
+        'approved_at',
     ];
 
     /**
@@ -52,6 +58,26 @@ class User extends Authenticatable
             'is_active' => 'boolean',
             'failed_attempts' => 'integer',
             'locked_until' => 'datetime',
+            'approved_at' => 'datetime',
         ];
+    }
+
+    public function panitia(): BelongsToMany
+    {
+        return $this->belongsToMany(Panitia::class, 'user_panitia')
+                    ->withPivot('is_primary')
+                    ->withTimestamps();
+    }
+
+    public function primaryPanitia(): BelongsToMany
+    {
+        return $this->belongsToMany(Panitia::class, 'user_panitia')
+                    ->withPivot('is_primary')
+                    ->wherePivot('is_primary', true);
+    }
+
+    public function approvedByUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'approved_by');
     }
 }

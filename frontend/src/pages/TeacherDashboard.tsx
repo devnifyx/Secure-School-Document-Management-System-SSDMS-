@@ -26,7 +26,7 @@ const TeacherDashboard: React.FC = () => {
     const [stats, setStats] = useState<Stats | null>(null);
     const [recent, setRecent] = useState<RecentDoc[]>([]);
     const [loading, setLoading] = useState(true);
-    const { user } = useAuth();
+    const { user, activePanitia } = useAuth();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -42,7 +42,7 @@ const TeacherDashboard: React.FC = () => {
     return (
         <Layout
             title="Dashboard"
-            subtitle={`Welcome back, ${user?.name}`}
+            subtitle={`Welcome back, ${user?.name}${activePanitia ? ` — ${activePanitia.name}` : ''}`}
             actions={<button className="btn btn-primary" onClick={() => navigate('/upload')}>+ Upload Document</button>}
         >
             {loading || !stats ? (

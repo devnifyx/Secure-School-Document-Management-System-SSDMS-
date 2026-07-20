@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+
 class Document extends Model
 {
     protected $fillable = [
@@ -21,6 +22,7 @@ class Document extends Model
         'rejection_reason',
         'encrypted_key',
         'file_hash',
+        'panitia_id',
     ];
 
     protected function casts(): array
@@ -34,5 +36,10 @@ class Document extends Model
     public function uploadedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'uploaded_by');
+    }
+
+    public function panitia(): BelongsTo
+    {
+        return $this->belongsTo(Panitia::class);
     }
 }

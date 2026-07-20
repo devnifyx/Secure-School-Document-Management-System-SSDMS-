@@ -6,6 +6,8 @@ import api from '../services/api';
 interface Stats {
     documents: { total: number; pending: number; approved: number; rejected: number };
     users: { total: number; active: number };
+    pending_registrations: number;
+    panitia: { total: number; active: number };
     recent_audit_logs: Array<{
         id: number;
         action: string;
@@ -78,6 +80,15 @@ const AdminDashboard: React.FC = () => {
                                 {stats.documents.rejected > 0 ? 'Action needed' : 'None rejected'}
                             </div>
                         </div>
+                        {stats.pending_registrations > 0 && (
+                            <div className="summary-card" onClick={() => navigate('/users')}>
+                                <div className="label">Pending Registrations ⚇</div>
+                                <div className="value" style={{ color: 'var(--warning)' }}>{stats.pending_registrations}</div>
+                                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.4rem' }}>
+                                    Requires approval
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     <div className="dashboard-grid">
@@ -162,6 +173,20 @@ const AdminDashboard: React.FC = () => {
                                     </div>
                                     <button className="btn btn-secondary btn-sm" style={{ marginTop: '1rem', width: '100%' }} onClick={() => navigate('/users')}>
                                         Manage Users
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="panel">
+                                <div className="panel-header"><h3>Panitia Overview</h3></div>
+                                <div className="panel-body">
+                                    <div className="detail-grid">
+                                        <dt>Total Panitia</dt><dd>{stats.panitia.total}</dd>
+                                        <dt>Active</dt><dd style={{ color: 'var(--success)', fontWeight: 700 }}>{stats.panitia.active}</dd>
+                                        <dt>Inactive</dt><dd>{stats.panitia.total - stats.panitia.active}</dd>
+                                    </div>
+                                    <button className="btn btn-secondary btn-sm" style={{ marginTop: '1rem', width: '100%' }} onClick={() => navigate('/panitia')}>
+                                        Manage Panitia
                                     </button>
                                 </div>
                             </div>
