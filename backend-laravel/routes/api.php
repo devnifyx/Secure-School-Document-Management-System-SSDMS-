@@ -12,6 +12,11 @@ Route::post('/login', [\App\Http\Controllers\AuthController::class, 'login']);
 Route::post('/register', [\App\Http\Controllers\RegistrationController::class, 'register']);
 Route::get('/panitia/public', [\App\Http\Controllers\RegistrationController::class, 'publicPanitiaList']);
 
+// Forgot password (email verification)
+Route::post('/forgot-password', [\App\Http\Controllers\PasswordResetController::class, 'forgotPassword'])->middleware('throttle:password-reset-request');
+Route::post('/verify-reset-code', [\App\Http\Controllers\PasswordResetController::class, 'verifyCode']);
+Route::post('/reset-password', [\App\Http\Controllers\PasswordResetController::class, 'resetPassword']);
+
 Route::post('/logout', [\App\Http\Controllers\AuthController::class, 'logout'])->middleware('auth:sanctum');
 
 // Protected routes
@@ -34,7 +39,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('panitia/{panitia}/assign', [\App\Http\Controllers\PanitiaController::class, 'assignUser']);
         Route::delete('panitia/{panitia}/members/{user}', [\App\Http\Controllers\PanitiaController::class, 'removeUser']);
         Route::put('panitia/{panitia}/members/{user}/primary', [\App\Http\Controllers\PanitiaController::class, 'setPrimary']);
+
+        // Weekly report late-submission toggle (write access)
+        Route::put('settings/late-submission', [\App\Http\Controllers\WeeklyReportController::class, 'updateLateSubmissionSetting']);
     });
+
+    // Any authenticated user needs to know whether late submission is currently allowed
+    Route::get('settings/late-submission', [\App\Http\Controllers\WeeklyReportController::class, 'getLateSubmissionSetting']);
 
     // Documents (with Panitia access control)
     Route::middleware('panitia.access')->group(function () {
@@ -44,6 +55,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('documents/{document}/approve', [\App\Http\Controllers\DocumentController::class, 'approve'])->middleware('role:Admin');
         Route::post('documents/{document}/reject', [\App\Http\Controllers\DocumentController::class, 'reject'])->middleware('role:Admin');
         Route::post('documents/{document}/verify', [\App\Http\Controllers\DocumentController::class, 'verify'])->middleware('role:Admin');
+
+        // Weekly reports (with Panitia access control)
+        Route::apiResource('weekly-reports', \App\Http\Controllers\WeeklyReportController::class);
+        Route::get('weekly-reports/{weeklyReport}/attachments/{attachment}/download', [\App\Http\Controllers\WeeklyReportController::class, 'downloadAttachment']);
+        Route::get('weekly-reports/{weeklyReport}/attachments/{attachment}/preview', [\App\Http\Controllers\WeeklyReportController::class, 'previewAttachment']);
+        Route::post('weekly-reports/{weeklyReport}/approve', [\App\Http\Controllers\WeeklyReportController::class, 'approve'])->middleware('role:Admin');
+        Route::post('weekly-reports/{weeklyReport}/reject', [\App\Http\Controllers\WeeklyReportController::class, 'reject'])->middleware('role:Admin');
+        Route::get('weekly-reports-not-submitted', [\App\Http\Controllers\WeeklyReportController::class, 'notSubmitted'])->middleware('role:Admin');
 
         // Dashboard stats
         Route::get('dashboard/stats', [\App\Http\Controllers\DashboardController::class, 'stats']);

@@ -8,6 +8,10 @@ interface Stats {
     users: { total: number; active: number };
     pending_registrations: number;
     panitia: { total: number; active: number };
+    weekly_reports: {
+        total: number; pending: number; approved: number; rejected: number; late: number;
+        current_week: number; not_submitted_this_week: number;
+    };
     recent_audit_logs: Array<{
         id: number;
         action: string;
@@ -173,6 +177,23 @@ const AdminDashboard: React.FC = () => {
                                     </div>
                                     <button className="btn btn-secondary btn-sm" style={{ marginTop: '1rem', width: '100%' }} onClick={() => navigate('/users')}>
                                         Manage Users
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="panel">
+                                <div className="panel-header"><h3>Weekly Reports — Week {stats.weekly_reports.current_week}</h3></div>
+                                <div className="panel-body">
+                                    <div className="detail-grid">
+                                        <dt>Pending Review</dt><dd style={{ color: 'var(--warning)', fontWeight: 700 }}>{stats.weekly_reports.pending}</dd>
+                                        <dt>Late Submissions</dt><dd>{stats.weekly_reports.late}</dd>
+                                        <dt>Not Submitted</dt>
+                                        <dd style={{ color: stats.weekly_reports.not_submitted_this_week > 0 ? 'var(--danger)' : 'var(--success)', fontWeight: 700 }}>
+                                            {stats.weekly_reports.not_submitted_this_week}
+                                        </dd>
+                                    </div>
+                                    <button className="btn btn-secondary btn-sm" style={{ marginTop: '1rem', width: '100%' }} onClick={() => navigate('/weekly-reports')}>
+                                        Open Weekly Report Tracker
                                     </button>
                                 </div>
                             </div>

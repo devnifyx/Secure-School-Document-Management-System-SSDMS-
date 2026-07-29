@@ -6,6 +6,10 @@ import { useAuth } from '../contexts/AuthContext';
 
 interface Stats {
     documents: { total: number; pending: number; approved: number; rejected: number };
+    weekly_reports: {
+        total: number; pending: number; approved: number; rejected: number;
+        current_week: number; current_week_submitted: boolean; submission_window_open: boolean;
+    };
 }
 
 interface RecentDoc {
@@ -104,6 +108,32 @@ const TeacherDashboard: React.FC = () => {
                                     ))}
                                 </tbody>
                             </table>
+                        </div>
+                    </div>
+
+                    <div className="panel" style={{ marginTop: '1.25rem' }}>
+                        <div className="panel-header">
+                            <h3>Weekly Activity Report — Week {stats.weekly_reports.current_week}</h3>
+                            <button className="btn-link" onClick={() => navigate('/weekly-reports')}>View history →</button>
+                        </div>
+                        <div className="panel-body">
+                            <div className="detail-grid">
+                                <dt>This Week's Status</dt>
+                                <dd>
+                                    {stats.weekly_reports.current_week_submitted
+                                        ? <span className="badge badge-success">Submitted</span>
+                                        : <span className="badge badge-warning">Not Submitted</span>}
+                                </dd>
+                                <dt>Submission Window</dt>
+                                <dd>{stats.weekly_reports.submission_window_open ? 'Open (Sat–Sun)' : 'Closed until Saturday'}</dd>
+                                <dt>Pending / Approved / Rejected</dt>
+                                <dd>{stats.weekly_reports.pending} / {stats.weekly_reports.approved} / {stats.weekly_reports.rejected}</dd>
+                            </div>
+                            {!stats.weekly_reports.current_week_submitted && stats.weekly_reports.submission_window_open && (
+                                <button className="btn btn-primary btn-sm" style={{ marginTop: '1rem' }} onClick={() => navigate('/weekly-reports/submit')}>
+                                    Submit This Week's Report
+                                </button>
+                            )}
                         </div>
                     </div>
 

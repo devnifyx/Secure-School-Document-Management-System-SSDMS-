@@ -92,6 +92,7 @@ const Layout: React.FC<LayoutProps> = ({ children, title, subtitle, actions }) =
             { label: 'Repository', path: '/documents', icon: '🗀' },
             { label: 'Search', path: '/search', icon: '⌕' },
             { label: 'Approval Queue', path: '/approvals', icon: '☰' },
+            { label: 'Weekly Reports', path: '/weekly-reports', icon: '📅' },
             { label: 'User Management', path: '/users', icon: '⚇' },
             { label: 'Panitia', path: '/panitia', icon: '⊞' },
             { label: 'Audit Logs', path: '/audit-logs', icon: '↺' },
@@ -101,6 +102,7 @@ const Layout: React.FC<LayoutProps> = ({ children, title, subtitle, actions }) =
             { label: 'Dashboard', path: '/', icon: '▤' },
             { label: 'Repository', path: '/documents', icon: '🗀' },
             { label: 'Search', path: '/search', icon: '⌕' },
+            { label: 'Weekly Reports', path: '/weekly-reports', icon: '📅' },
             { label: 'Notifications', path: '/notifications', icon: '◔' },
         ];
 

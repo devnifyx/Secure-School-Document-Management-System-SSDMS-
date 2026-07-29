@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
 import PanitiaSelection from './pages/PanitiaSelection';
 import AdminDashboard from './pages/AdminDashboard';
 import TeacherDashboard from './pages/TeacherDashboard';
@@ -12,6 +13,9 @@ import SearchDocuments from './pages/SearchDocuments';
 import ApprovalQueue from './pages/ApprovalQueue';
 import UserManagement from './pages/UserManagement';
 import PanitiaManagement from './pages/PanitiaManagement';
+import WeeklyReportSubmit from './pages/WeeklyReportSubmit';
+import WeeklyReportRepository from './pages/WeeklyReportRepository';
+import WeeklyReportTracker from './pages/WeeklyReportTracker';
 import AuditLogs from './pages/AuditLogs';
 import Notifications from './pages/Notifications';
 import Settings from './pages/Settings';
@@ -24,6 +28,7 @@ const AppRoutes: React.FC = () => {
         <Routes>
             <Route path="/login" element={!user ? <Login /> : <Navigate to="/" replace />} />
             <Route path="/register" element={!user ? <Register /> : <Navigate to="/" replace />} />
+            <Route path="/forgot-password" element={!user ? <ForgotPassword /> : <Navigate to="/" replace />} />
             <Route path="/select-panitia" element={
                 user && needsPanitiaSelection ? <PanitiaSelection /> : <Navigate to={user ? '/' : '/login'} replace />
             } />
@@ -67,6 +72,18 @@ const AppRoutes: React.FC = () => {
             <Route path="/panitia" element={
                 <ProtectedRoute requiredRole="Admin">
                     <PanitiaManagement />
+                </ProtectedRoute>
+            } />
+
+            <Route path="/weekly-reports" element={
+                <ProtectedRoute>
+                    {user?.role === 'Admin' ? <WeeklyReportTracker /> : <WeeklyReportRepository />}
+                </ProtectedRoute>
+            } />
+
+            <Route path="/weekly-reports/submit" element={
+                <ProtectedRoute requiredRole="Teacher">
+                    <WeeklyReportSubmit />
                 </ProtectedRoute>
             } />
 

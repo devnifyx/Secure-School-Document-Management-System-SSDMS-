@@ -68,7 +68,12 @@ const Login: React.FC = () => {
                             />
                         </div>
                         <div className="form-group">
-                            <label className="form-label">Password</label>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                                <label className="form-label">Password</label>
+                                <button type="button" className="btn-link" style={{ fontSize: '0.75rem' }} onClick={() => navigate('/forgot-password')}>
+                                    Forgot Password?
+                                </button>
+                            </div>
                             <input
                                 className="form-control" type="password" value={password} required
                                 onChange={(e) => setPassword(e.target.value)}
