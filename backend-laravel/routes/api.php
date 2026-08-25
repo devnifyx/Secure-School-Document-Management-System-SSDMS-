@@ -39,13 +39,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('panitia/{panitia}/assign', [\App\Http\Controllers\PanitiaController::class, 'assignUser']);
         Route::delete('panitia/{panitia}/members/{user}', [\App\Http\Controllers\PanitiaController::class, 'removeUser']);
         Route::put('panitia/{panitia}/members/{user}/primary', [\App\Http\Controllers\PanitiaController::class, 'setPrimary']);
-
-        // Weekly report late-submission toggle (write access)
-        Route::put('settings/late-submission', [\App\Http\Controllers\WeeklyReportController::class, 'updateLateSubmissionSetting']);
     });
-
-    // Any authenticated user needs to know whether late submission is currently allowed
-    Route::get('settings/late-submission', [\App\Http\Controllers\WeeklyReportController::class, 'getLateSubmissionSetting']);
 
     // Documents (with Panitia access control)
     Route::middleware('panitia.access')->group(function () {

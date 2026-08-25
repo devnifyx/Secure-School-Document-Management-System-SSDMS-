@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\AppSetting;
 use App\Models\Notification;
 use App\Models\User;
 use App\Models\WeeklyReport;
@@ -74,12 +73,7 @@ class WeeklyReportController extends Controller
             'attachments.*' => self::ATTACHMENT_RULES,
         ]);
 
-        $lateEnabled = AppSetting::get('late_submission_enabled', '0') === '1';
         $withinWindow = $this->isWithinSubmissionWindow();
-
-        if (!$withinWindow && !$lateEnabled) {
-            abort(422, 'Submission period is closed. Weekly reports can only be submitted on Saturday and Sunday.');
-        }
 
         $panitiaId = $request->input('active_panitia_id');
 
@@ -306,25 +300,5 @@ class WeeklyReportController extends Controller
         }
 
         return response()->json($query->get(['id', 'name', 'email']));
-    }
-
-    public function getLateSubmissionSetting()
-    {
-        return response()->json([
-            'late_submission_enabled' => AppSetting::get('late_submission_enabled', '0') === '1',
-        ]);
-    }
-
-    public function updateLateSubmissionSetting(Request $request)
-    {
-        $admin = $request->user();
-        $request->validate(['enabled' => 'required|boolean']);
-
-        AppSetting::set('late_submission_enabled', $request->boolean('enabled') ? '1' : '0');
-
-        logAudit('WEEKLY_REPORT_LATE_SETTING_CHANGED', null, null,
-            "Late submission " . ($request->boolean('enabled') ? 'enabled' : 'disabled') . " by {$admin->name}");
-
-        return response()->json(['late_submission_enabled' => $request->boolean('enabled')]);
     }
 }

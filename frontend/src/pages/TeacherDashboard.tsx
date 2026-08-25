@@ -124,12 +124,12 @@ const TeacherDashboard: React.FC = () => {
                                         ? <span className="badge badge-success">Submitted</span>
                                         : <span className="badge badge-warning">Not Submitted</span>}
                                 </dd>
-                                <dt>Submission Window</dt>
-                                <dd>{stats.weekly_reports.submission_window_open ? 'Open (Sat–Sun)' : 'Closed until Saturday'}</dd>
+                                <dt>On-Time Window</dt>
+                                <dd>{stats.weekly_reports.submission_window_open ? 'Open (Sat–Sun)' : 'Closed — submissions now count as late'}</dd>
                                 <dt>Pending / Approved / Rejected</dt>
                                 <dd>{stats.weekly_reports.pending} / {stats.weekly_reports.approved} / {stats.weekly_reports.rejected}</dd>
                             </div>
-                            {!stats.weekly_reports.current_week_submitted && stats.weekly_reports.submission_window_open && (
+                            {!stats.weekly_reports.current_week_submitted && (
                                 <button className="btn btn-primary btn-sm" style={{ marginTop: '1rem' }} onClick={() => navigate('/weekly-reports/submit')}>
                                     Submit This Week's Report
                                 </button>

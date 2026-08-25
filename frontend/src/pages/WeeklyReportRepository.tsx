@@ -21,7 +21,6 @@ const WeeklyReportRepository: React.FC = () => {
     const [page, setPage] = useState(1);
     const [statusFilter, setStatusFilter] = useState('');
     const [selected, setSelected] = useState<WeeklyReportItem | null>(null);
-    const [lateEnabled, setLateEnabled] = useState(false);
 
     const navigate = useNavigate();
     const windowOpen = isSubmissionWindowOpen();
@@ -41,27 +40,20 @@ const WeeklyReportRepository: React.FC = () => {
 
     useEffect(() => { load(); }, [load]);
 
-    useEffect(() => {
-        api.get('/settings/late-submission').then((res) => setLateEnabled(res.data.late_submission_enabled)).catch(() => {});
-    }, []);
-
-    const canSubmit = windowOpen || lateEnabled;
-
     return (
         <Layout
             title="Weekly Activity Reports"
             subtitle="Your weekly report history and status"
             actions={
-                <button className="btn btn-primary" disabled={!canSubmit} onClick={() => navigate('/weekly-reports/submit')}
-                    title={canSubmit ? undefined : 'Submission period is closed'}>
+                <button className="btn btn-primary" onClick={() => navigate('/weekly-reports/submit')}>
                     + Submit Weekly Report
                 </button>
             }
         >
-            {!canSubmit && (
+            {!windowOpen && (
                 <div className="notice notice-info" style={{ marginBottom: '1.25rem' }}>
                     <span>ℹ</span>
-                    <div>Submissions open every Saturday and close Sunday at 11:59 PM. The window is currently closed.</div>
+                    <div>The normal submission window (Saturday–Sunday) is currently closed. You can still submit — it will be marked as a late submission.</div>
                 </div>
             )}
 
@@ -86,9 +78,9 @@ const WeeklyReportRepository: React.FC = () => {
                     <div className="empty-state">
                         <div className="icon">🗎</div>
                         No weekly reports found.
-                        {canSubmit && <div style={{ marginTop: '0.75rem' }}>
+                        <div style={{ marginTop: '0.75rem' }}>
                             <button className="btn btn-primary btn-sm" onClick={() => navigate('/weekly-reports/submit')}>Submit your first report</button>
-                        </div>}
+                        </div>
                     </div>
                 ) : (
                     <>

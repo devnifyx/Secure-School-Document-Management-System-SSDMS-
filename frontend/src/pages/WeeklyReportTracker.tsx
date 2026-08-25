@@ -35,9 +35,6 @@ const WeeklyReportTracker: React.FC = () => {
     const [notSubmitted, setNotSubmitted] = useState<NotSubmittedUser[]>([]);
     const [notSubmittedLoading, setNotSubmittedLoading] = useState(false);
 
-    const [lateEnabled, setLateEnabled] = useState(false);
-    const [toggling, setToggling] = useState(false);
-
     const [selected, setSelected] = useState<WeeklyReportItem | null>(null);
 
     const load = useCallback(async () => {
@@ -61,7 +58,6 @@ const WeeklyReportTracker: React.FC = () => {
     useEffect(() => {
         api.get('/users').then((res) => setTeachers(res.data.filter((u: TeacherOption) => u.role === 'Teacher'))).catch(() => {});
         api.get('/panitia').then((res) => setPanitiaOptions(res.data)).catch(() => {});
-        api.get('/settings/late-submission').then((res) => setLateEnabled(res.data.late_submission_enabled)).catch(() => {});
     }, []);
 
     const loadNotSubmitted = useCallback(async () => {
@@ -76,24 +72,10 @@ const WeeklyReportTracker: React.FC = () => {
 
     useEffect(() => { if (tab === 'not-submitted') loadNotSubmitted(); }, [tab, loadNotSubmitted]);
 
-    const handleToggleLate = async () => {
-        setToggling(true);
-        try {
-            const res = await api.put('/settings/late-submission', { enabled: !lateEnabled });
-            setLateEnabled(res.data.late_submission_enabled);
-        } catch (e: any) { alert(e.response?.data?.message || 'Failed to update setting'); }
-        finally { setToggling(false); }
-    };
-
     return (
         <Layout
             title="Weekly Report Tracker"
             subtitle="Monitor weekly activity report submissions across all teachers"
-            actions={
-                <button className={`btn btn-sm ${lateEnabled ? 'btn-danger' : 'btn-secondary'}`} disabled={toggling} onClick={handleToggleLate}>
-                    {toggling ? 'Updating…' : lateEnabled ? 'Late Submission: ON' : 'Late Submission: OFF'}
-                </button>
-            }
         >
             <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
                 <button className={`btn btn-sm ${tab === 'all' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => setTab('all')}>All Reports</button>

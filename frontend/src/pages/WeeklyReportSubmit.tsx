@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import api from '../services/api';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -20,7 +20,6 @@ const WeeklyReportSubmit: React.FC = () => {
     const [nextWeekPlan, setNextWeekPlan] = useState('');
     const [files, setFiles] = useState<FileList | null>(null);
 
-    const [lateEnabled, setLateEnabled] = useState(false);
     const windowOpen = isSubmissionWindowOpen(now);
 
     const [loading, setLoading] = useState(false);
@@ -28,17 +27,8 @@ const WeeklyReportSubmit: React.FC = () => {
     const [success, setSuccess] = useState(false);
     const navigate = useNavigate();
 
-    useEffect(() => {
-        api.get('/settings/late-submission')
-            .then((res) => setLateEnabled(res.data.late_submission_enabled))
-            .catch(() => {});
-    }, []);
-
-    const canSubmit = windowOpen || lateEnabled;
-
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!canSubmit) return;
         setLoading(true); setError('');
         try {
             const formData = new FormData();
@@ -75,16 +65,10 @@ const WeeklyReportSubmit: React.FC = () => {
                                 <div>Weekly report submitted successfully. Redirecting…</div>
                             </div>
                         )}
-                        {!canSubmit && !success && (
-                            <div className="notice notice-danger" style={{ marginBottom: '1.25rem' }}>
-                                <span>⚠</span>
-                                <div>Submission period is closed. Weekly reports can only be submitted on Saturday and Sunday, unless an administrator enables late submission.</div>
-                            </div>
-                        )}
-                        {canSubmit && !windowOpen && !success && (
+                        {!windowOpen && !success && (
                             <div className="notice notice-warning" style={{ marginBottom: '1.25rem' }}>
                                 <span>⚠</span>
-                                <div>You're submitting outside the normal Saturday–Sunday window. This will be recorded as a <strong>late submission</strong>.</div>
+                                <div>You're submitting outside the normal Saturday–Sunday window. This will be recorded as a <strong>late submission</strong> for the administrator to see.</div>
                             </div>
                         )}
                         {error && (
@@ -93,7 +77,7 @@ const WeeklyReportSubmit: React.FC = () => {
                             </div>
                         )}
 
-                        <fieldset disabled={!canSubmit || success} style={{ border: 'none', padding: 0, margin: 0 }}>
+                        <fieldset disabled={success} style={{ border: 'none', padding: 0, margin: 0 }}>
                             <form onSubmit={handleSubmit}>
                                 <div className="form-group">
                                     <label className="form-label">Report Title <span style={{ color: 'var(--danger)' }}>*</span></label>
@@ -160,7 +144,7 @@ const WeeklyReportSubmit: React.FC = () => {
                                 </div>
 
                                 <div style={{ display: 'flex', gap: '0.75rem' }}>
-                                    <button type="submit" className="btn btn-primary" disabled={loading || success || !canSubmit}>
+                                    <button type="submit" className="btn btn-primary" disabled={loading || success}>
                                         {loading ? 'Submitting…' : 'Submit Report'}
                                     </button>
                                     <button type="button" className="btn btn-secondary" onClick={() => navigate('/weekly-reports')}>
