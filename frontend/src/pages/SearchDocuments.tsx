@@ -17,6 +17,22 @@ import {
     Clock,
     XCircle,
 } from 'lucide-react';
+import CustomSelect from '../components/CustomSelect';
+
+const CATEGORY_OPTIONS = [
+    { value: '', label: 'All Categories' },
+    { value: 'Lesson Plans', label: 'Lesson Plans', icon: <FileText size={14} /> },
+    { value: 'Assessments', label: 'Assessments' },
+    { value: 'Reports', label: 'Reports', icon: <FileText size={14} /> },
+    { value: 'Other', label: 'Other' },
+];
+
+const STATUS_OPTIONS = [
+    { value: '', label: 'All Statuses' },
+    { value: 'Pending', label: 'Pending Review', icon: <Clock size={14} /> },
+    { value: 'Approved', label: 'Approved', icon: <CheckCircle2 size={14} /> },
+    { value: 'Rejected', label: 'Rejected', icon: <XCircle size={14} /> },
+];
 
 const statusBadge = (status: string) => {
     if (status === 'Approved') return <span className="badge badge-success"><CheckCircle2 size={11} /> Approved</span>;
@@ -151,31 +167,24 @@ const SearchDocuments: React.FC = () => {
                             }}>
                                 <div className="form-group" style={{ margin: 0 }}>
                                     <label className="form-label">Category</label>
-                                    <select
-                                        className="form-control"
+                                    <CustomSelect
+                                        options={CATEGORY_OPTIONS}
                                         value={category}
-                                        onChange={(e) => setCategory(e.target.value)}
-                                    >
-                                        <option value="">All Categories</option>
-                                        <option value="Lesson Plans">Lesson Plans</option>
-                                        <option value="Assessments">Assessments</option>
-                                        <option value="Reports">Reports</option>
-                                        <option value="Other">Other</option>
-                                    </select>
+                                        onChange={(val) => setCategory(val)}
+                                        placeholder="All Categories"
+                                        clearable={true}
+                                    />
                                 </div>
 
                                 <div className="form-group" style={{ margin: 0 }}>
                                     <label className="form-label">Review Status</label>
-                                    <select
-                                        className="form-control"
+                                    <CustomSelect
+                                        options={STATUS_OPTIONS}
                                         value={status}
-                                        onChange={(e) => setStatus(e.target.value)}
-                                    >
-                                        <option value="">All Statuses</option>
-                                        <option value="Pending">Pending Review</option>
-                                        <option value="Approved">Approved</option>
-                                        <option value="Rejected">Rejected</option>
-                                    </select>
+                                        onChange={(val) => setStatus(val)}
+                                        placeholder="All Statuses"
+                                        clearable={true}
+                                    />
                                 </div>
 
                                 <div className="form-group" style={{ margin: 0 }}>

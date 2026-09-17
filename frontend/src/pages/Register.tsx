@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { GraduationCap, User, Mail, Lock, Layers, CheckCircle2, AlertCircle, ArrowLeft, ArrowRight } from 'lucide-react';
 import CustomSelect from '../components/CustomSelect';
+import ThemeToggle from '../components/ThemeToggle';
 
 interface PanitiaOption {
     id: number;
@@ -110,9 +111,12 @@ const Register: React.FC = () => {
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            background: 'radial-gradient(ellipse at top, #EEF2FF 0%, #F8FAFC 60%, #F1F5F9 100%)',
+            background: 'var(--auth-bg, radial-gradient(ellipse at top, #EEF2FF 0%, #F8FAFC 60%, #F1F5F9 100%))',
             padding: '2.5rem 1rem',
+            position: 'relative',
         }}>
+            {/* Theme Toggle Button */}
+            <ThemeToggle className="theme-toggle-floating" />
             {/* Header Brand */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '1.75rem' }}>
                 <div style={{

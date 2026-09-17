@@ -22,8 +22,24 @@ import {
     ChevronRight,
     Tag,
 } from 'lucide-react';
+import CustomSelect from '../components/CustomSelect';
 
 interface Meta { current_page: number; last_page: number; total: number; }
+
+const STATUS_OPTIONS = [
+    { value: '', label: 'All Review Statuses' },
+    { value: 'Pending', label: 'Pending Review', icon: <Clock size={14} /> },
+    { value: 'Approved', label: 'Approved', icon: <CheckCircle2 size={14} /> },
+    { value: 'Rejected', label: 'Rejected', icon: <XCircle size={14} /> },
+];
+
+const CATEGORY_OPTIONS = [
+    { value: '', label: 'All Categories' },
+    { value: 'Lesson Plans', label: 'Lesson Plans', icon: <FileText size={14} /> },
+    { value: 'Assessments', label: 'Assessments', icon: <Tag size={14} /> },
+    { value: 'Reports', label: 'Reports', icon: <FileText size={14} /> },
+    { value: 'Other', label: 'Other', icon: <Tag size={14} /> },
+];
 
 const statusBadge = (status: string) => {
     if (status === 'Approved') return <span className="badge badge-success"><CheckCircle2 size={11} /> Approved</span>;
@@ -130,36 +146,29 @@ const DocumentRepository: React.FC = () => {
                     }}
                 />
 
-                <select
-                    className="form-control"
-                    style={{ maxWidth: '170px' }}
+                <CustomSelect
+                    options={STATUS_OPTIONS}
                     value={statusFilter}
-                    onChange={(e) => {
-                        setStatusFilter(e.target.value);
+                    onChange={(val) => {
+                        setStatusFilter(val);
                         setPage(1);
                     }}
-                >
-                    <option value="">All Review Statuses</option>
-                    <option value="Pending">Pending Review</option>
-                    <option value="Approved">Approved</option>
-                    <option value="Rejected">Rejected</option>
-                </select>
+                    placeholder="All Review Statuses"
+                    clearable={true}
+                    style={{ minWidth: '180px', maxWidth: '210px' }}
+                />
 
-                <select
-                    className="form-control"
-                    style={{ maxWidth: '170px' }}
+                <CustomSelect
+                    options={CATEGORY_OPTIONS}
                     value={categoryFilter}
-                    onChange={(e) => {
-                        setCategoryFilter(e.target.value);
+                    onChange={(val) => {
+                        setCategoryFilter(val);
                         setPage(1);
                     }}
-                >
-                    <option value="">All Categories</option>
-                    <option value="Lesson Plans">Lesson Plans</option>
-                    <option value="Assessments">Assessments</option>
-                    <option value="Reports">Reports</option>
-                    <option value="Other">Other</option>
-                </select>
+                    placeholder="All Categories"
+                    clearable={true}
+                    style={{ minWidth: '170px', maxWidth: '200px' }}
+                />
 
                 {(statusFilter || categoryFilter || searchQuery) && (
                     <button className="btn btn-secondary btn-sm" onClick={handleResetFilters} title="Reset filters">

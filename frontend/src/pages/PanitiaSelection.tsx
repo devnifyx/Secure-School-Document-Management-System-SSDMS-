@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { GraduationCap, Layers, Star, ArrowRight, AlertCircle, LogOut } from 'lucide-react';
+import ThemeToggle from '../components/ThemeToggle';
 
 const PanitiaSelection: React.FC = () => {
     const { panitiaList, selectPanitia, user, logout } = useAuth();
@@ -29,9 +30,12 @@ const PanitiaSelection: React.FC = () => {
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            background: 'radial-gradient(ellipse at top, #EEF2FF 0%, #F8FAFC 60%, #F1F5F9 100%)',
+            background: 'var(--auth-bg, radial-gradient(ellipse at top, #EEF2FF 0%, #F8FAFC 60%, #F1F5F9 100%))',
             padding: '2rem 1rem',
+            position: 'relative',
         }}>
+            {/* Theme Toggle Button */}
+            <ThemeToggle className="theme-toggle-floating" />
             {/* Header Brand */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '2rem' }}>
                 <div style={{
@@ -84,7 +88,7 @@ const PanitiaSelection: React.FC = () => {
                                     justifyContent: 'space-between',
                                     borderRadius: 'var(--radius-lg)',
                                     borderColor: p.pivot?.is_primary ? 'var(--primary)' : 'var(--border)',
-                                    background: p.pivot?.is_primary ? 'var(--primary-soft)' : '#ffffff',
+                                    background: p.pivot?.is_primary ? 'var(--primary-soft)' : 'var(--surface)',
                                 }}
                                 disabled={loading !== null}
                                 onClick={() => handleSelect(p.id)}

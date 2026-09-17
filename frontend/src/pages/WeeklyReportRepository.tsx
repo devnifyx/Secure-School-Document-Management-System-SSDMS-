@@ -17,8 +17,16 @@ import {
     ChevronRight,
     AlertCircle,
 } from 'lucide-react';
+import CustomSelect from '../components/CustomSelect';
 
 interface Meta { current_page: number; last_page: number; total: number; }
+
+const STATUS_OPTIONS = [
+    { value: '', label: 'All Review Statuses' },
+    { value: 'Pending Review', label: 'Pending Review', icon: <Clock size={14} /> },
+    { value: 'Approved', label: 'Approved', icon: <CheckCircle2 size={14} /> },
+    { value: 'Rejected', label: 'Rejected', icon: <XCircle size={14} /> },
+];
 
 const statusBadge = (status: string) => {
     if (status === 'Approved') return <span className="badge badge-success"><CheckCircle2 size={11} /> Approved</span>;
@@ -87,20 +95,17 @@ const WeeklyReportRepository: React.FC = () => {
 
             {/* Filter Bar */}
             <div className="filter-bar">
-                <select
-                    className="form-control"
-                    style={{ maxWidth: '200px' }}
+                <CustomSelect
+                    options={STATUS_OPTIONS}
                     value={statusFilter}
-                    onChange={(e) => {
-                        setStatusFilter(e.target.value);
+                    onChange={(val) => {
+                        setStatusFilter(val);
                         setPage(1);
                     }}
-                >
-                    <option value="">All Review Statuses</option>
-                    <option value="Pending Review">Pending Review</option>
-                    <option value="Approved">Approved</option>
-                    <option value="Rejected">Rejected</option>
-                </select>
+                    placeholder="All Review Statuses"
+                    clearable={true}
+                    style={{ minWidth: '190px', maxWidth: '230px' }}
+                />
 
                 <span style={{ marginLeft: 'auto', fontSize: '0.82rem', color: 'var(--text-muted)' }}>
                     <strong>{meta?.total ?? 0}</strong> {meta?.total === 1 ? 'report' : 'reports'}

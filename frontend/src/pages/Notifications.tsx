@@ -136,7 +136,7 @@ const Notifications: React.FC = () => {
                                         justifyContent: 'space-between',
                                         padding: '1.1rem 1.5rem',
                                         borderBottom: '1px solid var(--border)',
-                                        background: n.is_read ? '#ffffff' : 'var(--primary-soft)',
+                                        background: n.is_read ? 'var(--surface)' : 'var(--primary-soft)',
                                         cursor: n.is_read ? 'default' : 'pointer',
                                         transition: 'background 0.15s ease',
                                     }}

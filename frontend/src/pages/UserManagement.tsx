@@ -549,7 +549,7 @@ const UserManagement: React.FC = () => {
                                                         padding: '0.4rem 0.75rem',
                                                         borderRadius: 'var(--radius-md)',
                                                         border: isChecked ? '1px solid var(--primary)' : '1px solid var(--border)',
-                                                        background: isChecked ? 'var(--primary-soft)' : '#ffffff',
+                                                        background: isChecked ? 'var(--primary-soft)' : 'var(--surface)',
                                                         cursor: 'pointer',
                                                     }}
                                                     onClick={() => togglePanitia(p.id)}

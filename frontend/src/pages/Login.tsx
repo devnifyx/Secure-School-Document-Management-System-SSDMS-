@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { GraduationCap, Lock, User, Eye, EyeOff, ShieldCheck, AlertCircle, ArrowRight } from 'lucide-react';
+import ThemeToggle from '../components/ThemeToggle';
 
 const Login: React.FC = () => {
     const [login, setLogin] = useState('');
@@ -40,9 +41,12 @@ const Login: React.FC = () => {
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            background: 'radial-gradient(ellipse at top, #EEF2FF 0%, #F8FAFC 60%, #F1F5F9 100%)',
+            background: 'var(--auth-bg, radial-gradient(ellipse at top, #EEF2FF 0%, #F8FAFC 60%, #F1F5F9 100%))',
             padding: '1.75rem 1rem',
+            position: 'relative',
         }}>
+            {/* Theme Toggle Button */}
+            <ThemeToggle className="theme-toggle-floating" />
             {/* Header Brand */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '2rem' }}>
                 <div style={{

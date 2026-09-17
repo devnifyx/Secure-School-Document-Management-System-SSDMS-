@@ -3,6 +3,7 @@ import Layout from '../components/Layout';
 import api from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
+import { useTheme } from '../contexts/ThemeContext';
 import {
     User,
     Shield,
@@ -15,13 +16,17 @@ import {
     CheckCircle2,
     Mail,
     AlertCircle,
+    Sun,
+    Moon,
+    Palette,
 } from 'lucide-react';
 
 const Settings: React.FC = () => {
     const { user, updateUser } = useAuth();
     const { success, error: toastError } = useToast();
+    const { theme, setTheme } = useTheme();
 
-    const [tab, setTab] = useState<'profile' | 'password' | 'session'>('profile');
+    const [tab, setTab] = useState<'profile' | 'password' | 'appearance' | 'session'>('profile');
 
     // Profile form
     const [name, setName] = useState(user?.name ?? '');
@@ -137,6 +142,12 @@ const Settings: React.FC = () => {
                         onClick={() => setTab('password')}
                     >
                         <Key size={15} /> Change Password
+                    </button>
+                    <button
+                        className={`tab-btn ${tab === 'appearance' ? 'active' : ''}`}
+                        onClick={() => setTab('appearance')}
+                    >
+                        <Palette size={15} /> Appearance
                     </button>
                     <button
                         className={`tab-btn ${tab === 'session' ? 'active' : ''}`}
@@ -309,6 +320,84 @@ const Settings: React.FC = () => {
                                     {pwLoading ? 'Changing Password…' : 'Change Password'}
                                 </button>
                             </form>
+                        </div>
+                    </div>
+                )}
+
+                {/* Appearance Tab */}
+                {tab === 'appearance' && (
+                    <div className="panel">
+                        <div className="panel-header">
+                            <h3><Palette size={17} style={{ color: 'var(--primary)' }} /> Interface Theme</h3>
+                        </div>
+                        <div className="panel-body">
+                            <p style={{ fontSize: '0.84rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
+                                Choose how the SSDMS dashboard appears to you. Your theme selection is automatically saved in your browser.
+                            </p>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem', marginBottom: '1rem' }}>
+                                {/* Light Mode Option Card */}
+                                <div
+                                    onClick={() => {
+                                        setTheme('light');
+                                        success('Switched to Light Mode');
+                                    }}
+                                    style={{
+                                        border: theme === 'light' ? '2px solid var(--primary)' : '1px solid var(--border)',
+                                        borderRadius: 'var(--radius-lg)',
+                                        padding: '1.25rem',
+                                        cursor: 'pointer',
+                                        background: '#ffffff',
+                                        color: '#0F172A',
+                                        boxShadow: theme === 'light' ? '0 0 0 3px var(--primary-focus)' : 'none',
+                                        transition: 'var(--transition)',
+                                    }}
+                                >
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700, fontSize: '0.92rem' }}>
+                                            <Sun size={18} style={{ color: '#F59E0B' }} />
+                                            <span>Light Mode</span>
+                                        </div>
+                                        {theme === 'light' && (
+                                            <span className="badge badge-success" style={{ fontSize: '0.68rem' }}>Active</span>
+                                        )}
+                                    </div>
+                                    <p style={{ fontSize: '0.78rem', color: '#64748B', margin: 0, lineHeight: 1.4 }}>
+                                        Crisp, high-contrast daytime interface with clean white surfaces and sharp typography.
+                                    </p>
+                                </div>
+
+                                {/* Dark Mode Option Card */}
+                                <div
+                                    onClick={() => {
+                                        setTheme('dark');
+                                        success('Switched to Dark Mode');
+                                    }}
+                                    style={{
+                                        border: theme === 'dark' ? '2px solid var(--primary)' : '1px solid #334155',
+                                        borderRadius: 'var(--radius-lg)',
+                                        padding: '1.25rem',
+                                        cursor: 'pointer',
+                                        background: '#0F172A',
+                                        color: '#F8FAFC',
+                                        boxShadow: theme === 'dark' ? '0 0 0 3px var(--primary-focus)' : 'none',
+                                        transition: 'var(--transition)',
+                                    }}
+                                >
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700, fontSize: '0.92rem' }}>
+                                            <Moon size={18} style={{ color: '#818CF8' }} />
+                                            <span>Dark Mode</span>
+                                        </div>
+                                        {theme === 'dark' && (
+                                            <span className="badge badge-success" style={{ fontSize: '0.68rem' }}>Active</span>
+                                        )}
+                                    </div>
+                                    <p style={{ fontSize: '0.78rem', color: '#94A3B8', margin: 0, lineHeight: 1.4 }}>
+                                        Deep midnight slate palette tailored for low-light conditions and reduced eye fatigue.
+                                    </p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 )}

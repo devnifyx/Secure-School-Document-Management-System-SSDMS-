@@ -328,7 +328,7 @@ const AdminDashboard: React.FC = () => {
                             </div>
 
                             {/* System Status */}
-                            <div className="panel" style={{ background: 'linear-gradient(180deg, #FFFFFF 0%, var(--surface-alt) 100%)' }}>
+                            <div className="panel" style={{ background: 'linear-gradient(180deg, var(--surface) 0%, var(--surface-alt) 100%)' }}>
                                 <div className="panel-header">
                                     <h3><ShieldCheck size={17} style={{ color: 'var(--success)' }} /> Security Status</h3>
                                 </div>

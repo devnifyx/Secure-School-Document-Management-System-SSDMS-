@@ -18,6 +18,7 @@ import {
     User,
     Layers,
 } from 'lucide-react';
+import CustomSelect from '../components/CustomSelect';
 
 interface Meta { current_page: number; last_page: number; total: number; }
 interface TeacherOption { id: number; name: string; role: string; }
@@ -106,6 +107,23 @@ const WeeklyReportTracker: React.FC = () => {
         setPage(1);
     };
 
+    const teacherOptions = [
+        { value: '', label: 'All Teachers' },
+        ...teachers.map((t) => ({ value: String(t.id), label: t.name, icon: <User size={14} /> })),
+    ];
+
+    const panitiaFilterOptions = [
+        { value: '', label: 'All Departments' },
+        ...panitiaOptions.map((p) => ({ value: String(p.id), label: p.name, icon: <Layers size={14} /> })),
+    ];
+
+    const statusOptions = [
+        { value: '', label: 'All Statuses' },
+        { value: 'Pending Review', label: 'Pending Review', icon: <Clock size={14} /> },
+        { value: 'Approved', label: 'Approved', icon: <CheckCircle2 size={14} /> },
+        { value: 'Rejected', label: 'Rejected', icon: <XCircle size={14} /> },
+    ];
+
     return (
         <Layout
             title="Weekly Report Tracker"
@@ -140,37 +158,34 @@ const WeeklyReportTracker: React.FC = () => {
                             onChange={(e) => { setWeekFilter(e.target.value); setPage(1); }}
                         />
 
-                        <select
-                            className="form-control"
-                            style={{ maxWidth: '180px' }}
+                        <CustomSelect
+                            options={teacherOptions}
                             value={teacherFilter}
-                            onChange={(e) => { setTeacherFilter(e.target.value); setPage(1); }}
-                        >
-                            <option value="">All Teachers</option>
-                            {teachers.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
-                        </select>
+                            onChange={(val) => { setTeacherFilter(val); setPage(1); }}
+                            placeholder="All Teachers"
+                            searchable={teachers.length > 5}
+                            clearable={true}
+                            style={{ minWidth: '180px', maxWidth: '230px' }}
+                        />
 
-                        <select
-                            className="form-control"
-                            style={{ maxWidth: '180px' }}
+                        <CustomSelect
+                            options={panitiaFilterOptions}
                             value={panitiaFilter}
-                            onChange={(e) => { setPanitiaFilter(e.target.value); setPage(1); }}
-                        >
-                            <option value="">All Departments</option>
-                            {panitiaOptions.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-                        </select>
+                            onChange={(val) => { setPanitiaFilter(val); setPage(1); }}
+                            placeholder="All Departments"
+                            searchable={panitiaOptions.length > 5}
+                            clearable={true}
+                            style={{ minWidth: '180px', maxWidth: '230px' }}
+                        />
 
-                        <select
-                            className="form-control"
-                            style={{ maxWidth: '170px' }}
+                        <CustomSelect
+                            options={statusOptions}
                             value={statusFilter}
-                            onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-                        >
-                            <option value="">All Statuses</option>
-                            <option value="Pending Review">Pending Review</option>
-                            <option value="Approved">Approved</option>
-                            <option value="Rejected">Rejected</option>
-                        </select>
+                            onChange={(val) => { setStatusFilter(val); setPage(1); }}
+                            placeholder="All Statuses"
+                            clearable={true}
+                            style={{ minWidth: '165px', maxWidth: '190px' }}
+                        />
 
                         <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.82rem', cursor: 'pointer', userSelect: 'none' }}>
                             <input

@@ -313,7 +313,7 @@ const WeeklyReportDetailsModal: React.FC<Props> = ({ report, onClose, onChanged 
                                                     alignItems: 'center',
                                                     justifyContent: 'space-between',
                                                     padding: '0.75rem 1rem',
-                                                    background: '#ffffff',
+                                                    background: 'var(--surface)',
                                                     border: '1px solid var(--border)',
                                                     borderRadius: 'var(--radius-md)',
                                                 }}

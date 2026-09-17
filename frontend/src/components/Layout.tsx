@@ -22,7 +22,10 @@ import {
     Check,
     GraduationCap,
     Clock,
+    Sun,
+    Moon,
 } from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface NotificationItem {
     id: number;
@@ -41,6 +44,7 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children, title, subtitle, actions }) => {
     const { user, logout, activePanitia, panitiaList, switchPanitia } = useAuth();
     const { success, error } = useToast();
+    const { theme, toggleTheme } = useTheme();
     const navigate = useNavigate();
     const location = useLocation();
     const isAdmin = user?.role === 'Admin';
@@ -231,7 +235,7 @@ const Layout: React.FC<LayoutProps> = ({ children, title, subtitle, actions }) =
                             {showPanitia && (
                                 <div style={{
                                     position: 'absolute', right: 0, top: '2.6rem', width: '230px',
-                                    background: '#ffffff', border: '1px solid var(--border)',
+                                    background: 'var(--surface)', border: '1px solid var(--border)',
                                     borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-lg)',
                                     zIndex: 200, overflow: 'hidden', animation: 'scaleIn 0.15s ease-out',
                                 }}>
@@ -277,6 +281,20 @@ const Layout: React.FC<LayoutProps> = ({ children, title, subtitle, actions }) =
                         </span>
                     )}
 
+                    {/* Theme Toggle Button */}
+                    <button
+                        className="topbar-icon-btn"
+                        onClick={toggleTheme}
+                        title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+                        aria-label="Toggle theme"
+                    >
+                        {theme === 'dark' ? (
+                            <Sun size={18} style={{ color: '#FBBF24' }} />
+                        ) : (
+                            <Moon size={18} />
+                        )}
+                    </button>
+
                     {/* Notifications popover */}
                     <div ref={notifRef} style={{ position: 'relative' }}>
                         <button
@@ -294,7 +312,7 @@ const Layout: React.FC<LayoutProps> = ({ children, title, subtitle, actions }) =
                             <div style={{
                                 position: 'absolute', right: 0, top: '2.8rem', width: '360px',
                                 maxWidth: 'calc(100vw - 2rem)',
-                                background: '#ffffff', border: '1px solid var(--border)',
+                                background: 'var(--surface)', border: '1px solid var(--border)',
                                 borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-xl)',
                                 maxHeight: '420px', overflowY: 'auto', zIndex: 200,
                                 animation: 'scaleIn 0.15s ease-out',
@@ -330,7 +348,7 @@ const Layout: React.FC<LayoutProps> = ({ children, title, subtitle, actions }) =
                                             style={{
                                                 padding: '0.8rem 1.2rem',
                                                 borderBottom: '1px solid var(--border)',
-                                                background: n.is_read ? '#ffffff' : 'var(--primary-soft)',
+                                                background: n.is_read ? 'var(--surface)' : 'var(--primary-soft)',
                                                 cursor: n.is_read ? 'default' : 'pointer',
                                                 transition: 'background 0.12s',
                                             }}
@@ -364,7 +382,7 @@ const Layout: React.FC<LayoutProps> = ({ children, title, subtitle, actions }) =
                         {showUserMenu && (
                             <div style={{
                                 position: 'absolute', right: 0, top: '3.2rem', width: '220px',
-                                background: '#ffffff', border: '1px solid var(--border)',
+                                background: 'var(--surface)', border: '1px solid var(--border)',
                                 borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-lg)',
                                 zIndex: 200, overflow: 'hidden', animation: 'scaleIn 0.15s ease-out',
                             }}>

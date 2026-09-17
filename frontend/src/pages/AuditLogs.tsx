@@ -14,7 +14,10 @@ import {
     Globe,
     ChevronLeft,
     ChevronRight,
+    FileText,
+    Filter,
 } from 'lucide-react';
+import CustomSelect from '../components/CustomSelect';
 
 interface AuditLog {
     id: number;
@@ -38,6 +41,40 @@ const ACTION_TYPES = [
     'PROFILE_UPDATED', 'PROFILE_PASSWORD_CHANGED',
     'AUDIT_LOG_EXPORTED',
 ];
+
+const getActionSublabel = (action: string): string => {
+    switch (action) {
+        case 'LOGIN_SUCCESS': return 'User session started';
+        case 'LOGOUT': return 'User logged out';
+        case 'LOGIN_FAILED': return 'Invalid credentials attempt';
+        case 'LOGIN_FAILED_LOCKED': return 'Account locked by threshold';
+        case 'LOGIN_FAILED_INACTIVE': return 'Inactive or suspended user';
+        case 'DOCUMENT_UPLOADED': return 'New document submitted';
+        case 'DOCUMENT_VIEWED': return 'Document preview viewed';
+        case 'DOCUMENT_DOWNLOADED': return 'Document file downloaded';
+        case 'DOCUMENT_APPROVED': return 'Document approved';
+        case 'DOCUMENT_REJECTED': return 'Document rejected';
+        case 'DOCUMENT_UPDATED': return 'Document metadata or file edited';
+        case 'DOCUMENT_DELETED': return 'Document moved to trash/deleted';
+        case 'DOCUMENT_VERIFY_PASSED': return 'SHA-256 hash verified';
+        case 'DOCUMENT_VERIFY_FAILED': return 'Integrity check mismatch';
+        case 'USER_CREATED': return 'New user registered';
+        case 'USER_UPDATED': return 'User profile updated';
+        case 'USER_DELETED': return 'User removed';
+        case 'PROFILE_UPDATED': return 'Account profile updated';
+        case 'PROFILE_PASSWORD_CHANGED': return 'Password changed';
+        case 'AUDIT_LOG_EXPORTED': return 'Audit log CSV exported';
+        default: return '';
+    }
+};
+
+const getActionIcon = (action: string) => {
+    if (action.startsWith('LOGIN') || action === 'LOGOUT') return <Shield size={14} />;
+    if (action.startsWith('DOCUMENT')) return <FileText size={14} />;
+    if (action.startsWith('USER') || action.startsWith('PROFILE')) return <User size={14} />;
+    if (action.startsWith('AUDIT')) return <History size={14} />;
+    return <Filter size={14} />;
+};
 
 const actionBadgeClass = (action: string): string => {
     if (action.includes('FAILED') || action.includes('REJECTED') || action.includes('DELETED') || action.includes('LOCKED')) {
@@ -108,6 +145,16 @@ const AuditLogs: React.FC = () => {
         }
     };
 
+    const actionOptions = [
+        { value: '', label: 'All Action Types', icon: <Filter size={14} /> },
+        ...ACTION_TYPES.map((a) => ({
+            value: a,
+            label: a,
+            sublabel: getActionSublabel(a),
+            icon: getActionIcon(a),
+        })),
+    ];
+
     return (
         <Layout
             title="Audit Logs"
@@ -125,22 +172,18 @@ const AuditLogs: React.FC = () => {
         >
             {/* Filter toolbar */}
             <div className="filter-bar">
-                <select
-                    className="form-control"
-                    style={{ maxWidth: '240px' }}
+                <CustomSelect
+                    options={actionOptions}
                     value={actionFilter}
-                    onChange={(e) => {
-                        setActionFilter(e.target.value);
+                    onChange={(val) => {
+                        setActionFilter(val);
                         setPage(1);
                     }}
-                >
-                    <option value="">All Action Types</option>
-                    {ACTION_TYPES.map((a) => (
-                        <option key={a} value={a}>
-                            {a}
-                        </option>
-                    ))}
-                </select>
+                    placeholder="All Action Types"
+                    searchable={true}
+                    clearable={true}
+                    style={{ minWidth: '280px', maxWidth: '360px' }}
+                />
 
                 {actionFilter && (
                     <button
