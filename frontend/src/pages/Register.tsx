@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
+import { GraduationCap, User, Mail, Lock, Layers, CheckCircle2, AlertCircle, ArrowLeft, ArrowRight } from 'lucide-react';
+import CustomSelect from '../components/CustomSelect';
 
 interface PanitiaOption {
     id: number;
@@ -29,6 +31,12 @@ const Register: React.FC = () => {
         e.preventDefault();
         setError('');
         setFieldErrors({});
+
+        if (password !== passwordConfirmation) {
+            setError('Passwords do not match.');
+            return;
+        }
+
         setLoading(true);
         try {
             await api.post('/register', {
@@ -45,7 +53,7 @@ const Register: React.FC = () => {
             if (data?.errors) {
                 setFieldErrors(data.errors);
             } else {
-                setError(data?.message || 'Registration failed.');
+                setError(data?.message || 'Registration failed. Please check the information provided.');
             }
         } finally {
             setLoading(false);
@@ -57,21 +65,37 @@ const Register: React.FC = () => {
     if (success) {
         return (
             <div style={{
-                minHeight: '100vh', display: 'flex', flexDirection: 'column',
-                alignItems: 'center', justifyContent: 'center', background: 'var(--bg)',
-                padding: '1.5rem',
+                minHeight: '100vh',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: 'radial-gradient(ellipse at top, #EEF2FF 0%, #F8FAFC 60%, #F1F5F9 100%)',
+                padding: '1.75rem 1rem',
             }}>
-                <div className="panel" style={{ width: '100%', maxWidth: '420px' }}>
-                    <div className="panel-body" style={{ textAlign: 'center' }}>
-                        <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>✓</div>
-                        <div style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--navy)', marginBottom: '0.5rem' }}>
+                <div className="panel" style={{ width: '100%', maxWidth: '440px', boxShadow: 'var(--shadow-xl)' }}>
+                    <div className="panel-body" style={{ textAlign: 'center', padding: '2.5rem 2rem' }}>
+                        <div style={{
+                            width: '64px',
+                            height: '64px',
+                            borderRadius: '50%',
+                            background: 'var(--success-bg)',
+                            color: 'var(--success)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            margin: '0 auto 1.25rem',
+                        }}>
+                            <CheckCircle2 size={36} />
+                        </div>
+                        <h2 style={{ fontWeight: 800, fontSize: '1.3rem', color: 'var(--text)', marginBottom: '0.5rem' }}>
                             Registration Submitted
-                        </div>
-                        <div style={{ fontSize: '0.83rem', color: 'var(--text-secondary)', marginBottom: '1.25rem', lineHeight: 1.6 }}>
-                            Your account is pending administrator approval. You will be able to log in once an administrator approves your registration.
-                        </div>
-                        <button className="btn btn-primary" style={{ width: '100%' }} onClick={() => navigate('/login')}>
-                            Back to Login
+                        </h2>
+                        <p style={{ fontSize: '0.86rem', color: 'var(--text-secondary)', marginBottom: '1.75rem', lineHeight: 1.6 }}>
+                            Thank you for registering! Your teacher account has been submitted for administrator review. You will receive access once an administrator approves your account.
+                        </p>
+                        <button className="btn btn-primary" style={{ width: '100%', padding: '0.75rem' }} onClick={() => navigate('/login')}>
+                            Return to Login
                         </button>
                     </div>
                 </div>
@@ -81,87 +105,196 @@ const Register: React.FC = () => {
 
     return (
         <div style={{
-            minHeight: '100vh', display: 'flex', flexDirection: 'column',
-            alignItems: 'center', justifyContent: 'center', background: 'var(--bg)',
-            padding: '1.5rem',
+            minHeight: '100vh',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: 'radial-gradient(ellipse at top, #EEF2FF 0%, #F8FAFC 60%, #F1F5F9 100%)',
+            padding: '2.5rem 1rem',
         }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1.75rem' }}>
+            {/* Header Brand */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '1.75rem' }}>
                 <div style={{
-                    width: '38px', height: '38px', borderRadius: '10px',
-                    background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: '1.1rem',
-                }}>🏫</div>
+                    width: '42px',
+                    height: '42px',
+                    borderRadius: '12px',
+                    background: 'linear-gradient(135deg, #4F46E5 0%, #6366F1 100%)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#ffffff',
+                    boxShadow: '0 8px 16px rgba(79, 70, 229, 0.3)',
+                }}>
+                    <GraduationCap size={24} />
+                </div>
                 <div>
-                    <div style={{ fontWeight: 800, fontSize: '1.05rem', color: 'var(--text)' }}>SSDMS</div>
-                    <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Secure School Document Management System</div>
+                    <div style={{ fontWeight: 800, fontSize: '1.2rem', color: 'var(--text)', letterSpacing: '-0.02em' }}>SSDMS</div>
+                    <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>Secure Academic Document Management</div>
                 </div>
             </div>
 
-            <div className="panel" style={{ width: '100%', maxWidth: '420px' }}>
-                <div className="panel-body">
-                    <div style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--navy)', marginBottom: '0.2rem' }}>Create Account</div>
-                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1.25rem' }}>
-                        Register as a new teacher
+            {/* Registration Card */}
+            <div className="panel" style={{ width: '100%', maxWidth: '560px', boxShadow: 'var(--shadow-xl)' }}>
+                <div className="panel-body" style={{ padding: '2rem 2.25rem' }}>
+                    <div style={{ fontWeight: 800, fontSize: '1.3rem', color: 'var(--text)', marginBottom: '0.35rem' }}>
+                        Create Teacher Account
+                    </div>
+                    <div style={{ fontSize: '0.84rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
+                        Register to submit lesson plans, assessments, and weekly reports
                     </div>
 
-                    {error && <div className="notice notice-danger" style={{ marginBottom: '1.1rem' }}>{error}</div>}
+                    {error && (
+                        <div className="notice notice-danger" style={{ marginBottom: '1.25rem' }}>
+                            <AlertCircle size={18} style={{ flexShrink: 0 }} />
+                            <div>{error}</div>
+                        </div>
+                    )}
 
                     <form onSubmit={handleSubmit}>
                         <div className="form-group">
-                            <label className="form-label">Full Name</label>
-                            <input className="form-control" type="text" value={name} required
-                                onChange={(e) => setName(e.target.value)} placeholder="Your full name" autoFocus />
+                            <label className="form-label">Full Name <span style={{ color: 'var(--danger)' }}>*</span></label>
+                            <div style={{ position: 'relative' }}>
+                                <div style={{ position: 'absolute', left: '0.9rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', display: 'flex' }}>
+                                    <User size={16} />
+                                </div>
+                                <input
+                                    className="form-control"
+                                    type="text"
+                                    value={name}
+                                    required
+                                    onChange={(e) => setName(e.target.value)}
+                                    placeholder="e.g. Cikgu Ahmad Razali"
+                                    style={{ paddingLeft: '2.5rem' }}
+                                    autoFocus
+                                />
+                            </div>
                             {firstError('name') && <div className="form-error">{firstError('name')}</div>}
                         </div>
-                        <div className="form-group">
-                            <label className="form-label">Email Address</label>
-                            <input className="form-control" type="email" value={email} required
-                                onChange={(e) => setEmail(e.target.value)} placeholder="you@school.edu" />
-                            {firstError('email') && <div className="form-error">{firstError('email')}</div>}
+
+                        <div className="form-row">
+                            <div className="form-group">
+                                <label className="form-label">Email Address <span style={{ color: 'var(--danger)' }}>*</span></label>
+                                <div style={{ position: 'relative' }}>
+                                    <div style={{ position: 'absolute', left: '0.9rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', display: 'flex' }}>
+                                        <Mail size={16} />
+                                    </div>
+                                    <input
+                                        className="form-control"
+                                        type="email"
+                                        value={email}
+                                        required
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        placeholder="ahmad@school.edu"
+                                        style={{ paddingLeft: '2.5rem' }}
+                                    />
+                                </div>
+                                {firstError('email') && <div className="form-error">{firstError('email')}</div>}
+                            </div>
+
+                            <div className="form-group">
+                                <label className="form-label">Username <span style={{ color: 'var(--danger)' }}>*</span></label>
+                                <input
+                                    className="form-control"
+                                    type="text"
+                                    value={username}
+                                    required
+                                    onChange={(e) => setUsername(e.target.value)}
+                                    placeholder="e.g. ahmad_razali"
+                                />
+                                {firstError('username') && <div className="form-error">{firstError('username')}</div>}
+                            </div>
                         </div>
-                        <div className="form-group">
-                            <label className="form-label">Username</label>
-                            <input className="form-control" type="text" value={username} required
-                                onChange={(e) => setUsername(e.target.value)} placeholder="Choose a username" />
-                            {firstError('username') && <div className="form-error">{firstError('username')}</div>}
+
+                        <div className="form-row">
+                            <div className="form-group">
+                                <label className="form-label">Password <span style={{ color: 'var(--danger)' }}>*</span></label>
+                                <div style={{ position: 'relative' }}>
+                                    <div style={{ position: 'absolute', left: '0.9rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', display: 'flex' }}>
+                                        <Lock size={16} />
+                                    </div>
+                                    <input
+                                        className="form-control"
+                                        type="password"
+                                        value={password}
+                                        required
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        placeholder="Min 8 characters"
+                                        style={{ paddingLeft: '2.5rem' }}
+                                    />
+                                </div>
+                                {firstError('password') && <div className="form-error">{firstError('password')}</div>}
+                            </div>
+
+                            <div className="form-group">
+                                <label className="form-label">Confirm Password <span style={{ color: 'var(--danger)' }}>*</span></label>
+                                <div style={{ position: 'relative' }}>
+                                    <div style={{ position: 'absolute', left: '0.9rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', display: 'flex' }}>
+                                        <Lock size={16} />
+                                    </div>
+                                    <input
+                                        className="form-control"
+                                        type="password"
+                                        value={passwordConfirmation}
+                                        required
+                                        onChange={(e) => setPasswordConfirmation(e.target.value)}
+                                        placeholder="Confirm password"
+                                        style={{ paddingLeft: '2.5rem' }}
+                                    />
+                                </div>
+                            </div>
                         </div>
+
                         <div className="form-group">
-                            <label className="form-label">Password</label>
-                            <input className="form-control" type="password" value={password} required
-                                onChange={(e) => setPassword(e.target.value)} placeholder="Min 8 characters" />
-                            {firstError('password') && <div className="form-error">{firstError('password')}</div>}
-                        </div>
-                        <div className="form-group">
-                            <label className="form-label">Confirm Password</label>
-                            <input className="form-control" type="password" value={passwordConfirmation} required
-                                onChange={(e) => setPasswordConfirmation(e.target.value)} placeholder="Re-enter password" />
-                        </div>
-                        <div className="form-group">
-                            <label className="form-label">Primary Panitia</label>
-                            <select className="form-control" value={primaryPanitiaId} required
-                                onChange={(e) => setPrimaryPanitiaId(e.target.value)}>
-                                <option value="">Select your primary Panitia</option>
-                                {panitiaOptions.map((p) => (
-                                    <option key={p.id} value={p.id}>{p.name}</option>
-                                ))}
-                            </select>
+                            <label className="form-label">
+                                Primary Subject Department (Panitia) <span style={{ color: 'var(--danger)' }}>*</span>
+                            </label>
+                            <CustomSelect
+                                options={panitiaOptions.map((p) => ({
+                                    value: String(p.id),
+                                    label: p.name,
+                                    icon: <Layers size={16} />
+                                }))}
+                                value={primaryPanitiaId}
+                                onChange={(val) => setPrimaryPanitiaId(val)}
+                                placeholder="Select your primary department…"
+                                searchable={true}
+                            />
                             {firstError('primary_panitia_id') && <div className="form-error">{firstError('primary_panitia_id')}</div>}
+                            <span className="form-hint" style={{ marginTop: '0.35rem', display: 'block' }}>
+                                Administrators can assign you to additional Panitia after account approval.
+                            </span>
                         </div>
-                        <button type="submit" className="btn btn-primary" disabled={loading}
-                            style={{ width: '100%', marginTop: '0.5rem', padding: '0.65rem' }}>
-                            {loading ? 'Registering…' : 'Register'}
+
+                        <button
+                            type="submit"
+                            className="btn btn-primary"
+                            disabled={loading}
+                            style={{ width: '100%', marginTop: '0.75rem', padding: '0.75rem' }}
+                        >
+                            {loading ? 'Submitting registration…' : (
+                                <>
+                                    <span>Register Account</span>
+                                    <ArrowRight size={16} />
+                                </>
+                            )}
                         </button>
                     </form>
 
-                    <div style={{ textAlign: 'center', marginTop: '1rem', fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
+                    <div style={{
+                        textAlign: 'center',
+                        marginTop: '1.5rem',
+                        paddingTop: '1.25rem',
+                        borderTop: '1px solid var(--border)',
+                        fontSize: '0.84rem',
+                        color: 'var(--text-secondary)',
+                    }}>
                         Already have an account?{' '}
-                        <button className="btn-link" onClick={() => navigate('/login')}>Sign in</button>
+                        <button className="btn-link" onClick={() => navigate('/login')} style={{ fontWeight: 700 }}>
+                            <ArrowLeft size={14} /> Back to Sign In
+                        </button>
                     </div>
                 </div>
-            </div>
-
-            <div style={{ marginTop: '1.5rem', fontSize: '0.72rem', color: 'var(--text-muted)', textAlign: 'center', maxWidth: '420px' }}>
-                Your account will require administrator approval before you can access the system.
             </div>
         </div>
     );

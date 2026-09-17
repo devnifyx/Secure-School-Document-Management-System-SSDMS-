@@ -2,6 +2,22 @@ import React, { useState, useEffect, useCallback } from 'react';
 import api from '../services/api';
 import Layout from '../components/Layout';
 import DocumentDetailsModal, { DocumentItem } from '../components/DocumentDetailsModal';
+import ConfirmModal from '../components/ConfirmModal';
+import { SkeletonTable } from '../components/SkeletonLoader';
+import EmptyState from '../components/EmptyState';
+import { useToast } from '../contexts/ToastContext';
+import {
+    CheckSquare,
+    CheckCircle2,
+    XCircle,
+    Eye,
+    FileText,
+    Clock,
+    User,
+    Layers,
+    ChevronLeft,
+    ChevronRight,
+} from 'lucide-react';
 
 interface Meta { current_page: number; last_page: number; total: number; }
 
@@ -12,10 +28,15 @@ const ApprovalQueue: React.FC = () => {
     const [page, setPage] = useState(1);
 
     const [selected, setSelected] = useState<DocumentItem | null>(null);
+
+    // Confirmation & Action Modals
+    const [approveTarget, setApproveTarget] = useState<DocumentItem | null>(null);
+    const [approveLoading, setApproveLoading] = useState(false);
+
     const [rejectTarget, setRejectTarget] = useState<DocumentItem | null>(null);
-    const [rejectReason, setRejectReason] = useState('');
     const [rejectLoading, setRejectLoading] = useState(false);
-    const [approvingId, setApprovingId] = useState<number | null>(null);
+
+    const { success, error: toastError } = useToast();
 
     const load = useCallback(async () => {
         setLoading(true);
@@ -23,79 +44,138 @@ const ApprovalQueue: React.FC = () => {
             const res = await api.get('/documents', { params: { status: 'Pending', page } });
             setDocuments(res.data.data);
             setMeta({ current_page: res.data.current_page, last_page: res.data.last_page, total: res.data.total });
-        } catch (e) { console.error(e); }
-        finally { setLoading(false); }
+        } catch {
+            toastError('Failed to load pending queue');
+        } finally {
+            setLoading(false);
+        }
     }, [page]);
 
-    useEffect(() => { load(); }, [load]);
+    useEffect(() => {
+        load();
+    }, [load]);
 
-    const handleApprove = async (id: number) => {
-        if (!confirm('Approve this document?')) return;
-        setApprovingId(id);
-        try { await api.post(`/documents/${id}/approve`); load(); }
-        catch (e: any) { alert(e.response?.data?.message || 'Failed to approve'); }
-        finally { setApprovingId(null); }
-    };
-
-    const submitReject = async () => {
-        if (!rejectTarget || !rejectReason.trim()) return;
-        setRejectLoading(true);
+    const handleApproveConfirm = async () => {
+        if (!approveTarget) return;
+        setApproveLoading(true);
         try {
-            await api.post(`/documents/${rejectTarget.id}/reject`, { reason: rejectReason.trim() });
-            setRejectTarget(null); setRejectReason('');
+            await api.post(`/documents/${approveTarget.id}/approve`);
+            success(`Document "${approveTarget.title}" approved successfully.`);
+            setApproveTarget(null);
             load();
         } catch (e: any) {
-            alert(e.response?.data?.message || 'Failed to reject');
-        } finally { setRejectLoading(false); }
+            toastError(e.response?.data?.message || 'Failed to approve document.');
+        } finally {
+            setApproveLoading(false);
+        }
+    };
+
+    const handleRejectConfirm = async (reason?: string) => {
+        if (!rejectTarget || !reason?.trim()) return;
+        setRejectLoading(true);
+        try {
+            await api.post(`/documents/${rejectTarget.id}/reject`, { reason: reason.trim() });
+            success(`Document "${rejectTarget.title}" has been rejected.`);
+            setRejectTarget(null);
+            load();
+        } catch (e: any) {
+            toastError(e.response?.data?.message || 'Failed to reject document.');
+        } finally {
+            setRejectLoading(false);
+        }
     };
 
     return (
-        <Layout title="Approval Queue" subtitle="Documents awaiting administrative review">
+        <Layout
+            title="Approval Queue"
+            subtitle="Review, approve, or request revisions for submitted academic documents"
+        >
             <div className="panel">
-                {loading ? (
-                    <div className="empty-state"><div className="icon">⏳</div>Loading queue…</div>
-                ) : documents.length === 0 ? (
-                    <div className="empty-state">
-                        <div className="icon">✓</div>
-                        No documents are currently pending approval.
+                <div className="panel-header">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                        <CheckSquare size={18} style={{ color: 'var(--primary)' }} />
+                        <strong>Pending Review Items</strong>
+                        <span className="badge badge-warning" style={{ fontSize: '0.7rem' }}>
+                            {meta?.total ?? 0} awaiting
+                        </span>
                     </div>
+                </div>
+
+                {loading ? (
+                    <div style={{ padding: '1.5rem' }}>
+                        <SkeletonTable rows={5} columns={6} />
+                    </div>
+                ) : documents.length === 0 ? (
+                    <EmptyState
+                        icon={<CheckCircle2 size={46} style={{ color: 'var(--success)' }} />}
+                        title="All caught up!"
+                        description="There are no documents currently awaiting administrative review in the queue."
+                    />
                 ) : (
                     <>
                         <div className="table-wrap">
                             <table className="data-table">
                                 <thead>
                                     <tr>
-                                        <th>Document Name</th>
+                                        <th>Document Title</th>
                                         <th>Category</th>
-                                        <th>Uploaded By</th>
+                                        <th>Submitted By</th>
+                                        <th>Department</th>
                                         <th>Submission Date</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
+                                        <th style={{ textAlign: 'right' }}>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {documents.map((doc) => (
                                         <tr key={doc.id}>
-                                            <td style={{ fontWeight: 600 }}>{doc.title}</td>
-                                            <td>{doc.category}</td>
-                                            <td>{doc.uploaded_by.name}</td>
-                                            <td>{new Date(doc.created_at).toLocaleString()}</td>
-                                            <td><span className="badge badge-warning">Pending</span></td>
+                                            <td style={{ fontWeight: 600 }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                                                    <FileText size={16} style={{ color: 'var(--primary)', flexShrink: 0 }} />
+                                                    <span>{doc.title}</span>
+                                                </div>
+                                            </td>
                                             <td>
-                                                <button className="row-action" onClick={() => setSelected(doc)}>View</button>
-                                                {' '}·{' '}
-                                                <button
-                                                    className="row-action"
-                                                    style={{ color: 'var(--success)' }}
-                                                    disabled={approvingId === doc.id}
-                                                    onClick={() => handleApprove(doc.id)}
-                                                >
-                                                    {approvingId === doc.id ? 'Approving…' : 'Approve'}
-                                                </button>
-                                                {' '}·{' '}
-                                                <button className="row-action danger" onClick={() => { setRejectTarget(doc); setRejectReason(''); }}>
-                                                    Reject
-                                                </button>
+                                                <span className="badge badge-neutral">{doc.category}</span>
+                                            </td>
+                                            <td>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                                    <User size={13} style={{ color: 'var(--text-muted)' }} />
+                                                    <span>{doc.uploaded_by.name}</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--text-secondary)' }}>
+                                                    <Layers size={13} style={{ color: 'var(--text-muted)' }} />
+                                                    <span>{doc.panitia?.name || '—'}</span>
+                                                </div>
+                                            </td>
+                                            <td style={{ color: 'var(--text-muted)', whiteSpace: 'nowrap', fontSize: '0.8rem' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                                    <Clock size={13} />
+                                                    {new Date(doc.created_at).toLocaleString()}
+                                                </div>
+                                            </td>
+                                            <td style={{ textAlign: 'right' }}>
+                                                <div style={{ display: 'inline-flex', gap: '0.4rem' }}>
+                                                    <button
+                                                        className="btn btn-secondary btn-sm"
+                                                        onClick={() => setSelected(doc)}
+                                                    >
+                                                        <Eye size={13} /> Review
+                                                    </button>
+                                                    <button
+                                                        className="btn btn-success btn-sm"
+                                                        onClick={() => setApproveTarget(doc)}
+                                                    >
+                                                        <CheckCircle2 size={13} /> Approve
+                                                    </button>
+                                                    <button
+                                                        className="btn btn-danger btn-sm"
+                                                        onClick={() => setRejectTarget(doc)}
+                                                    >
+                                                        <XCircle size={13} /> Reject
+                                                    </button>
+                                                </div>
                                             </td>
                                         </tr>
                                     ))}
@@ -103,54 +183,81 @@ const ApprovalQueue: React.FC = () => {
                             </table>
                         </div>
 
+                        {/* Pagination */}
                         {meta && meta.last_page > 1 && (
                             <div className="pagination">
-                                <button className="page-btn" disabled={page === 1} onClick={() => setPage(1)}>«</button>
-                                <button className="page-btn" disabled={page === 1} onClick={() => setPage((p) => p - 1)}>‹</button>
-                                <span className="page-info">Page {meta.current_page} of {meta.last_page}</span>
-                                <button className="page-btn" disabled={page === meta.last_page} onClick={() => setPage((p) => p + 1)}>›</button>
-                                <button className="page-btn" disabled={page === meta.last_page} onClick={() => setPage(meta.last_page)}>»</button>
+                                <button
+                                    className="page-btn"
+                                    disabled={page === 1}
+                                    onClick={() => setPage(1)}
+                                >
+                                    «
+                                </button>
+                                <button
+                                    className="page-btn"
+                                    disabled={page === 1}
+                                    onClick={() => setPage((p) => p - 1)}
+                                >
+                                    <ChevronLeft size={14} />
+                                </button>
+                                <span className="page-info">
+                                    Page <strong>{meta.current_page}</strong> of <strong>{meta.last_page}</strong>
+                                </span>
+                                <button
+                                    className="page-btn"
+                                    disabled={page === meta.last_page}
+                                    onClick={() => setPage((p) => p + 1)}
+                                >
+                                    <ChevronRight size={14} />
+                                </button>
+                                <button
+                                    className="page-btn"
+                                    disabled={page === meta.last_page}
+                                    onClick={() => setPage(meta.last_page)}
+                                >
+                                    »
+                                </button>
                             </div>
                         )}
                     </>
                 )}
             </div>
 
+            {/* Document Details Modal */}
             {selected && (
-                <DocumentDetailsModal document={selected} onClose={() => setSelected(null)} onChanged={load} />
+                <DocumentDetailsModal
+                    document={selected}
+                    onClose={() => setSelected(null)}
+                    onChanged={load}
+                />
             )}
 
-            {/* Reject reason modal */}
-            {rejectTarget && (
-                <div className="modal-overlay" onClick={() => setRejectTarget(null)}>
-                    <div className="modal-box" style={{ maxWidth: '440px' }} onClick={(e) => e.stopPropagation()}>
-                        <div className="modal-header">
-                            <h3>Reject Document</h3>
-                            <button className="modal-close" onClick={() => setRejectTarget(null)}>×</button>
-                        </div>
-                        <div className="modal-body">
-                            <p style={{ fontSize: '0.83rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
-                                Rejecting <strong>{rejectTarget.title}</strong>. A reason is required and will be visible to the submitter.
-                            </p>
-                            <div className="form-group">
-                                <label className="form-label">Rejection Reason <span style={{ color: 'var(--danger)' }}>*</span></label>
-                                <textarea
-                                    className="form-control" rows={4} value={rejectReason}
-                                    onChange={(e) => setRejectReason(e.target.value)}
-                                    placeholder="Explain what needs to be corrected…"
-                                    autoFocus
-                                />
-                            </div>
-                        </div>
-                        <div className="modal-footer">
-                            <button className="btn btn-secondary" onClick={() => setRejectTarget(null)}>Cancel</button>
-                            <button className="btn btn-danger" onClick={submitReject} disabled={rejectLoading || !rejectReason.trim()}>
-                                {rejectLoading ? 'Rejecting…' : 'Reject Document'}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            {/* Approve Confirmation Modal */}
+            <ConfirmModal
+                isOpen={approveTarget !== null}
+                title="Approve Document"
+                message={`Are you sure you want to approve "${approveTarget?.title}"? It will become available to all authorized users in the repository.`}
+                confirmText="Approve Document"
+                onConfirm={handleApproveConfirm}
+                onCancel={() => setApproveTarget(null)}
+                loading={approveLoading}
+            />
+
+            {/* Reject Confirmation Modal with Input */}
+            <ConfirmModal
+                isOpen={rejectTarget !== null}
+                title="Reject Document"
+                message={`Please specify a reason for rejecting "${rejectTarget?.title}". The author will be notified to correct and resubmit.`}
+                confirmText="Reject & Request Revision"
+                isDanger={true}
+                inputMode={true}
+                inputLabel="Rejection Feedback & Instructions"
+                inputPlaceholder="Explain what needs to be changed or corrected…"
+                inputRequired={true}
+                onConfirm={handleRejectConfirm}
+                onCancel={() => setRejectTarget(null)}
+                loading={rejectLoading}
+            />
         </Layout>
     );
 };

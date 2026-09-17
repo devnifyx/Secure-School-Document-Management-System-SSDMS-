@@ -1,8 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
+import { SkeletonCard, SkeletonTable } from '../components/SkeletonLoader';
+import EmptyState from '../components/EmptyState';
 import api from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
+import {
+    FileText,
+    Clock,
+    CheckCircle2,
+    XCircle,
+    UploadCloud,
+    Calendar,
+    ArrowRight,
+    HelpCircle,
+} from 'lucide-react';
 
 interface Stats {
     documents: { total: number; pending: number; approved: number; rejected: number };
@@ -45,65 +57,166 @@ const TeacherDashboard: React.FC = () => {
 
     return (
         <Layout
-            title="Dashboard"
-            subtitle={`Welcome back, ${user?.name}${activePanitia ? ` — ${activePanitia.name}` : ''}`}
-            actions={<button className="btn btn-primary" onClick={() => navigate('/upload')}>+ Upload Document</button>}
+            title="Teacher Dashboard"
+            subtitle={`Welcome, ${user?.name || 'Educator'}${activePanitia ? ` · Active Department: ${activePanitia.name}` : ''}`}
+            actions={
+                <button className="btn btn-primary" onClick={() => navigate('/upload')}>
+                    <UploadCloud size={16} /> Upload Document
+                </button>
+            }
         >
             {loading || !stats ? (
-                <div className="empty-state"><div className="icon">⏳</div>Loading dashboard…</div>
+                <>
+                    <SkeletonCard count={4} />
+                    <div className="panel" style={{ padding: '1.5rem', marginBottom: '1.5rem' }}>
+                        <SkeletonTable rows={4} columns={4} />
+                    </div>
+                </>
             ) : (
                 <>
+                    {/* Summary KPI Cards */}
                     <div className="summary-grid">
                         <div className="summary-card" onClick={() => navigate('/documents')}>
-                            <div className="label">Total Submitted 🗎</div>
+                            <div className="summary-card-header">
+                                <span className="label">Total Submitted</span>
+                                <div className="summary-card-icon" style={{ background: 'var(--primary-soft)', color: 'var(--primary)' }}>
+                                    <FileText size={18} />
+                                </div>
+                            </div>
                             <div className="value">{stats.documents.total}</div>
+                            <div className="subtext">All submitted documents</div>
                         </div>
+
                         <div className="summary-card" onClick={() => navigate('/documents?status=Pending')}>
-                            <div className="label">Pending Review ◔</div>
-                            <div className="value" style={{ color: 'var(--warning)' }}>{stats.documents.pending}</div>
-                            <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.4rem' }}>Awaiting admin review</div>
+                            <div className="summary-card-header">
+                                <span className="label">Pending Review</span>
+                                <div className="summary-card-icon" style={{ background: 'var(--warning-bg)', color: 'var(--warning)' }}>
+                                    <Clock size={18} />
+                                </div>
+                            </div>
+                            <div className="value" style={{ color: stats.documents.pending > 0 ? 'var(--warning)' : 'inherit' }}>
+                                {stats.documents.pending}
+                            </div>
+                            <div className="subtext">Awaiting administrative approval</div>
                         </div>
+
                         <div className="summary-card" onClick={() => navigate('/documents?status=Approved')}>
-                            <div className="label">Approved ✓</div>
+                            <div className="summary-card-header">
+                                <span className="label">Approved</span>
+                                <div className="summary-card-icon" style={{ background: 'var(--success-bg)', color: 'var(--success)' }}>
+                                    <CheckCircle2 size={18} />
+                                </div>
+                            </div>
                             <div className="value" style={{ color: 'var(--success)' }}>{stats.documents.approved}</div>
-                            <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.4rem' }}>Ready to download</div>
+                            <div className="subtext">Ready & verified in repository</div>
                         </div>
+
                         <div className="summary-card" onClick={() => navigate('/documents?status=Rejected')}>
-                            <div className="label">Rejected ⊘</div>
+                            <div className="summary-card-header">
+                                <span className="label">Rejected</span>
+                                <div className="summary-card-icon" style={{ background: 'var(--danger-bg)', color: 'var(--danger)' }}>
+                                    <XCircle size={18} />
+                                </div>
+                            </div>
                             <div className="value" style={{ color: 'var(--danger)' }}>{stats.documents.rejected}</div>
-                            <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.4rem' }}>
-                                {stats.documents.rejected > 0 ? 'Action needed' : 'None rejected'}
+                            <div className="subtext">
+                                {stats.documents.rejected > 0 ? 'Requires revision & resubmission' : 'Zero rejections'}
                             </div>
                         </div>
                     </div>
 
-                    <div className="panel">
+                    {/* Weekly Report Banner Card */}
+                    <div className="panel" style={{ marginBottom: '1.5rem', borderLeft: '4px solid var(--primary)' }}>
                         <div className="panel-header">
-                            <h3>My Recent Documents</h3>
-                            <button className="btn-link" onClick={() => navigate('/documents')}>View all →</button>
+                            <h3>
+                                <Calendar size={18} style={{ color: 'var(--primary)' }} />
+                                Weekly Activity Report — Week {stats.weekly_reports.current_week}
+                            </h3>
+                            <button className="btn-link" onClick={() => navigate('/weekly-reports')}>
+                                View Report History <ArrowRight size={14} />
+                            </button>
+                        </div>
+                        <div className="panel-body">
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                                        <span style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--text)' }}>
+                                            Current Submission Status:
+                                        </span>
+                                        {stats.weekly_reports.current_week_submitted ? (
+                                            <span className="badge badge-success">
+                                                <CheckCircle2 size={12} /> Submitted
+                                            </span>
+                                        ) : (
+                                            <span className="badge badge-warning">
+                                                <Clock size={12} /> Not Submitted
+                                            </span>
+                                        )}
+                                    </div>
+                                    <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
+                                        {stats.weekly_reports.submission_window_open ? (
+                                            <span style={{ color: 'var(--success)', fontWeight: 600 }}>
+                                                ● On-Time Window is OPEN (Saturday – Sunday)
+                                            </span>
+                                        ) : (
+                                            <span style={{ color: 'var(--warning)', fontWeight: 500 }}>
+                                                ● Normal submission window is closed — submissions will be recorded as Late
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {!stats.weekly_reports.current_week_submitted && (
+                                    <button
+                                        className="btn btn-primary"
+                                        onClick={() => navigate('/weekly-reports/submit')}
+                                    >
+                                        Submit Week {stats.weekly_reports.current_week} Report
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Recent Documents Panel */}
+                    <div className="panel" style={{ marginBottom: '1.5rem' }}>
+                        <div className="panel-header">
+                            <h3><FileText size={18} /> My Recent Documents</h3>
+                            <button className="btn-link" onClick={() => navigate('/documents')}>
+                                View All Repository <ArrowRight size={14} />
+                            </button>
                         </div>
                         <div className="table-wrap">
                             <table className="data-table">
                                 <thead>
                                     <tr>
-                                        <th>Document Name</th>
+                                        <th>Document Title</th>
                                         <th>Category</th>
-                                        <th>Status</th>
-                                        <th>Submitted</th>
+                                        <th>Review Status</th>
+                                        <th>Submitted On</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {recent.length === 0 ? (
-                                        <tr><td colSpan={4} className="table-empty">
-                                            You haven't uploaded any documents yet.{' '}
-                                            <button className="btn-link" onClick={() => navigate('/upload')}>Upload your first document</button>
-                                        </td></tr>
+                                        <tr>
+                                            <td colSpan={4}>
+                                                <EmptyState
+                                                    icon={<FileText size={36} className="text-slate-400" />}
+                                                    title="No documents uploaded yet"
+                                                    description="Upload your lesson plans, assessments, or teaching materials for admin review."
+                                                    actionText="Upload First Document"
+                                                    onAction={() => navigate('/upload')}
+                                                />
+                                            </td>
+                                        </tr>
                                     ) : recent.map((d) => (
-                                        <tr key={d.id}>
+                                        <tr key={d.id} style={{ cursor: 'pointer' }} onClick={() => navigate('/documents')}>
                                             <td style={{ fontWeight: 600 }}>{d.title}</td>
-                                            <td>{d.category}</td>
+                                            <td><span className="badge badge-neutral">{d.category}</span></td>
                                             <td><span className={`badge ${statusBadge(d.status)}`}>{d.status}</span></td>
-                                            <td>{new Date(d.created_at).toLocaleDateString()}</td>
+                                            <td style={{ color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
+                                                {new Date(d.created_at).toLocaleDateString()}
+                                            </td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -111,38 +224,11 @@ const TeacherDashboard: React.FC = () => {
                         </div>
                     </div>
 
-                    <div className="panel" style={{ marginTop: '1.25rem' }}>
-                        <div className="panel-header">
-                            <h3>Weekly Activity Report — Week {stats.weekly_reports.current_week}</h3>
-                            <button className="btn-link" onClick={() => navigate('/weekly-reports')}>View history →</button>
-                        </div>
-                        <div className="panel-body">
-                            <div className="detail-grid">
-                                <dt>This Week's Status</dt>
-                                <dd>
-                                    {stats.weekly_reports.current_week_submitted
-                                        ? <span className="badge badge-success">Submitted</span>
-                                        : <span className="badge badge-warning">Not Submitted</span>}
-                                </dd>
-                                <dt>On-Time Window</dt>
-                                <dd>{stats.weekly_reports.submission_window_open ? 'Open (Sat–Sun)' : 'Closed — submissions now count as late'}</dd>
-                                <dt>Pending / Approved / Rejected</dt>
-                                <dd>{stats.weekly_reports.pending} / {stats.weekly_reports.approved} / {stats.weekly_reports.rejected}</dd>
-                            </div>
-                            {!stats.weekly_reports.current_week_submitted && (
-                                <button className="btn btn-primary btn-sm" style={{ marginTop: '1rem' }} onClick={() => navigate('/weekly-reports/submit')}>
-                                    Submit This Week's Report
-                                </button>
-                            )}
-                        </div>
-                    </div>
-
-                    <div className="notice notice-info" style={{ marginTop: '1.25rem' }}>
-                        <span>ℹ</span>
+                    {/* Information Guide Card */}
+                    <div className="notice notice-info">
+                        <HelpCircle size={20} style={{ flexShrink: 0, marginTop: '0.1rem' }} />
                         <div>
-                            <strong>How the approval process works:</strong> after you upload a document, it enters the review
-                            queue and an administrator is notified. You will receive a notification once it is approved or
-                            rejected. If rejected, you may view the reason and resubmit a corrected version.
+                            <strong>Document Approval Lifecycle:</strong> Once you upload a document, administrators are immediately notified to review it. You will receive an instant notification when it is approved or rejected. If rejected, you can review the administrator's feedback and resubmit a corrected file directly from your Document Repository.
                         </div>
                     </div>
                 </>

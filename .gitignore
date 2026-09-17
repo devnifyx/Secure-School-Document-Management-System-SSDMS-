@@ -18,3 +18,8 @@ npm-debug.log*
 .vscode/
 .idea/
 .claude
+
+.codex-build
+.codex-build-inspect
+.codex-finalizer
+output

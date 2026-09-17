@@ -1,6 +1,25 @@
 import React, { useState } from 'react';
 import api from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '../contexts/ToastContext';
+import ConfirmModal from './ConfirmModal';
+import FileDropzone from './FileDropzone';
+import CustomSelect from './CustomSelect';
+import {
+    FileText,
+    Download,
+    Eye,
+    CheckCircle2,
+    XCircle,
+    Clock,
+    AlertTriangle,
+    X,
+    Lock,
+    RefreshCw,
+    User,
+    Layers,
+    Tag,
+} from 'lucide-react';
 
 export interface DocumentItem {
     id: number;
@@ -27,35 +46,21 @@ interface VerifyResultData {
     checked_at?: string;
 }
 
-const VERIFY_CONFIG: Record<string, { badge: string; label: string }> = {
-    intact:    { badge: 'badge-success', label: 'INTACT' },
-    tampered:  { badge: 'badge-danger',  label: 'TAMPERED' },
-    corrupted: { badge: 'badge-warning', label: 'CORRUPTED' },
-    missing:   { badge: 'badge-neutral', label: 'FILE MISSING' },
-    no_hash:   { badge: 'badge-info',    label: 'NO RECORD' },
-};
-
-const statusBadge = (status: string) => {
-    if (status === 'Approved') return 'badge-success';
-    if (status === 'Rejected') return 'badge-danger';
-    return 'badge-warning';
-};
-
-const ALLOWED_TYPES = [
-    'application/pdf',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    'application/msword',
-    'image/jpeg', 'image/png',
-];
-
 interface Props {
     document: DocumentItem;
     onClose: () => void;
     onChanged: () => void;
 }
 
+const statusBadge = (status: string) => {
+    if (status === 'Approved') return <span className="badge badge-success"><CheckCircle2 size={12} /> Approved</span>;
+    if (status === 'Rejected') return <span className="badge badge-danger"><XCircle size={12} /> Rejected</span>;
+    return <span className="badge badge-warning"><Clock size={12} /> Pending Review</span>;
+};
+
 const DocumentDetailsModal: React.FC<Props> = ({ document: doc, onClose, onChanged }) => {
     const { user } = useAuth();
+    const { success, error: toastError } = useToast();
     const isAdmin = user?.role === 'Admin';
     const isOwner = doc.uploaded_by.id === user?.id;
 
@@ -71,6 +76,8 @@ const DocumentDetailsModal: React.FC<Props> = ({ document: doc, onClose, onChang
     const [resubLoading, setResubLoading] = useState(false);
     const [resubError, setResubError] = useState('');
 
+    const [showApproveConfirm, setShowApproveConfirm] = useState(false);
+    const [showRejectConfirm, setShowRejectConfirm] = useState(false);
     const [actionLoading, setActionLoading] = useState(false);
     const [previewing, setPreviewing] = useState(false);
 
@@ -81,10 +88,16 @@ const DocumentDetailsModal: React.FC<Props> = ({ document: doc, onClose, onChang
             const res = await api.get(`/documents/${doc.id}/download`, { responseType: 'blob' });
             const url = window.URL.createObjectURL(new Blob([res.data]));
             const link = window.document.createElement('a');
-            link.href = url; link.setAttribute('download', doc.file_name);
-            window.document.body.appendChild(link); link.click(); link.remove();
+            link.href = url;
+            link.setAttribute('download', doc.file_name);
+            window.document.body.appendChild(link);
+            link.click();
+            link.remove();
             window.URL.revokeObjectURL(url);
-        } catch (e: any) { alert(e.response?.data?.message || 'Download failed'); }
+            success(`Downloaded "${doc.file_name}"`);
+        } catch (e: any) {
+            toastError(e.response?.data?.message || 'Download failed');
+        }
     };
 
     const handlePreview = async () => {
@@ -94,11 +107,12 @@ const DocumentDetailsModal: React.FC<Props> = ({ document: doc, onClose, onChang
             const blob = new Blob([res.data], { type: doc.file_type });
             const url = window.URL.createObjectURL(blob);
             window.open(url, '_blank', 'noopener,noreferrer');
-            // Give the new tab time to load the blob before revoking
             setTimeout(() => window.URL.revokeObjectURL(url), 60000);
         } catch (e: any) {
-            alert(e.response?.data?.message || 'Preview failed');
-        } finally { setPreviewing(false); }
+            toastError(e.response?.data?.message || 'Preview failed');
+        } finally {
+            setPreviewing(false);
+        }
     };
 
     const handleVerify = async () => {
@@ -106,37 +120,53 @@ const DocumentDetailsModal: React.FC<Props> = ({ document: doc, onClose, onChang
         try {
             const res = await api.post(`/documents/${doc.id}/verify`);
             setVerifyResult(res.data);
+            if (res.data.status === 'intact') {
+                success('Document cryptographic integrity verified (Intact).');
+            } else {
+                toastError(`Verification alert: ${res.data.status}`);
+            }
         } catch (e: any) {
             setVerifyResult({ status: 'corrupted', message: e.response?.data?.message || 'Verification failed' });
-        } finally { setVerifying(false); }
+        } finally {
+            setVerifying(false);
+        }
     };
 
     const handleApprove = async () => {
-        if (!confirm('Approve this document?')) return;
         setActionLoading(true);
-        try { await api.post(`/documents/${doc.id}/approve`); onChanged(); onClose(); }
-        catch (e: any) { alert(e.response?.data?.message || 'Failed to approve'); }
-        finally { setActionLoading(false); }
+        try {
+            await api.post(`/documents/${doc.id}/approve`);
+            success('Document approved successfully.');
+            setShowApproveConfirm(false);
+            onChanged();
+            onClose();
+        } catch (e: any) {
+            toastError(e.response?.data?.message || 'Failed to approve');
+        } finally {
+            setActionLoading(false);
+        }
     };
 
-    const handleReject = async () => {
-        const reason = prompt('Enter rejection reason (required):');
+    const handleReject = async (reason?: string) => {
         if (!reason?.trim()) return;
         setActionLoading(true);
-        try { await api.post(`/documents/${doc.id}/reject`, { reason }); onChanged(); onClose(); }
-        catch (e: any) { alert(e.response?.data?.message || 'Failed to reject'); }
-        finally { setActionLoading(false); }
+        try {
+            await api.post(`/documents/${doc.id}/reject`, { reason: reason.trim() });
+            success('Document rejected with feedback.');
+            setShowRejectConfirm(false);
+            onChanged();
+            onClose();
+        } catch (e: any) {
+            toastError(e.response?.data?.message || 'Failed to reject');
+        } finally {
+            setActionLoading(false);
+        }
     };
 
-    const handleResubFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const f = e.target.files?.[0] ?? null;
-        if (f && !ALLOWED_TYPES.includes(f.type)) { setResubError('File type not allowed.'); e.target.value = ''; return; }
-        if (f && f.size > 10 * 1024 * 1024) { setResubError('File must be under 10 MB.'); e.target.value = ''; return; }
-        setResubError(''); setResubFile(f);
-    };
-
-    const handleResubmit = async () => {
-        setResubLoading(true); setResubError('');
+    const handleResubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setResubLoading(true);
+        setResubError('');
         try {
             const formData = new FormData();
             formData.append('title', resubTitle);
@@ -146,84 +176,154 @@ const DocumentDetailsModal: React.FC<Props> = ({ document: doc, onClose, onChang
             tags.forEach((tag, i) => formData.append(`tags[${i}]`, tag));
             if (resubFile) formData.append('file', resubFile);
             formData.append('_method', 'PUT');
-            await api.post(`/documents/${doc.id}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
-            onChanged(); onClose();
+
+            await api.post(`/documents/${doc.id}`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+            });
+            success('Document updated and resubmitted for approval.');
+            onChanged();
+            onClose();
         } catch (e: any) {
             const msg = e.response?.data?.message || e.response?.data?.errors;
             setResubError(typeof msg === 'string' ? msg : 'Resubmission failed.');
-        } finally { setResubLoading(false); }
+        } finally {
+            setResubLoading(false);
+        }
     };
 
     return (
         <div className="modal-overlay" onClick={onClose}>
-            <div className="modal-box" style={{ maxWidth: '620px' }} onClick={(e) => e.stopPropagation()}>
+            <div
+                className="modal-box"
+                style={{ maxWidth: '680px' }}
+                onClick={(e) => e.stopPropagation()}
+            >
                 <div className="modal-header">
-                    <h3>Document Details</h3>
-                    <button className="modal-close" onClick={onClose}>×</button>
+                    <h3>
+                        <FileText size={20} style={{ color: 'var(--primary)' }} />
+                        Document Details
+                    </h3>
+                    <button className="modal-close" onClick={onClose} aria-label="Close">
+                        <X size={18} />
+                    </button>
                 </div>
 
                 <div className="modal-body">
                     {!resubmitMode ? (
                         <>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.1rem' }}>
+                            {/* Title & Status Header */}
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.25rem' }}>
                                 <div>
-                                    <div style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--navy)', marginBottom: '0.3rem' }}>{doc.title}</div>
-                                    <span className={`badge ${statusBadge(doc.status)}`}>{doc.status}</span>
+                                    <h2 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text)', marginBottom: '0.4rem' }}>
+                                        {doc.title}
+                                    </h2>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                                        {statusBadge(doc.status)}
+                                        <span className="badge badge-neutral">{doc.category}</span>
+                                    </div>
                                 </div>
                             </div>
 
+                            {/* Description */}
                             {doc.description && (
-                                <div style={{ marginBottom: '1rem', fontSize: '0.83rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+                                <div style={{
+                                    padding: '0.85rem 1.1rem',
+                                    background: 'var(--surface-alt)',
+                                    borderRadius: 'var(--radius-md)',
+                                    marginBottom: '1.25rem',
+                                    fontSize: '0.84rem',
+                                    color: 'var(--text-secondary)',
+                                    lineHeight: 1.6,
+                                }}>
                                     {doc.description}
                                 </div>
                             )}
 
-                            <dl className="detail-grid" style={{ marginBottom: '1rem' }}>
-                                <dt>Owner</dt><dd>{doc.uploaded_by.name}</dd>
-                                <dt>Panitia</dt><dd>{doc.panitia?.name || '—'}</dd>
-                                <dt>Category</dt><dd>{doc.category}</dd>
-                                <dt>Tags</dt>
-                                <dd>
-                                    {doc.tags && doc.tags.length > 0
-                                        ? doc.tags.map((t) => <span key={t} className="badge badge-neutral" style={{ marginRight: '0.3rem' }}>{t}</span>)
-                                        : '—'}
-                                </dd>
-                                <dt>File</dt>
-                                <dd>
-                                    {doc.file_name} ({(doc.file_size / 1024 / 1024).toFixed(2)} MB)
-                                    {!isPreviewable && (doc.status === 'Approved' || isAdmin) && (
-                                        <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>
-                                            In-browser preview is not available for this file type — use Download to open it.
-                                        </div>
-                                    )}
-                                </dd>
-                                <dt>Submitted</dt><dd>{new Date(doc.created_at).toLocaleString()}</dd>
-                                <dt>Last Updated</dt><dd>{new Date(doc.updated_at).toLocaleString()}</dd>
-                            </dl>
-
+                            {/* Rejection Banner */}
                             {doc.rejection_reason && (
-                                <div className="notice notice-danger" style={{ marginBottom: '1rem' }}>
-                                    <span>⚠</span>
-                                    <div><strong>Rejection reason:</strong> {doc.rejection_reason}</div>
+                                <div className="notice notice-danger" style={{ marginBottom: '1.25rem' }}>
+                                    <AlertTriangle size={20} style={{ flexShrink: 0 }} />
+                                    <div>
+                                        <strong>Admin Feedback / Revision Required:</strong>
+                                        <div style={{ marginTop: '0.2rem' }}>{doc.rejection_reason}</div>
+                                    </div>
                                 </div>
                             )}
 
-                            {isAdmin && verifyResult && (
-                                <div className="notice" style={{
-                                    marginBottom: '1rem',
-                                    background: 'var(--bg)', borderColor: 'var(--border)', color: 'var(--text)',
-                                }}>
-                                    <div style={{ width: '100%' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.4rem' }}>
-                                            <span className={`badge ${VERIFY_CONFIG[verifyResult.status].badge}`}>
-                                                {VERIFY_CONFIG[verifyResult.status].label}
-                                            </span>
-                                            <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>{verifyResult.message}</span>
+                            {/* Metadata Details Grid */}
+                            <dl className="detail-grid" style={{ marginBottom: '1.5rem' }}>
+                                <dt>Author</dt>
+                                <dd>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                        <User size={13} /> {doc.uploaded_by.name}
+                                    </div>
+                                </dd>
+
+                                <dt>Department</dt>
+                                <dd>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                        <Layers size={13} /> {doc.panitia?.name || '—'}
+                                    </div>
+                                </dd>
+
+                                <dt>Tags</dt>
+                                <dd>
+                                    {doc.tags && doc.tags.length > 0 ? (
+                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem' }}>
+                                            {doc.tags.map((t) => (
+                                                <span key={t} className="badge badge-neutral" style={{ fontSize: '0.68rem' }}>
+                                                    <Tag size={10} /> {t}
+                                                </span>
+                                            ))}
                                         </div>
-                                        {verifyResult.stored_hash && (
-                                            <div className="mono" style={{ fontSize: '0.7rem', color: 'var(--text-muted)', lineHeight: 1.7 }}>
-                                                <div>Stored:&nbsp;&nbsp;{verifyResult.stored_hash}</div>
-                                                <div>Current: {verifyResult.current_hash}</div>
+                                    ) : '—'}
+                                </dd>
+
+                                <dt>File Name</dt>
+                                <dd>
+                                    <strong>{doc.file_name}</strong> ({(doc.file_size / 1024 / 1024).toFixed(2)} MB)
+                                </dd>
+
+                                <dt>Submitted</dt>
+                                <dd>{new Date(doc.created_at).toLocaleString()}</dd>
+
+                                <dt>Last Updated</dt>
+                                <dd>{new Date(doc.updated_at).toLocaleString()}</dd>
+                            </dl>
+
+                            {/* Verification Result Card for Admin */}
+                            {isAdmin && (
+                                <div className="panel" style={{ marginBottom: '1.25rem', background: 'var(--surface-alt)' }}>
+                                    <div className="panel-body" style={{ padding: '1rem 1.25rem' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: verifyResult ? '0.75rem' : 0 }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                                <Lock size={16} style={{ color: 'var(--primary)' }} />
+                                                <strong style={{ fontSize: '0.86rem' }}>Cryptographic Integrity Verification</strong>
+                                            </div>
+                                            <button
+                                                className="btn btn-secondary btn-sm"
+                                                onClick={handleVerify}
+                                                disabled={verifying}
+                                            >
+                                                <RefreshCw size={12} className={verifying ? 'spin' : ''} />
+                                                {verifying ? 'Checking…' : 'Verify SHA-256'}
+                                            </button>
+                                        </div>
+
+                                        {verifyResult && (
+                                            <div style={{ fontSize: '0.8rem' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                                                    <span className={`badge ${verifyResult.status === 'intact' ? 'badge-success' : 'badge-danger'}`}>
+                                                        {verifyResult.status.toUpperCase()}
+                                                    </span>
+                                                    <span>{verifyResult.message}</span>
+                                                </div>
+                                                {verifyResult.stored_hash && (
+                                                    <div style={{ fontFamily: 'monospace', fontSize: '0.72rem', color: 'var(--text-muted)', lineHeight: 1.6, wordBreak: 'break-all' }}>
+                                                        <div>Stored:  {verifyResult.stored_hash}</div>
+                                                        <div>Current: {verifyResult.current_hash}</div>
+                                                    </div>
+                                                )}
                                             </div>
                                         )}
                                     </div>
@@ -231,87 +331,164 @@ const DocumentDetailsModal: React.FC<Props> = ({ document: doc, onClose, onChang
                             )}
                         </>
                     ) : (
-                        <>
-                            <div className="notice notice-danger" style={{ marginBottom: '1.1rem' }}>
-                                <span>⚠</span>
-                                <div><strong>Rejection reason:</strong> {doc.rejection_reason}</div>
-                            </div>
-                            {resubError && <div className="notice notice-danger" style={{ marginBottom: '1rem' }}>{resubError}</div>}
+                        /* Resubmission Mode Form */
+                        <form onSubmit={handleResubmit}>
+                            <h3 style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: '0.4rem' }}>
+                                Resubmit Document with Corrections
+                            </h3>
+                            <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: '1.25rem' }}>
+                                Address the rejection feedback and submit the revised document for re-approval.
+                            </p>
+
+                            {resubError && (
+                                <div className="notice notice-danger" style={{ marginBottom: '1rem' }}>
+                                    {resubError}
+                                </div>
+                            )}
 
                             <div className="form-group">
                                 <label className="form-label">Title</label>
-                                <input className="form-control" value={resubTitle} onChange={(e) => setResubTitle(e.target.value)} />
+                                <input
+                                    className="form-control"
+                                    value={resubTitle}
+                                    onChange={(e) => setResubTitle(e.target.value)}
+                                    required
+                                />
                             </div>
+
                             <div className="form-row">
                                 <div className="form-group">
                                     <label className="form-label">Category</label>
-                                    <select className="form-control" value={resubCategory} onChange={(e) => setResubCategory(e.target.value)}>
-                                        <option value="Lesson Plans">Lesson Plans</option>
-                                        <option value="Assessments">Assessments</option>
-                                        <option value="Reports">Reports</option>
-                                        <option value="Other">Other</option>
-                                    </select>
+                                    <CustomSelect
+                                        options={[
+                                            { value: 'Lesson Plans', label: 'Lesson Plans', sublabel: 'Syllabi, teaching plans, guides' },
+                                            { value: 'Assessments', label: 'Assessments', sublabel: 'Exams, quizzes, rubrics' },
+                                            { value: 'Reports', label: 'Reports', sublabel: 'Performance & student records' },
+                                            { value: 'Other', label: 'Other', sublabel: 'General documentation' },
+                                        ]}
+                                        value={resubCategory}
+                                        onChange={(val) => setResubCategory(val)}
+                                    />
                                 </div>
                                 <div className="form-group">
-                                    <label className="form-label">Tags</label>
-                                    <input className="form-control" value={resubTags} onChange={(e) => setResubTags(e.target.value)} />
+                                    <label className="form-label">Tags (comma-separated)</label>
+                                    <input
+                                        className="form-control"
+                                        value={resubTags}
+                                        onChange={(e) => setResubTags(e.target.value)}
+                                    />
                                 </div>
                             </div>
+
                             <div className="form-group">
-                                <label className="form-label">Description</label>
-                                <textarea className="form-control" rows={3} value={resubDescription} onChange={(e) => setResubDescription(e.target.value)} />
+                                <label className="form-label">Description / Changes Made</label>
+                                <textarea
+                                    className="form-control"
+                                    value={resubDescription}
+                                    onChange={(e) => setResubDescription(e.target.value)}
+                                    rows={3}
+                                />
                             </div>
+
                             <div className="form-group">
-                                <label className="form-label">Replace File <span className="form-hint">(optional)</span></label>
-                                <input className="form-control" type="file" accept=".pdf,.docx,.doc,.jpg,.jpeg,.png" onChange={handleResubFile} />
+                                <FileDropzone
+                                    label="Upload Replacement File (Optional)"
+                                    hint="Leave blank if keeping existing file"
+                                    file={resubFile}
+                                    onFileSelect={setResubFile}
+                                />
                             </div>
-                        </>
+
+                            <div style={{ display: 'flex', gap: '0.6rem', marginTop: '1.5rem' }}>
+                                <button
+                                    type="submit"
+                                    className="btn btn-primary"
+                                    disabled={resubLoading}
+                                >
+                                    {resubLoading ? 'Submitting…' : 'Submit Revised Document'}
+                                </button>
+                                <button
+                                    type="button"
+                                    className="btn btn-secondary"
+                                    onClick={() => setResubmitMode(false)}
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
                     )}
                 </div>
 
-                <div className="modal-footer">
-                    {!resubmitMode ? (
-                        <>
-                            <div className="modal-footer-group">
-                                {(doc.status === 'Approved' || isAdmin) && isPreviewable && (
-                                    <button className="btn btn-secondary btn-sm" onClick={handlePreview} disabled={previewing}>
-                                        {previewing ? 'Opening…' : '⬡ Preview'}
+                {/* Modal Footer Actions */}
+                {!resubmitMode && (
+                    <div className="modal-footer">
+                        <div style={{ display: 'flex', gap: '0.5rem', width: '100%', justifyContent: 'space-between', flexWrap: 'wrap' }}>
+                            <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                {(doc.status === 'Approved' || isAdmin || isOwner) && (
+                                    <button className="btn btn-secondary btn-sm" onClick={handleDownload}>
+                                        <Download size={14} /> Download
                                     </button>
                                 )}
-                                {(doc.status === 'Approved' || isAdmin) && (
-                                    <button className="btn btn-secondary btn-sm" onClick={handleDownload}>⤓ Download</button>
-                                )}
-                                {isAdmin && (
-                                    <button className="btn btn-secondary btn-sm" onClick={handleVerify} disabled={verifying}>
-                                        {verifying ? 'Verifying…' : '⛊ Verify'}
+                                {isPreviewable && (
+                                    <button className="btn btn-secondary btn-sm" onClick={handlePreview} disabled={previewing}>
+                                        <Eye size={14} /> {previewing ? 'Opening…' : 'In-Browser Preview'}
                                     </button>
                                 )}
                             </div>
-                            <div className="modal-footer-spacer" />
-                            <div className="modal-footer-group">
+
+                            <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                {doc.status === 'Rejected' && isOwner && (
+                                    <button className="btn btn-primary btn-sm" onClick={() => setResubmitMode(true)}>
+                                        <RefreshCw size={13} /> Resubmit Corrections
+                                    </button>
+                                )}
+
                                 {isAdmin && doc.status === 'Pending' && (
                                     <>
-                                        <button className="btn btn-danger btn-sm" onClick={handleReject} disabled={actionLoading}>Reject</button>
-                                        <button className="btn btn-success btn-sm" onClick={handleApprove} disabled={actionLoading}>Approve</button>
+                                        <button className="btn btn-danger btn-sm" onClick={() => setShowRejectConfirm(true)}>
+                                            <XCircle size={13} /> Reject
+                                        </button>
+                                        <button className="btn btn-success btn-sm" onClick={() => setShowApproveConfirm(true)}>
+                                            <CheckCircle2 size={13} /> Approve
+                                        </button>
                                     </>
                                 )}
-                                {!isAdmin && isOwner && doc.status === 'Rejected' && (
-                                    <button className="btn btn-primary btn-sm" onClick={() => setResubmitMode(true)}>Resubmit</button>
-                                )}
-                                <button className="btn btn-secondary btn-sm" onClick={onClose}>Close</button>
+
+                                <button className="btn btn-secondary btn-sm" onClick={onClose}>
+                                    Close
+                                </button>
                             </div>
-                        </>
-                    ) : (
-                        <>
-                            <button className="btn btn-secondary btn-sm" onClick={() => setResubmitMode(false)} disabled={resubLoading}>Back</button>
-                            <div className="modal-footer-spacer" />
-                            <button className="btn btn-primary btn-sm" onClick={handleResubmit} disabled={resubLoading}>
-                                {resubLoading ? 'Submitting…' : 'Resubmit for Approval'}
-                            </button>
-                        </>
-                    )}
-                </div>
+                        </div>
+                    </div>
+                )}
             </div>
+
+            {/* Approval Confirmation Modal */}
+            <ConfirmModal
+                isOpen={showApproveConfirm}
+                title="Approve Document"
+                message={`Approve "${doc.title}"? Authorized users will be able to access and download this file.`}
+                confirmText="Approve"
+                onConfirm={handleApprove}
+                onCancel={() => setShowApproveConfirm(false)}
+                loading={actionLoading}
+            />
+
+            {/* Rejection Confirmation Modal with Reason */}
+            <ConfirmModal
+                isOpen={showRejectConfirm}
+                title="Reject Document"
+                message={`Please provide feedback explaining why "${doc.title}" is being rejected.`}
+                confirmText="Reject with Feedback"
+                isDanger={true}
+                inputMode={true}
+                inputLabel="Reason for Rejection"
+                inputPlaceholder="Explain what needs correction…"
+                inputRequired={true}
+                onConfirm={handleReject}
+                onCancel={() => setShowRejectConfirm(false)}
+                loading={actionLoading}
+            />
         </div>
     );
 };

@@ -1,6 +1,20 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Layout from '../components/Layout';
 import api from '../services/api';
+import { useToast } from '../contexts/ToastContext';
+import { SkeletonTable } from '../components/SkeletonLoader';
+import EmptyState from '../components/EmptyState';
+import {
+    History,
+    Download,
+    RotateCcw,
+    Shield,
+    Clock,
+    User,
+    Globe,
+    ChevronLeft,
+    ChevronRight,
+} from 'lucide-react';
 
 interface AuditLog {
     id: number;
@@ -26,13 +40,21 @@ const ACTION_TYPES = [
 ];
 
 const actionBadgeClass = (action: string): string => {
-    if (action.includes('FAILED') || action.includes('REJECTED') || action.includes('DELETED') || action.includes('LOCKED')) return 'badge-danger';
-    if (action.includes('APPROVED') || action.includes('SUCCESS') || action.includes('PASSED')) return 'badge-success';
-    if (action.includes('UPLOADED') || action.includes('CREATED') || action.includes('UPDATED')) return 'badge-info';
+    if (action.includes('FAILED') || action.includes('REJECTED') || action.includes('DELETED') || action.includes('LOCKED')) {
+        return 'badge-danger';
+    }
+    if (action.includes('APPROVED') || action.includes('SUCCESS') || action.includes('PASSED')) {
+        return 'badge-success';
+    }
+    if (action.includes('UPLOADED') || action.includes('CREATED') || action.includes('UPDATED')) {
+        return 'badge-info';
+    }
     return 'badge-neutral';
 };
 
 const AuditLogs: React.FC = () => {
+    const { success, error: toastError } = useToast();
+
     const [logs, setLogs] = useState<AuditLog[]>([]);
     const [meta, setMeta] = useState<Meta | null>(null);
     const [loading, setLoading] = useState(true);
@@ -43,7 +65,8 @@ const AuditLogs: React.FC = () => {
     const [exporting, setExporting] = useState(false);
 
     const load = useCallback(async () => {
-        setLoading(true); setError('');
+        setLoading(true);
+        setError('');
         try {
             const params: any = { page };
             if (actionFilter) params.action = actionFilter;
@@ -52,10 +75,14 @@ const AuditLogs: React.FC = () => {
             setMeta({ current_page: res.data.current_page, last_page: res.data.last_page, total: res.data.total, per_page: res.data.per_page });
         } catch (e: any) {
             setError(e.response?.data?.message || 'Failed to load audit logs');
-        } finally { setLoading(false); }
+        } finally {
+            setLoading(false);
+        }
     }, [page, actionFilter]);
 
-    useEffect(() => { load(); }, [load]);
+    useEffect(() => {
+        load();
+    }, [load]);
 
     const handleExport = async () => {
         setExporting(true);
@@ -66,77 +93,146 @@ const AuditLogs: React.FC = () => {
             const query = new URLSearchParams(params).toString();
             const url = `/api/audit-logs/export${query ? '?' + query : ''}`;
             const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+            if (!res.ok) throw new Error('Export failed');
             const blob = await res.blob();
             const link = document.createElement('a');
             link.href = window.URL.createObjectURL(blob);
             link.download = `audit-logs-${new Date().toISOString().slice(0, 10)}.csv`;
             link.click();
-        } catch { alert('Export failed'); }
-        finally { setExporting(false); }
+            link.remove();
+            success('Audit log CSV exported successfully.');
+        } catch {
+            toastError('Failed to export audit logs.');
+        } finally {
+            setExporting(false);
+        }
     };
 
     return (
-        <Layout title="Audit Logs" subtitle="Immutable record of all significant system actions">
-            <div className="filter-bar">
-                <select className="form-control" style={{ maxWidth: '260px' }} value={actionFilter} onChange={(e) => { setActionFilter(e.target.value); setPage(1); }}>
-                    <option value="">All action types</option>
-                    {ACTION_TYPES.map((a) => <option key={a} value={a}>{a}</option>)}
-                </select>
-                <button className="btn btn-secondary" style={{ marginLeft: 'auto' }} onClick={handleExport} disabled={exporting}>
-                    {exporting ? 'Exporting…' : '↓ Export CSV'}
+        <Layout
+            title="Audit Logs"
+            subtitle="Immutable system ledger tracking all document actions, logins, and security events"
+            actions={
+                <button
+                    className="btn btn-secondary"
+                    onClick={handleExport}
+                    disabled={exporting || loading}
+                >
+                    <Download size={15} />
+                    {exporting ? 'Exporting…' : 'Export CSV'}
                 </button>
+            }
+        >
+            {/* Filter toolbar */}
+            <div className="filter-bar">
+                <select
+                    className="form-control"
+                    style={{ maxWidth: '240px' }}
+                    value={actionFilter}
+                    onChange={(e) => {
+                        setActionFilter(e.target.value);
+                        setPage(1);
+                    }}
+                >
+                    <option value="">All Action Types</option>
+                    {ACTION_TYPES.map((a) => (
+                        <option key={a} value={a}>
+                            {a}
+                        </option>
+                    ))}
+                </select>
+
+                {actionFilter && (
+                    <button
+                        className="btn btn-secondary btn-sm"
+                        onClick={() => { setActionFilter(''); setPage(1); }}
+                    >
+                        <RotateCcw size={13} /> Reset
+                    </button>
+                )}
+
+                <span style={{ marginLeft: 'auto', fontSize: '0.82rem', color: 'var(--text-muted)' }}>
+                    <strong>{meta?.total ?? 0}</strong> log entries recorded
+                </span>
             </div>
 
             <div className="panel">
                 {loading ? (
-                    <div className="empty-state"><div className="icon">⏳</div>Loading audit logs…</div>
+                    <div style={{ padding: '1.5rem' }}>
+                        <SkeletonTable rows={6} columns={5} />
+                    </div>
                 ) : error ? (
-                    <div className="notice notice-danger" style={{ margin: '1.25rem' }}>{error}</div>
+                    <div className="notice notice-danger">{error}</div>
+                ) : logs.length === 0 ? (
+                    <EmptyState
+                        icon={<History size={42} className="text-slate-400" />}
+                        title="No audit logs found"
+                        description="No logs match the selected action filter."
+                        secondaryActionText={actionFilter ? 'Clear Filter' : undefined}
+                        onSecondaryAction={() => { setActionFilter(''); setPage(1); }}
+                    />
                 ) : (
                     <>
-                        <div style={{ padding: '0.65rem 1.25rem', borderBottom: '1px solid var(--border)', color: 'var(--text-muted)', fontSize: '0.78rem' }}>
-                            {meta?.total ?? 0} total entries
-                        </div>
                         <div className="table-wrap">
                             <table className="data-table">
                                 <thead>
                                     <tr>
                                         <th>Timestamp</th>
                                         <th>User</th>
-                                        <th>Role</th>
-                                        <th>Action</th>
-                                        <th>Document / Entity</th>
+                                        <th>Action Type</th>
+                                        <th>Event Details</th>
                                         <th>IP Address</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {logs.length === 0 ? (
-                                        <tr><td colSpan={6} className="table-empty">No logs found for the selected filter</td></tr>
-                                    ) : logs.map((log) => (
+                                    {logs.map((log) => (
                                         <tr key={log.id}>
-                                            <td style={{ color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
-                                                {new Date(log.created_at).toLocaleString()}
+                                            <td style={{ color: 'var(--text-muted)', whiteSpace: 'nowrap', fontSize: '0.8rem' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                                    <Clock size={13} />
+                                                    <span>{new Date(log.created_at).toLocaleString()}</span>
+                                                </div>
                                             </td>
-                                            <td>{log.user?.name ?? <em style={{ color: 'var(--text-muted)' }}>System</em>}</td>
-                                            <td style={{ color: 'var(--text-secondary)' }}>{log.user?.role ?? '—'}</td>
-                                            <td><span className={`badge ${actionBadgeClass(log.action)}`}>{log.action}</span></td>
-                                            <td style={{ color: 'var(--text-secondary)', maxWidth: '280px' }}>
-                                                {log.entity_type ? `${log.entity_type} #${log.entity_id}` : '—'}
-                                                {log.details && <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.1rem' }}>{log.details}</div>}
+                                            <td style={{ fontWeight: 600 }}>
+                                                {log.user ? (
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                                        <User size={13} style={{ color: 'var(--text-muted)' }} />
+                                                        <span>{log.user.name}</span>
+                                                    </div>
+                                                ) : (
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--text-muted)' }}>
+                                                        <Shield size={13} />
+                                                        <em>System</em>
+                                                    </div>
+                                                )}
                                             </td>
-                                            <td style={{ color: 'var(--text-muted)', fontSize: '0.78rem', whiteSpace: 'nowrap' }}>{log.ip_address ?? '—'}</td>
+                                            <td>
+                                                <span className={`badge ${actionBadgeClass(log.action)}`}>
+                                                    {log.action}
+                                                </span>
+                                            </td>
+                                            <td style={{ color: 'var(--text-secondary)', maxWidth: '320px', lineHeight: 1.4 }}>
+                                                {log.details ?? '—'}
+                                            </td>
+                                            <td style={{ color: 'var(--text-muted)', fontFamily: 'monospace', fontSize: '0.78rem' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                                                    <Globe size={12} />
+                                                    <span>{log.ip_address || '—'}</span>
+                                                </div>
+                                            </td>
                                         </tr>
                                     ))}
                                 </tbody>
                             </table>
                         </div>
 
+                        {/* Pagination */}
                         {meta && meta.last_page > 1 && (
                             <div className="pagination">
                                 <button className="page-btn" disabled={page === 1} onClick={() => setPage(1)}>«</button>
-                                <button className="page-btn" disabled={page === 1} onClick={() => setPage((p) => p - 1)}>‹</button>
-                                <span className="page-info">Page {meta.current_page} of {meta.last_page}</span>
-                                <button className="page-btn" disabled={page === meta.last_page} onClick={() => setPage((p) => p + 1)}>›</button>
+                                <button className="page-btn" disabled={page === 1} onClick={() => setPage((p) => p - 1)}><ChevronLeft size={14} /></button>
+                                <span className="page-info">Page <strong>{meta.current_page}</strong> of <strong>{meta.last_page}</strong></span>
+                                <button className="page-btn" disabled={page === meta.last_page} onClick={() => setPage((p) => p + 1)}><ChevronRight size={14} /></button>
                                 <button className="page-btn" disabled={page === meta.last_page} onClick={() => setPage(meta.last_page)}>»</button>
                             </div>
                         )}

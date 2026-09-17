@@ -1,7 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
+import { SkeletonCard, SkeletonTable } from '../components/SkeletonLoader';
+import EmptyState from '../components/EmptyState';
 import api from '../services/api';
+import {
+    FileText,
+    Clock,
+    CheckCircle2,
+    XCircle,
+    UserPlus,
+    Users,
+    Calendar,
+    Layers,
+    ShieldCheck,
+    ArrowRight,
+    Activity,
+    Lock,
+} from 'lucide-react';
 
 interface Stats {
     documents: { total: number; pending: number; approved: number; rejected: number };
@@ -31,9 +47,15 @@ interface PendingDoc {
 }
 
 const actionBadge = (action: string): { cls: string } => {
-    if (action.includes('FAILED') || action.includes('REJECTED') || action.includes('DELETED') || action.includes('LOCKED')) return { cls: 'badge-danger' };
-    if (action.includes('APPROVED') || action.includes('SUCCESS') || action.includes('PASSED')) return { cls: 'badge-success' };
-    if (action.includes('UPLOADED') || action.includes('CREATED')) return { cls: 'badge-info' };
+    if (action.includes('FAILED') || action.includes('REJECTED') || action.includes('DELETED') || action.includes('LOCKED')) {
+        return { cls: 'badge-danger' };
+    }
+    if (action.includes('APPROVED') || action.includes('SUCCESS') || action.includes('PASSED')) {
+        return { cls: 'badge-success' };
+    }
+    if (action.includes('UPLOADED') || action.includes('CREATED') || action.includes('UPDATED')) {
+        return { cls: 'badge-info' };
+    }
     return { cls: 'badge-neutral' };
 };
 
@@ -54,75 +76,135 @@ const AdminDashboard: React.FC = () => {
     }, []);
 
     return (
-        <Layout title="Dashboard Overview" subtitle="System status and document processing metrics.">
+        <Layout
+            title="Dashboard Overview"
+            subtitle="Real-time system health, document queue, and departmental metrics"
+        >
             {loading || !stats ? (
-                <div className="empty-state"><div className="icon">⏳</div>Loading dashboard…</div>
+                <>
+                    <SkeletonCard count={4} />
+                    <div className="dashboard-grid">
+                        <div className="panel" style={{ padding: '1.5rem' }}>
+                            <SkeletonTable rows={4} columns={4} />
+                        </div>
+                        <div className="panel" style={{ padding: '1.5rem' }}>
+                            <SkeletonTable rows={4} columns={2} />
+                        </div>
+                    </div>
+                </>
             ) : (
                 <>
-                    {/* Summary cards */}
+                    {/* Summary KPI cards */}
                     <div className="summary-grid">
                         <div className="summary-card" onClick={() => navigate('/documents')}>
-                            <div className="label">Total Documents 🗎</div>
-                            <div className="value">{stats.documents.total}</div>
-                        </div>
-                        <div className="summary-card" onClick={() => navigate('/approvals')}>
-                            <div className="label">Pending Approval ◔</div>
-                            <div className="value" style={{ color: 'var(--warning)' }}>{stats.documents.pending}</div>
-                            <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.4rem' }}>
-                                {stats.documents.pending > 0 ? 'Requires attention' : 'Queue is clear'}
-                            </div>
-                        </div>
-                        <div className="summary-card" onClick={() => navigate('/documents?status=Approved')}>
-                            <div className="label">Approved ✓</div>
-                            <div className="value" style={{ color: 'var(--success)' }}>{stats.documents.approved}</div>
-                            <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.4rem' }}>On track</div>
-                        </div>
-                        <div className="summary-card" onClick={() => navigate('/documents?status=Rejected')}>
-                            <div className="label">Rejected ⊘</div>
-                            <div className="value" style={{ color: 'var(--danger)' }}>{stats.documents.rejected}</div>
-                            <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.4rem' }}>
-                                {stats.documents.rejected > 0 ? 'Action needed' : 'None rejected'}
-                            </div>
-                        </div>
-                        {stats.pending_registrations > 0 && (
-                            <div className="summary-card" onClick={() => navigate('/users')}>
-                                <div className="label">Pending Registrations ⚇</div>
-                                <div className="value" style={{ color: 'var(--warning)' }}>{stats.pending_registrations}</div>
-                                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.4rem' }}>
-                                    Requires approval
+                            <div className="summary-card-header">
+                                <span className="label">Total Documents</span>
+                                <div className="summary-card-icon" style={{ background: 'var(--primary-soft)', color: 'var(--primary)' }}>
+                                    <FileText size={18} />
                                 </div>
+                            </div>
+                            <div className="value">{stats.documents.total}</div>
+                            <div className="subtext">All academic files recorded</div>
+                        </div>
+
+                        <div className="summary-card" onClick={() => navigate('/approvals')}>
+                            <div className="summary-card-header">
+                                <span className="label">Pending Review</span>
+                                <div className="summary-card-icon" style={{ background: 'var(--warning-bg)', color: 'var(--warning)' }}>
+                                    <Clock size={18} />
+                                </div>
+                            </div>
+                            <div className="value" style={{ color: stats.documents.pending > 0 ? 'var(--warning)' : 'inherit' }}>
+                                {stats.documents.pending}
+                            </div>
+                            <div className="subtext">
+                                {stats.documents.pending > 0 ? 'Requires attention in queue' : 'Queue is clear'}
+                            </div>
+                        </div>
+
+                        <div className="summary-card" onClick={() => navigate('/documents?status=Approved')}>
+                            <div className="summary-card-header">
+                                <span className="label">Approved</span>
+                                <div className="summary-card-icon" style={{ background: 'var(--success-bg)', color: 'var(--success)' }}>
+                                    <CheckCircle2 size={18} />
+                                </div>
+                            </div>
+                            <div className="value" style={{ color: 'var(--success)' }}>{stats.documents.approved}</div>
+                            <div className="subtext">Verified & accessible</div>
+                        </div>
+
+                        <div className="summary-card" onClick={() => navigate('/documents?status=Rejected')}>
+                            <div className="summary-card-header">
+                                <span className="label">Rejected</span>
+                                <div className="summary-card-icon" style={{ background: 'var(--danger-bg)', color: 'var(--danger)' }}>
+                                    <XCircle size={18} />
+                                </div>
+                            </div>
+                            <div className="value" style={{ color: 'var(--danger)' }}>{stats.documents.rejected}</div>
+                            <div className="subtext">
+                                {stats.documents.rejected > 0 ? 'Action required by teachers' : 'Zero rejected'}
+                            </div>
+                        </div>
+
+                        {stats.pending_registrations > 0 && (
+                            <div className="summary-card" onClick={() => navigate('/users')} style={{ borderColor: 'var(--warning)' }}>
+                                <div className="summary-card-header">
+                                    <span className="label">Pending Users</span>
+                                    <div className="summary-card-icon" style={{ background: 'var(--warning-bg)', color: 'var(--warning)' }}>
+                                        <UserPlus size={18} />
+                                    </div>
+                                </div>
+                                <div className="value" style={{ color: 'var(--warning)' }}>{stats.pending_registrations}</div>
+                                <div className="subtext">New registrations awaiting review</div>
                             </div>
                         )}
                     </div>
 
                     <div className="dashboard-grid">
-                        {/* Left column */}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem'}}>
-                            {/* Pending approval table */}
+                        {/* Left Column: Queues & Logs */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                            {/* Pending Review Table */}
                             <div className="panel">
                                 <div className="panel-header">
-                                    <h3>Pending Approval Queue</h3>
-                                    <button className="btn-link" onClick={() => navigate('/approvals')}>View all →</button>
+                                    <h3>
+                                        <Clock size={17} style={{ color: 'var(--warning)' }} />
+                                        Pending Approval Queue
+                                    </h3>
+                                    <button className="btn-link" onClick={() => navigate('/approvals')}>
+                                        View Queue <ArrowRight size={14} />
+                                    </button>
                                 </div>
                                 <div className="table-wrap">
                                     <table className="data-table">
                                         <thead>
                                             <tr>
-                                                <th>Document Name</th>
+                                                <th>Document Title</th>
                                                 <th>Category</th>
-                                                <th>Uploaded By</th>
-                                                <th>Submitted</th>
+                                                <th>Submitted By</th>
+                                                <th>Date</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {pending.length === 0 ? (
-                                                <tr><td colSpan={4} className="table-empty">No documents awaiting approval</td></tr>
+                                                <tr>
+                                                    <td colSpan={4}>
+                                                        <EmptyState
+                                                            icon={<CheckCircle2 size={32} className="text-success" />}
+                                                            title="Approval Queue is Empty"
+                                                            description="All submitted documents have been reviewed."
+                                                        />
+                                                    </td>
+                                                </tr>
                                             ) : pending.map((d) => (
-                                                <tr key={d.id}>
+                                                <tr key={d.id} style={{ cursor: 'pointer' }} onClick={() => navigate('/approvals')}>
                                                     <td style={{ fontWeight: 600 }}>{d.title}</td>
-                                                    <td>{d.category}</td>
+                                                    <td>
+                                                        <span className="badge badge-neutral">{d.category}</span>
+                                                    </td>
                                                     <td>{d.uploaded_by.name}</td>
-                                                    <td>{new Date(d.created_at).toLocaleDateString()}</td>
+                                                    <td style={{ color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
+                                                        {new Date(d.created_at).toLocaleDateString()}
+                                                    </td>
                                                 </tr>
                                             ))}
                                         </tbody>
@@ -130,11 +212,16 @@ const AdminDashboard: React.FC = () => {
                                 </div>
                             </div>
 
-                            {/* Recent activity */}
+                            {/* Recent Activity Timeline */}
                             <div className="panel">
                                 <div className="panel-header">
-                                    <h3>Recent Activities</h3>
-                                    <button className="btn-link" onClick={() => navigate('/audit-logs')}>View all →</button>
+                                    <h3>
+                                        <Activity size={17} style={{ color: 'var(--primary)' }} />
+                                        Recent System Activities
+                                    </h3>
+                                    <button className="btn-link" onClick={() => navigate('/audit-logs')}>
+                                        All Logs <ArrowRight size={14} />
+                                    </button>
                                 </div>
                                 <div className="table-wrap">
                                     <table className="data-table">
@@ -148,15 +235,19 @@ const AdminDashboard: React.FC = () => {
                                         </thead>
                                         <tbody>
                                             {stats.recent_audit_logs.length === 0 ? (
-                                                <tr><td colSpan={4} className="table-empty">No activity yet</td></tr>
+                                                <tr>
+                                                    <td colSpan={4} className="table-empty">No activity recorded yet</td>
+                                                </tr>
                                             ) : stats.recent_audit_logs.map((log) => (
                                                 <tr key={log.id}>
-                                                    <td style={{ color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
-                                                        {new Date(log.created_at).toLocaleString()}
+                                                    <td style={{ color: 'var(--text-muted)', whiteSpace: 'nowrap', fontSize: '0.78rem' }}>
+                                                        {new Date(log.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                                                     </td>
-                                                    <td>{log.user?.name ?? <em>System</em>}</td>
+                                                    <td style={{ fontWeight: 500 }}>{log.user?.name ?? <em>System</em>}</td>
                                                     <td><span className={`badge ${actionBadge(log.action).cls}`}>{log.action}</span></td>
-                                                    <td style={{ color: 'var(--text-secondary)', maxWidth: '260px' }}>{log.details ?? '—'}</td>
+                                                    <td style={{ color: 'var(--text-secondary)', maxWidth: '280px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                                        {log.details ?? '—'}
+                                                    </td>
                                                 </tr>
                                             ))}
                                         </tbody>
@@ -165,61 +256,93 @@ const AdminDashboard: React.FC = () => {
                             </div>
                         </div>
 
-                        {/* Right column */}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem'}}>
+                        {/* Right Column: Summaries & System Health */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                            {/* User Overview */}
                             <div className="panel">
-                                <div className="panel-header"><h3>User Overview</h3></div>
+                                <div className="panel-header">
+                                    <h3><Users size={17} /> User Overview</h3>
+                                </div>
                                 <div className="panel-body">
-                                    <div className="detail-grid">
+                                    <dl className="detail-grid">
                                         <dt>Total Users</dt><dd>{stats.users.total}</dd>
                                         <dt>Active Users</dt><dd style={{ color: 'var(--success)', fontWeight: 700 }}>{stats.users.active}</dd>
-                                        <dt>Inactive</dt><dd>{stats.users.total - stats.users.active}</dd>
-                                    </div>
-                                    <button className="btn btn-secondary btn-sm" style={{ marginTop: '1rem', width: '100%' }} onClick={() => navigate('/users')}>
-                                        Manage Users
+                                        <dt>Deactivated</dt><dd>{stats.users.total - stats.users.active}</dd>
+                                    </dl>
+                                    <button
+                                        className="btn btn-secondary btn-sm"
+                                        style={{ marginTop: '1.25rem', width: '100%' }}
+                                        onClick={() => navigate('/users')}
+                                    >
+                                        Manage Staff & Users
                                     </button>
                                 </div>
                             </div>
 
+                            {/* Weekly Reports Overview */}
                             <div className="panel">
-                                <div className="panel-header"><h3>Weekly Reports — Week {stats.weekly_reports.current_week}</h3></div>
+                                <div className="panel-header">
+                                    <h3><Calendar size={17} /> Weekly Reports (Week {stats.weekly_reports.current_week})</h3>
+                                </div>
                                 <div className="panel-body">
-                                    <div className="detail-grid">
-                                        <dt>Pending Review</dt><dd style={{ color: 'var(--warning)', fontWeight: 700 }}>{stats.weekly_reports.pending}</dd>
+                                    <dl className="detail-grid">
+                                        <dt>Pending Review</dt>
+                                        <dd style={{ color: stats.weekly_reports.pending > 0 ? 'var(--warning)' : 'inherit', fontWeight: 700 }}>
+                                            {stats.weekly_reports.pending}
+                                        </dd>
                                         <dt>Late Submissions</dt><dd>{stats.weekly_reports.late}</dd>
                                         <dt>Not Submitted</dt>
                                         <dd style={{ color: stats.weekly_reports.not_submitted_this_week > 0 ? 'var(--danger)' : 'var(--success)', fontWeight: 700 }}>
                                             {stats.weekly_reports.not_submitted_this_week}
                                         </dd>
-                                    </div>
-                                    <button className="btn btn-secondary btn-sm" style={{ marginTop: '1rem', width: '100%' }} onClick={() => navigate('/weekly-reports')}>
-                                        Open Weekly Report Tracker
+                                    </dl>
+                                    <button
+                                        className="btn btn-secondary btn-sm"
+                                        style={{ marginTop: '1.25rem', width: '100%' }}
+                                        onClick={() => navigate('/weekly-reports')}
+                                    >
+                                        Open Report Tracker
                                     </button>
                                 </div>
                             </div>
 
+                            {/* Panitia Overview */}
                             <div className="panel">
-                                <div className="panel-header"><h3>Panitia Overview</h3></div>
+                                <div className="panel-header">
+                                    <h3><Layers size={17} /> Panitia Overview</h3>
+                                </div>
                                 <div className="panel-body">
-                                    <div className="detail-grid">
+                                    <dl className="detail-grid">
                                         <dt>Total Panitia</dt><dd>{stats.panitia.total}</dd>
-                                        <dt>Active</dt><dd style={{ color: 'var(--success)', fontWeight: 700 }}>{stats.panitia.active}</dd>
+                                        <dt>Active Departments</dt><dd style={{ color: 'var(--success)', fontWeight: 700 }}>{stats.panitia.active}</dd>
                                         <dt>Inactive</dt><dd>{stats.panitia.total - stats.panitia.active}</dd>
-                                    </div>
-                                    <button className="btn btn-secondary btn-sm" style={{ marginTop: '1rem', width: '100%' }} onClick={() => navigate('/panitia')}>
+                                    </dl>
+                                    <button
+                                        className="btn btn-secondary btn-sm"
+                                        style={{ marginTop: '1.25rem', width: '100%' }}
+                                        onClick={() => navigate('/panitia')}
+                                    >
                                         Manage Panitia
                                     </button>
                                 </div>
                             </div>
 
-                            <div className="panel">
-                                <div className="panel-header"><h3>System Status</h3></div>
+                            {/* System Status */}
+                            <div className="panel" style={{ background: 'linear-gradient(180deg, #FFFFFF 0%, var(--surface-alt) 100%)' }}>
+                                <div className="panel-header">
+                                    <h3><ShieldCheck size={17} style={{ color: 'var(--success)' }} /> Security Status</h3>
+                                </div>
                                 <div className="panel-body">
-                                    <div className="detail-grid">
-                                        <dt>Encryption</dt><dd><span className="badge badge-success">AES-256 Active</span></dd>
-                                        <dt>Session Policy</dt><dd>8-hour expiry</dd>
-                                        <dt>Lockout Policy</dt><dd>3 attempts / 15 min</dd>
-                                    </div>
+                                    <dl className="detail-grid">
+                                        <dt>Encryption</dt>
+                                        <dd>
+                                            <span className="badge badge-success">
+                                                <Lock size={11} /> AES-256 Active
+                                            </span>
+                                        </dd>
+                                        <dt>Session Expiry</dt><dd>8 Hours Idle Window</dd>
+                                        <dt>Lockout Policy</dt><dd>3 Attempts / 15 Min</dd>
+                                    </dl>
                                 </div>
                             </div>
                         </div>

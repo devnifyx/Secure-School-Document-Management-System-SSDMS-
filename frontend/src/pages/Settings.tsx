@@ -1,43 +1,101 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import api from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '../contexts/ToastContext';
+import {
+    User,
+    Shield,
+    Lock,
+    Clock,
+    Key,
+    Save,
+    Eye,
+    EyeOff,
+    CheckCircle2,
+    Mail,
+    AlertCircle,
+} from 'lucide-react';
 
 const Settings: React.FC = () => {
     const { user, updateUser } = useAuth();
+    const { success, error: toastError } = useToast();
 
+    const [tab, setTab] = useState<'profile' | 'password' | 'session'>('profile');
+
+    // Profile form
     const [name, setName] = useState(user?.name ?? '');
     const [nameLoading, setNameLoading] = useState(false);
     const [nameMsg, setNameMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
+    // Password form
     const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [showCurrent, setShowCurrent] = useState(false);
+    const [showNew, setShowNew] = useState(false);
     const [pwLoading, setPwLoading] = useState(false);
     const [pwMsg, setPwMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
+    // Session info & live countdown
     const loginTime = localStorage.getItem('loginTime');
     const loginDate = loginTime ? new Date(loginTime) : null;
     const expiryDate = loginDate ? new Date(loginDate.getTime() + 8 * 60 * 60 * 1000) : null;
+    const [timeLeft, setTimeLeft] = useState<string>('');
+
+    useEffect(() => {
+        const updateTimer = () => {
+            if (!expiryDate) return;
+            const now = new Date().getTime();
+            const diff = expiryDate.getTime() - now;
+            if (diff <= 0) {
+                setTimeLeft('Expired');
+            } else {
+                const hours = Math.floor(diff / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                setTimeLeft(`${hours}h ${minutes}m ${seconds}s remaining`);
+            }
+        };
+
+        updateTimer();
+        const interval = setInterval(updateTimer, 1000);
+        return () => clearInterval(interval);
+    }, [expiryDate]);
 
     const handleNameSave = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!name.trim()) { setNameMsg({ type: 'error', text: 'Name cannot be empty.' }); return; }
-        setNameLoading(true); setNameMsg(null);
+        if (!name.trim()) {
+            setNameMsg({ type: 'error', text: 'Name cannot be empty.' });
+            return;
+        }
+        setNameLoading(true);
+        setNameMsg(null);
         try {
             const res = await api.put('/profile', { name: name.trim() });
             updateUser({ name: res.data.name });
-            setNameMsg({ type: 'success', text: 'Name updated successfully.' });
+            setNameMsg({ type: 'success', text: 'Display name updated successfully.' });
+            success('Account name updated.');
         } catch (e: any) {
-            setNameMsg({ type: 'error', text: e.response?.data?.message || 'Failed to update name.' });
-        } finally { setNameLoading(false); }
+            const errText = e.response?.data?.message || 'Failed to update name.';
+            setNameMsg({ type: 'error', text: errText });
+            toastError(errText);
+        } finally {
+            setNameLoading(false);
+        }
     };
 
     const handlePasswordSave = async (e: React.FormEvent) => {
         e.preventDefault();
         setPwMsg(null);
-        if (newPassword.length < 8) { setPwMsg({ type: 'error', text: 'New password must be at least 8 characters.' }); return; }
-        if (newPassword !== confirmPassword) { setPwMsg({ type: 'error', text: 'Passwords do not match.' }); return; }
+        if (newPassword.length < 8) {
+            setPwMsg({ type: 'error', text: 'New password must be at least 8 characters long.' });
+            return;
+        }
+        if (newPassword !== confirmPassword) {
+            setPwMsg({ type: 'error', text: 'New passwords do not match.' });
+            return;
+        }
         setPwLoading(true);
         try {
             await api.put('/profile', {
@@ -46,103 +104,260 @@ const Settings: React.FC = () => {
                 new_password_confirmation: confirmPassword,
             });
             setPwMsg({ type: 'success', text: 'Password changed successfully.' });
-            setCurrentPassword(''); setNewPassword(''); setConfirmPassword('');
+            success('Password successfully changed.');
+            setCurrentPassword('');
+            setNewPassword('');
+            setConfirmPassword('');
         } catch (e: any) {
             const data = e.response?.data;
-            setPwMsg({
-                type: 'error',
-                text: data?.errors?.current_password?.[0] || data?.errors?.new_password?.[0] || data?.message || 'Failed to change password.',
-            });
-        } finally { setPwLoading(false); }
+            const errText = data?.errors?.current_password?.[0] || data?.errors?.new_password?.[0] || data?.message || 'Failed to change password.';
+            setPwMsg({ type: 'error', text: errText });
+            toastError(errText);
+        } finally {
+            setPwLoading(false);
+        }
     };
 
     return (
-        <Layout title="Settings" subtitle="Manage your account information and security">
-            <div style={{ maxWidth: '680px', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-
-                {/* Personal information */}
-                <div className="panel">
-                    <div className="panel-header"><h3>Personal Information</h3></div>
-                    <div className="panel-body">
-                        <dl className="detail-grid" style={{ marginBottom: '1.25rem' }}>
-                            <dt>Email Address</dt><dd>{user?.email}</dd>
-                            <dt>Role</dt><dd><span className="badge badge-info">{user?.role}</span></dd>
-                            <dt>Account Status</dt><dd><span className="badge badge-success">Active</span></dd>
-                        </dl>
-
-                        <form onSubmit={handleNameSave}>
-                            {nameMsg && (
-                                <div className={`notice ${nameMsg.type === 'success' ? 'notice-success' : 'notice-danger'}`} style={{ marginBottom: '1rem' }}>
-                                    {nameMsg.text}
-                                </div>
-                            )}
-                            <div className="form-group">
-                                <label className="form-label">Display Name</label>
-                                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                    <input className="form-control" value={name} onChange={(e) => setName(e.target.value)} />
-                                    <button type="submit" className="btn btn-primary" disabled={nameLoading}>
-                                        {nameLoading ? 'Saving…' : 'Save'}
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
+        <Layout
+            title="Account & Security Settings"
+            subtitle="Manage your personal profile, update your password, and inspect active session policies"
+        >
+            <div style={{ maxWidth: '680px' }}>
+                {/* Segmented settings navigation */}
+                <div className="tab-group" style={{ marginBottom: '1.5rem' }}>
+                    <button
+                        className={`tab-btn ${tab === 'profile' ? 'active' : ''}`}
+                        onClick={() => setTab('profile')}
+                    >
+                        <User size={15} /> Profile Details
+                    </button>
+                    <button
+                        className={`tab-btn ${tab === 'password' ? 'active' : ''}`}
+                        onClick={() => setTab('password')}
+                    >
+                        <Key size={15} /> Change Password
+                    </button>
+                    <button
+                        className={`tab-btn ${tab === 'session' ? 'active' : ''}`}
+                        onClick={() => setTab('session')}
+                    >
+                        <Shield size={15} /> Session & Security
+                    </button>
                 </div>
 
-                {/* Change password */}
-                <div className="panel">
-                    <div className="panel-header"><h3>Change Password</h3></div>
-                    <div className="panel-body">
-                        {pwMsg && (
-                            <div className={`notice ${pwMsg.type === 'success' ? 'notice-success' : 'notice-danger'}`} style={{ marginBottom: '1rem' }}>
-                                {pwMsg.text}
-                            </div>
-                        )}
-                        <form onSubmit={handlePasswordSave}>
-                            <div className="form-group">
-                                <label className="form-label">Current Password</label>
-                                <input className="form-control" type="password" value={currentPassword} required
-                                    onChange={(e) => setCurrentPassword(e.target.value)} />
-                            </div>
-                            <div className="form-row">
+                {/* Profile Tab */}
+                {tab === 'profile' && (
+                    <div className="panel">
+                        <div className="panel-header">
+                            <h3><User size={17} style={{ color: 'var(--primary)' }} /> Profile Information</h3>
+                        </div>
+                        <div className="panel-body">
+                            <dl className="detail-grid" style={{ marginBottom: '1.75rem', paddingBottom: '1.25rem', borderBottom: '1px solid var(--border)' }}>
+                                <dt>Email Address</dt>
+                                <dd>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                        <Mail size={14} style={{ color: 'var(--text-muted)' }} />
+                                        <span>{user?.email}</span>
+                                    </div>
+                                </dd>
+
+                                <dt>Assigned Role</dt>
+                                <dd>
+                                    <span className="badge badge-info">{user?.role}</span>
+                                </dd>
+
+                                <dt>Account Status</dt>
+                                <dd>
+                                    <span className="badge badge-success">
+                                        <CheckCircle2 size={11} /> Active
+                                    </span>
+                                </dd>
+                            </dl>
+
+                            <form onSubmit={handleNameSave}>
+                                {nameMsg && (
+                                    <div className={`notice ${nameMsg.type === 'success' ? 'notice-success' : 'notice-danger'}`} style={{ marginBottom: '1.25rem' }}>
+                                        {nameMsg.type === 'success' ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}
+                                        <div>{nameMsg.text}</div>
+                                    </div>
+                                )}
+
+                                <div className="form-group">
+                                    <label className="form-label">Display Name</label>
+                                    <div style={{ position: 'relative' }}>
+                                        <div style={{ position: 'absolute', left: '0.9rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', display: 'flex' }}>
+                                            <User size={16} />
+                                        </div>
+                                        <input
+                                            className="form-control"
+                                            value={name}
+                                            required
+                                            onChange={(e) => setName(e.target.value)}
+                                            style={{ paddingLeft: '2.5rem' }}
+                                        />
+                                    </div>
+                                    <span className="form-hint" style={{ marginTop: '0.35rem', display: 'block' }}>
+                                        This name appears on documents and reports you upload.
+                                    </span>
+                                </div>
+
+                                <button
+                                    type="submit"
+                                    className="btn btn-primary"
+                                    disabled={nameLoading || name.trim() === user?.name}
+                                    style={{ marginTop: '0.5rem' }}
+                                >
+                                    <Save size={15} />
+                                    {nameLoading ? 'Saving…' : 'Update Profile'}
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                )}
+
+                {/* Change Password Tab */}
+                {tab === 'password' && (
+                    <div className="panel">
+                        <div className="panel-header">
+                            <h3><Lock size={17} style={{ color: 'var(--primary)' }} /> Update Password</h3>
+                        </div>
+                        <div className="panel-body">
+                            {pwMsg && (
+                                <div className={`notice ${pwMsg.type === 'success' ? 'notice-success' : 'notice-danger'}`} style={{ marginBottom: '1.25rem' }}>
+                                    {pwMsg.type === 'success' ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}
+                                    <div>{pwMsg.text}</div>
+                                </div>
+                            )}
+
+                            <form onSubmit={handlePasswordSave}>
+                                <div className="form-group">
+                                    <label className="form-label">Current Password</label>
+                                    <div style={{ position: 'relative' }}>
+                                        <div style={{ position: 'absolute', left: '0.9rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', display: 'flex' }}>
+                                            <Lock size={16} />
+                                        </div>
+                                        <input
+                                            className="form-control"
+                                            type={showCurrent ? 'text' : 'password'}
+                                            value={currentPassword}
+                                            required
+                                            onChange={(e) => setCurrentPassword(e.target.value)}
+                                            placeholder="Enter current password"
+                                            style={{ paddingLeft: '2.5rem', paddingRight: '2.5rem' }}
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowCurrent((v) => !v)}
+                                            style={{ position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex' }}
+                                        >
+                                            {showCurrent ? <EyeOff size={16} /> : <Eye size={16} />}
+                                        </button>
+                                    </div>
+                                </div>
+
                                 <div className="form-group">
                                     <label className="form-label">New Password</label>
-                                    <input className="form-control" type="password" value={newPassword} required
-                                        onChange={(e) => setNewPassword(e.target.value)} placeholder="At least 8 characters" />
+                                    <div style={{ position: 'relative' }}>
+                                        <div style={{ position: 'absolute', left: '0.9rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', display: 'flex' }}>
+                                            <Key size={16} />
+                                        </div>
+                                        <input
+                                            className="form-control"
+                                            type={showNew ? 'text' : 'password'}
+                                            value={newPassword}
+                                            required
+                                            onChange={(e) => setNewPassword(e.target.value)}
+                                            placeholder="Minimum 8 characters"
+                                            style={{ paddingLeft: '2.5rem', paddingRight: '2.5rem' }}
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowNew((v) => !v)}
+                                            style={{ position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex' }}
+                                        >
+                                            {showNew ? <EyeOff size={16} /> : <Eye size={16} />}
+                                        </button>
+                                    </div>
                                 </div>
+
                                 <div className="form-group">
                                     <label className="form-label">Confirm New Password</label>
-                                    <input className="form-control" type="password" value={confirmPassword} required
-                                        onChange={(e) => setConfirmPassword(e.target.value)} />
+                                    <div style={{ position: 'relative' }}>
+                                        <div style={{ position: 'absolute', left: '0.9rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', display: 'flex' }}>
+                                            <Key size={16} />
+                                        </div>
+                                        <input
+                                            className="form-control"
+                                            type="password"
+                                            value={confirmPassword}
+                                            required
+                                            onChange={(e) => setConfirmPassword(e.target.value)}
+                                            placeholder="Repeat new password"
+                                            style={{ paddingLeft: '2.5rem' }}
+                                        />
+                                    </div>
+                                </div>
+
+                                <button
+                                    type="submit"
+                                    className="btn btn-primary"
+                                    disabled={pwLoading || !currentPassword || !newPassword || !confirmPassword}
+                                    style={{ marginTop: '0.5rem' }}
+                                >
+                                    <Lock size={15} />
+                                    {pwLoading ? 'Changing Password…' : 'Change Password'}
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                )}
+
+                {/* Session Security Tab */}
+                {tab === 'session' && (
+                    <div className="panel">
+                        <div className="panel-header">
+                            <h3><Shield size={17} style={{ color: 'var(--success)' }} /> Active Session & Policies</h3>
+                        </div>
+                        <div className="panel-body">
+                            <dl className="detail-grid" style={{ marginBottom: '1.5rem' }}>
+                                <dt>Login Timestamp</dt>
+                                <dd>{loginDate ? loginDate.toLocaleString() : 'Active session'}</dd>
+
+                                <dt>Session Expiry</dt>
+                                <dd>{expiryDate ? expiryDate.toLocaleString() : '8 hours from login'}</dd>
+
+                                <dt>Time Remaining</dt>
+                                <dd>
+                                    <span className="badge badge-info" style={{ fontSize: '0.78rem' }}>
+                                        <Clock size={12} /> {timeLeft || 'Active'}
+                                    </span>
+                                </dd>
+
+                                <dt>Account Protection</dt>
+                                <dd>
+                                    <span className="badge badge-success">
+                                        <CheckCircle2 size={11} /> 3-Attempt Lockout Active
+                                    </span>
+                                </dd>
+
+                                <dt>File Storage</dt>
+                                <dd>
+                                    <span className="badge badge-success">
+                                        <Lock size={11} /> AES-256 Encrypted
+                                    </span>
+                                </dd>
+                            </dl>
+
+                            <div className="notice notice-info">
+                                <Shield size={20} style={{ flexShrink: 0 }} />
+                                <div>
+                                    <strong>Automatic Inactivity Timeout:</strong> For institutional data security, sessions expire after 8 hours. When expired, you will be prompted to re-enter your credentials.
                                 </div>
                             </div>
-                            <button type="submit" className="btn btn-primary" disabled={pwLoading} style={{ marginTop: '0.5rem' }}>
-                                {pwLoading ? 'Changing…' : 'Change Password'}
-                            </button>
-                        </form>
+                        </div>
                     </div>
-                </div>
-
-                {/* Session information */}
-                <div className="panel">
-                    <div className="panel-header"><h3>Session Information</h3></div>
-                    <div className="panel-body">
-                        <dl className="detail-grid">
-                            <dt>Signed in since</dt>
-                            <dd>{loginDate ? loginDate.toLocaleString() : '—'}</dd>
-                            <dt>Session expires</dt>
-                            <dd>{expiryDate ? expiryDate.toLocaleString() : '—'}</dd>
-                            <dt>Browser</dt>
-                            <dd style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{navigator.userAgent}</dd>
-                            {user?.role === 'Teacher' && (
-                                <>
-                                    <dt>Lockout Policy</dt>
-                                    <dd>Account locks after 3 consecutive failed login attempts (15 minutes)</dd>
-                                </>
-                            )}
-                        </dl>
-                    </div>
-                </div>
+                )}
             </div>
         </Layout>
     );

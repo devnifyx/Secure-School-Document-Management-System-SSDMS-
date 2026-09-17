@@ -1,6 +1,23 @@
 import React, { useState } from 'react';
 import api from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '../contexts/ToastContext';
+import ConfirmModal from './ConfirmModal';
+import FileDropzone from './FileDropzone';
+import {
+    Calendar,
+    CheckCircle2,
+    XCircle,
+    Clock,
+    Download,
+    Eye,
+    AlertTriangle,
+    X,
+    FileText,
+    User,
+    Layers,
+    RefreshCw,
+} from 'lucide-react';
 
 export interface WeeklyReportAttachmentItem {
     id: number;
@@ -30,9 +47,9 @@ export interface WeeklyReportItem {
 }
 
 const statusBadge = (status: string) => {
-    if (status === 'Approved') return 'badge-success';
-    if (status === 'Rejected') return 'badge-danger';
-    return 'badge-warning';
+    if (status === 'Approved') return <span className="badge badge-success"><CheckCircle2 size={12} /> Approved</span>;
+    if (status === 'Rejected') return <span className="badge badge-danger"><XCircle size={12} /> Rejected</span>;
+    return <span className="badge badge-warning"><Clock size={12} /> Pending Review</span>;
 };
 
 const isPreviewable = (type: string) => ['application/pdf', 'image/jpeg', 'image/png'].includes(type);
@@ -45,37 +62,56 @@ interface Props {
 
 const WeeklyReportDetailsModal: React.FC<Props> = ({ report, onClose, onChanged }) => {
     const { user } = useAuth();
+    const { success, error: toastError } = useToast();
     const isAdmin = user?.role === 'Admin';
     const isOwner = report.submitted_by.id === user?.id;
 
     const [actionLoading, setActionLoading] = useState(false);
     const [busyAttachment, setBusyAttachment] = useState<number | null>(null);
 
+    const [showApproveConfirm, setShowApproveConfirm] = useState(false);
+    const [showRejectConfirm, setShowRejectConfirm] = useState(false);
+
+    // Edit/Resubmit mode
     const [editMode, setEditMode] = useState(false);
     const [editTitle, setEditTitle] = useState(report.title);
     const [editSummary, setEditSummary] = useState(report.activity_summary);
     const [editChallenges, setEditChallenges] = useState(report.challenges ?? '');
     const [editActions, setEditActions] = useState(report.actions_taken ?? '');
     const [editNextWeek, setEditNextWeek] = useState(report.next_week_plan ?? '');
-    const [editFiles, setEditFiles] = useState<FileList | null>(null);
+    const [editFiles, setEditFiles] = useState<File[]>([]);
     const [editLoading, setEditLoading] = useState(false);
     const [editError, setEditError] = useState('');
 
     const handleApprove = async () => {
-        if (!confirm('Approve this weekly report?')) return;
         setActionLoading(true);
-        try { await api.post(`/weekly-reports/${report.id}/approve`); onChanged(); onClose(); }
-        catch (e: any) { alert(e.response?.data?.message || 'Failed to approve'); }
-        finally { setActionLoading(false); }
+        try {
+            await api.post(`/weekly-reports/${report.id}/approve`);
+            success('Weekly report approved.');
+            setShowApproveConfirm(false);
+            onChanged();
+            onClose();
+        } catch (e: any) {
+            toastError(e.response?.data?.message || 'Failed to approve report.');
+        } finally {
+            setActionLoading(false);
+        }
     };
 
-    const handleReject = async () => {
-        const reason = prompt('Enter rejection reason (required):');
+    const handleReject = async (reason?: string) => {
         if (!reason?.trim()) return;
         setActionLoading(true);
-        try { await api.post(`/weekly-reports/${report.id}/reject`, { reason }); onChanged(); onClose(); }
-        catch (e: any) { alert(e.response?.data?.message || 'Failed to reject'); }
-        finally { setActionLoading(false); }
+        try {
+            await api.post(`/weekly-reports/${report.id}/reject`, { reason: reason.trim() });
+            success('Weekly report rejected with feedback.');
+            setShowRejectConfirm(false);
+            onChanged();
+            onClose();
+        } catch (e: any) {
+            toastError(e.response?.data?.message || 'Failed to reject report.');
+        } finally {
+            setActionLoading(false);
+        }
     };
 
     const handleDownload = async (att: WeeklyReportAttachmentItem) => {
@@ -84,11 +120,18 @@ const WeeklyReportDetailsModal: React.FC<Props> = ({ report, onClose, onChanged 
             const res = await api.get(`/weekly-reports/${report.id}/attachments/${att.id}/download`, { responseType: 'blob' });
             const url = window.URL.createObjectURL(new Blob([res.data]));
             const link = window.document.createElement('a');
-            link.href = url; link.setAttribute('download', att.file_name);
-            window.document.body.appendChild(link); link.click(); link.remove();
+            link.href = url;
+            link.setAttribute('download', att.file_name);
+            window.document.body.appendChild(link);
+            link.click();
+            link.remove();
             window.URL.revokeObjectURL(url);
-        } catch (e: any) { alert(e.response?.data?.message || 'Download failed'); }
-        finally { setBusyAttachment(null); }
+            success(`Downloaded "${att.file_name}"`);
+        } catch (e: any) {
+            toastError(e.response?.data?.message || 'Download failed');
+        } finally {
+            setBusyAttachment(null);
+        }
     };
 
     const handlePreview = async (att: WeeklyReportAttachmentItem) => {
@@ -99,12 +142,17 @@ const WeeklyReportDetailsModal: React.FC<Props> = ({ report, onClose, onChanged 
             const url = window.URL.createObjectURL(blob);
             window.open(url, '_blank', 'noopener,noreferrer');
             setTimeout(() => window.URL.revokeObjectURL(url), 60000);
-        } catch (e: any) { alert(e.response?.data?.message || 'Preview failed'); }
-        finally { setBusyAttachment(null); }
+        } catch (e: any) {
+            toastError(e.response?.data?.message || 'Preview failed');
+        } finally {
+            setBusyAttachment(null);
+        }
     };
 
-    const handleResubmit = async () => {
-        setEditLoading(true); setEditError('');
+    const handleResubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setEditLoading(true);
+        setEditError('');
         try {
             const formData = new FormData();
             formData.append('title', editTitle);
@@ -112,163 +160,351 @@ const WeeklyReportDetailsModal: React.FC<Props> = ({ report, onClose, onChanged 
             formData.append('challenges', editChallenges);
             formData.append('actions_taken', editActions);
             formData.append('next_week_plan', editNextWeek);
-            if (editFiles) {
-                Array.from(editFiles).forEach((f) => formData.append('attachments[]', f));
-            }
+            editFiles.forEach((f) => formData.append('attachments[]', f));
             formData.append('_method', 'PUT');
-            await api.post(`/weekly-reports/${report.id}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
-            onChanged(); onClose();
+
+            await api.post(`/weekly-reports/${report.id}`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+            });
+            success('Report resubmitted for review.');
+            onChanged();
+            onClose();
         } catch (e: any) {
-            const msg = e.response?.data?.message || e.response?.data?.errors;
-            setEditError(typeof msg === 'string' ? msg : 'Resubmission failed.');
-        } finally { setEditLoading(false); }
+            setEditError(e.response?.data?.message || 'Resubmission failed.');
+        } finally {
+            setEditLoading(false);
+        }
     };
 
     return (
         <div className="modal-overlay" onClick={onClose}>
-            <div className="modal-box" style={{ maxWidth: '660px' }} onClick={(e) => e.stopPropagation()}>
+            <div
+                className="modal-box"
+                style={{ maxWidth: '740px' }}
+                onClick={(e) => e.stopPropagation()}
+            >
                 <div className="modal-header">
-                    <h3>Weekly Activity Report</h3>
-                    <button className="modal-close" onClick={onClose}>×</button>
+                    <h3>
+                        <Calendar size={20} style={{ color: 'var(--primary)' }} />
+                        Weekly Activity Report
+                    </h3>
+                    <button className="modal-close" onClick={onClose} aria-label="Close">
+                        <X size={18} />
+                    </button>
                 </div>
 
                 <div className="modal-body">
                     {!editMode ? (
                         <>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.1rem' }}>
+                            {/* Header details */}
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.25rem' }}>
                                 <div>
-                                    <div style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--navy)', marginBottom: '0.3rem' }}>{report.title}</div>
-                                    <span className={`badge ${statusBadge(report.status)}`}>{report.status}</span>
-                                    {report.is_late && <span className="badge badge-neutral" style={{ marginLeft: '0.4rem' }}>Late Submission</span>}
+                                    <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text)', marginBottom: '0.4rem' }}>
+                                        {report.title}
+                                    </h2>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                                        {statusBadge(report.status)}
+                                        <span className={`badge ${report.is_late ? 'badge-warning' : 'badge-success'}`}>
+                                            {report.is_late ? 'Late Submission' : 'On Time'}
+                                        </span>
+                                        <span className="badge badge-neutral">Week {report.week_number}</span>
+                                    </div>
                                 </div>
                             </div>
 
-                            <dl className="detail-grid" style={{ marginBottom: '1rem' }}>
-                                <dt>Submitted By</dt><dd>{report.submitted_by.name}</dd>
-                                <dt>Panitia</dt><dd>{report.panitia?.name || '—'}</dd>
-                                <dt>Week Number</dt><dd>Week {report.week_number}</dd>
-                                <dt>Reporting Period</dt>
-                                <dd>{new Date(report.period_start).toLocaleDateString()} to {new Date(report.period_end).toLocaleDateString()}</dd>
-                                <dt>Submitted</dt><dd>{new Date(report.created_at).toLocaleString()}</dd>
-                                <dt>Last Updated</dt><dd>{new Date(report.updated_at).toLocaleString()}</dd>
+                            {/* Rejection Notice if any */}
+                            {report.rejection_reason && (
+                                <div className="notice notice-danger" style={{ marginBottom: '1.25rem' }}>
+                                    <AlertTriangle size={20} style={{ flexShrink: 0 }} />
+                                    <div>
+                                        <strong>Reviewer Feedback:</strong> {report.rejection_reason}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Metadata Grid */}
+                            <dl className="detail-grid" style={{ marginBottom: '1.5rem' }}>
+                                <dt>Teacher</dt>
+                                <dd>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                        <User size={13} /> {report.submitted_by.name}
+                                    </div>
+                                </dd>
+
+                                <dt>Department</dt>
+                                <dd>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                        <Layers size={13} /> {report.panitia?.name || '—'}
+                                    </div>
+                                </dd>
+
+                                <dt>Period Coverage</dt>
+                                <dd>{report.period_start} to {report.period_end}</dd>
+
+                                <dt>Submitted</dt>
+                                <dd>{new Date(report.created_at).toLocaleString()}</dd>
                             </dl>
 
-                            <div style={{ marginBottom: '1rem' }}>
-                                <div style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text)', marginBottom: '0.3rem' }}>Activity Summary</div>
-                                <div style={{ fontSize: '0.83rem', color: 'var(--text-secondary)', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{report.activity_summary}</div>
-                            </div>
-                            {report.challenges && (
-                                <div style={{ marginBottom: '1rem' }}>
-                                    <div style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text)', marginBottom: '0.3rem' }}>Challenges or Issues Faced</div>
-                                    <div style={{ fontSize: '0.83rem', color: 'var(--text-secondary)', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{report.challenges}</div>
-                                </div>
-                            )}
-                            {report.actions_taken && (
-                                <div style={{ marginBottom: '1rem' }}>
-                                    <div style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text)', marginBottom: '0.3rem' }}>Actions Taken</div>
-                                    <div style={{ fontSize: '0.83rem', color: 'var(--text-secondary)', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{report.actions_taken}</div>
-                                </div>
-                            )}
-                            {report.next_week_plan && (
-                                <div style={{ marginBottom: '1rem' }}>
-                                    <div style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text)', marginBottom: '0.3rem' }}>Next Week Planning</div>
-                                    <div style={{ fontSize: '0.83rem', color: 'var(--text-secondary)', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{report.next_week_plan}</div>
-                                </div>
-                            )}
-
-                            {report.attachments.length > 0 && (
-                                <div style={{ marginBottom: '1rem' }}>
-                                    <div style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text)', marginBottom: '0.4rem' }}>Supporting Documents</div>
-                                    {report.attachments.map((att) => (
-                                        <div key={att.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.5rem 0.7rem', border: '1px solid var(--border)', borderRadius: '8px', marginBottom: '0.4rem' }}>
-                                            <span style={{ fontSize: '0.8rem' }}>{att.file_name} <span style={{ color: 'var(--text-muted)' }}>({(att.file_size / 1024 / 1024).toFixed(2)} MB)</span></span>
-                                            <span>
-                                                {isPreviewable(att.file_type) && (
-                                                    <button className="row-action" disabled={busyAttachment === att.id} onClick={() => handlePreview(att)}>Preview</button>
-                                                )}
-                                                {' '}·{' '}
-                                                <button className="row-action" disabled={busyAttachment === att.id} onClick={() => handleDownload(att)}>Download</button>
-                                            </span>
+                            {/* Structured Content Sections */}
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', marginBottom: '1.5rem' }}>
+                                <div className="panel" style={{ background: 'var(--surface-alt)' }}>
+                                    <div className="panel-body" style={{ padding: '1rem 1.25rem' }}>
+                                        <strong style={{ fontSize: '0.86rem', display: 'block', marginBottom: '0.4rem', color: 'var(--text)' }}>
+                                            Activity Summary
+                                        </strong>
+                                        <div style={{ fontSize: '0.84rem', color: 'var(--text-secondary)', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
+                                            {report.activity_summary}
                                         </div>
-                                    ))}
+                                    </div>
                                 </div>
-                            )}
 
-                            {report.rejection_reason && (
-                                <div className="notice notice-danger" style={{ marginBottom: '1rem' }}>
-                                    <span>⚠</span>
-                                    <div><strong>Rejection reason:</strong> {report.rejection_reason}</div>
+                                {report.challenges && (
+                                    <div className="panel" style={{ background: 'var(--surface-alt)' }}>
+                                        <div className="panel-body" style={{ padding: '1rem 1.25rem' }}>
+                                            <strong style={{ fontSize: '0.86rem', display: 'block', marginBottom: '0.4rem', color: 'var(--text)' }}>
+                                                Challenges Encountered
+                                            </strong>
+                                            <div style={{ fontSize: '0.84rem', color: 'var(--text-secondary)', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
+                                                {report.challenges}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {report.actions_taken && (
+                                    <div className="panel" style={{ background: 'var(--surface-alt)' }}>
+                                        <div className="panel-body" style={{ padding: '1rem 1.25rem' }}>
+                                            <strong style={{ fontSize: '0.86rem', display: 'block', marginBottom: '0.4rem', color: 'var(--text)' }}>
+                                                Actions & Solutions Implemented
+                                            </strong>
+                                            <div style={{ fontSize: '0.84rem', color: 'var(--text-secondary)', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
+                                                {report.actions_taken}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {report.next_week_plan && (
+                                    <div className="panel" style={{ background: 'var(--surface-alt)' }}>
+                                        <div className="panel-body" style={{ padding: '1rem 1.25rem' }}>
+                                            <strong style={{ fontSize: '0.86rem', display: 'block', marginBottom: '0.4rem', color: 'var(--text)' }}>
+                                                Upcoming Week Plan
+                                            </strong>
+                                            <div style={{ fontSize: '0.84rem', color: 'var(--text-secondary)', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
+                                                {report.next_week_plan}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Attachments Section */}
+                            {report.attachments && report.attachments.length > 0 && (
+                                <div style={{ marginBottom: '1.25rem' }}>
+                                    <strong style={{ fontSize: '0.86rem', display: 'block', marginBottom: '0.6rem' }}>
+                                        Attached Evidence & Files ({report.attachments.length})
+                                    </strong>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                        {report.attachments.map((att) => (
+                                            <div
+                                                key={att.id}
+                                                style={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'space-between',
+                                                    padding: '0.75rem 1rem',
+                                                    background: '#ffffff',
+                                                    border: '1px solid var(--border)',
+                                                    borderRadius: 'var(--radius-md)',
+                                                }}
+                                            >
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                                                    <FileText size={18} style={{ color: 'var(--primary)' }} />
+                                                    <div>
+                                                        <div style={{ fontWeight: 600, fontSize: '0.84rem' }}>{att.file_name}</div>
+                                                        <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                                                            {(att.file_size / 1024 / 1024).toFixed(2)} MB
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div style={{ display: 'flex', gap: '0.4rem' }}>
+                                                    {isPreviewable(att.file_type) && (
+                                                        <button
+                                                            className="btn btn-secondary btn-sm"
+                                                            onClick={() => handlePreview(att)}
+                                                            disabled={busyAttachment === att.id}
+                                                        >
+                                                            <Eye size={12} /> Preview
+                                                        </button>
+                                                    )}
+                                                    <button
+                                                        className="btn btn-secondary btn-sm"
+                                                        onClick={() => handleDownload(att)}
+                                                        disabled={busyAttachment === att.id}
+                                                    >
+                                                        <Download size={12} />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
                             )}
                         </>
                     ) : (
-                        <>
-                            {report.rejection_reason && (
-                                <div className="notice notice-danger" style={{ marginBottom: '1.1rem' }}>
-                                    <span>⚠</span>
-                                    <div><strong>Rejection reason:</strong> {report.rejection_reason}</div>
+                        /* Edit / Resubmit Form */
+                        <form onSubmit={handleResubmit}>
+                            <h3 style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: '0.4rem' }}>
+                                Edit & Resubmit Weekly Report
+                            </h3>
+                            <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: '1.25rem' }}>
+                                Update your report content to address reviewer feedback.
+                            </p>
+
+                            {editError && (
+                                <div className="notice notice-danger" style={{ marginBottom: '1rem' }}>
+                                    {editError}
                                 </div>
                             )}
-                            {editError && <div className="notice notice-danger" style={{ marginBottom: '1rem' }}>{editError}</div>}
 
                             <div className="form-group">
                                 <label className="form-label">Title</label>
-                                <input className="form-control" value={editTitle} onChange={(e) => setEditTitle(e.target.value)} />
+                                <input
+                                    className="form-control"
+                                    value={editTitle}
+                                    onChange={(e) => setEditTitle(e.target.value)}
+                                    required
+                                />
                             </div>
+
                             <div className="form-group">
                                 <label className="form-label">Activity Summary</label>
-                                <textarea className="form-control" rows={3} value={editSummary} onChange={(e) => setEditSummary(e.target.value)} />
+                                <textarea
+                                    className="form-control"
+                                    value={editSummary}
+                                    onChange={(e) => setEditSummary(e.target.value)}
+                                    rows={4}
+                                    required
+                                />
                             </div>
+
                             <div className="form-group">
-                                <label className="form-label">Challenges or Issues Faced</label>
-                                <textarea className="form-control" rows={2} value={editChallenges} onChange={(e) => setEditChallenges(e.target.value)} />
+                                <label className="form-label">Challenges</label>
+                                <textarea
+                                    className="form-control"
+                                    value={editChallenges}
+                                    onChange={(e) => setEditChallenges(e.target.value)}
+                                    rows={3}
+                                />
                             </div>
+
                             <div className="form-group">
                                 <label className="form-label">Actions Taken</label>
-                                <textarea className="form-control" rows={2} value={editActions} onChange={(e) => setEditActions(e.target.value)} />
+                                <textarea
+                                    className="form-control"
+                                    value={editActions}
+                                    onChange={(e) => setEditActions(e.target.value)}
+                                    rows={3}
+                                />
                             </div>
+
                             <div className="form-group">
-                                <label className="form-label">Next Week Planning</label>
-                                <textarea className="form-control" rows={2} value={editNextWeek} onChange={(e) => setEditNextWeek(e.target.value)} />
+                                <label className="form-label">Next Week Plan</label>
+                                <textarea
+                                    className="form-control"
+                                    value={editNextWeek}
+                                    onChange={(e) => setEditNextWeek(e.target.value)}
+                                    rows={3}
+                                />
                             </div>
+
                             <div className="form-group">
-                                <label className="form-label">Add Supporting Documents <span className="form-hint">(optional)</span></label>
-                                <input className="form-control" type="file" multiple
-                                    accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png"
-                                    onChange={(e) => setEditFiles(e.target.files)} />
+                                <FileDropzone
+                                    label="Add Additional Evidence Attachments"
+                                    multiple={true}
+                                    files={editFiles}
+                                    onFilesSelect={setEditFiles}
+                                />
                             </div>
-                        </>
+
+                            <div style={{ display: 'flex', gap: '0.6rem', marginTop: '1.5rem' }}>
+                                <button
+                                    type="submit"
+                                    className="btn btn-primary"
+                                    disabled={editLoading}
+                                >
+                                    {editLoading ? 'Saving…' : 'Save & Resubmit Report'}
+                                </button>
+                                <button
+                                    type="button"
+                                    className="btn btn-secondary"
+                                    onClick={() => setEditMode(false)}
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
                     )}
                 </div>
 
-                <div className="modal-footer">
-                    {!editMode ? (
-                        <>
-                            <div className="modal-footer-group">
-                                {isAdmin && report.status === 'Pending Review' && (
-                                    <>
-                                        <button className="btn btn-danger btn-sm" onClick={handleReject} disabled={actionLoading}>Reject</button>
-                                        <button className="btn btn-success btn-sm" onClick={handleApprove} disabled={actionLoading}>Approve</button>
-                                    </>
-                                )}
-                                {!isAdmin && isOwner && report.status === 'Rejected' && (
-                                    <button className="btn btn-primary btn-sm" onClick={() => setEditMode(true)}>Edit &amp; Resubmit</button>
+                {/* Footer Controls */}
+                {!editMode && (
+                    <div className="modal-footer">
+                        <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', flexWrap: 'wrap', gap: '0.5rem' }}>
+                            <div>
+                                {report.status === 'Rejected' && isOwner && (
+                                    <button className="btn btn-primary btn-sm" onClick={() => setEditMode(true)}>
+                                        <RefreshCw size={13} /> Edit & Resubmit
+                                    </button>
                                 )}
                             </div>
-                            <div className="modal-footer-spacer" />
-                            <button className="btn btn-secondary btn-sm" onClick={onClose}>Close</button>
-                        </>
-                    ) : (
-                        <>
-                            <button className="btn btn-secondary btn-sm" onClick={() => setEditMode(false)} disabled={editLoading}>Back</button>
-                            <div className="modal-footer-spacer" />
-                            <button className="btn btn-primary btn-sm" onClick={handleResubmit} disabled={editLoading}>
-                                {editLoading ? 'Submitting…' : 'Resubmit for Review'}
-                            </button>
-                        </>
-                    )}
-                </div>
+
+                            <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                {isAdmin && report.status === 'Pending Review' && (
+                                    <>
+                                        <button className="btn btn-danger btn-sm" onClick={() => setShowRejectConfirm(true)}>
+                                            <XCircle size={13} /> Reject Report
+                                        </button>
+                                        <button className="btn btn-success btn-sm" onClick={() => setShowApproveConfirm(true)}>
+                                            <CheckCircle2 size={13} /> Approve Report
+                                        </button>
+                                    </>
+                                )}
+                                <button className="btn btn-secondary btn-sm" onClick={onClose}>
+                                    Close
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
+
+            {/* Approval Confirm Modal */}
+            <ConfirmModal
+                isOpen={showApproveConfirm}
+                title="Approve Weekly Report"
+                message={`Approve ${report.submitted_by.name}'s Week ${report.week_number} report?`}
+                confirmText="Approve Report"
+                onConfirm={handleApprove}
+                onCancel={() => setShowApproveConfirm(false)}
+                loading={actionLoading}
+            />
+
+            {/* Rejection Confirm Modal with Feedback Input */}
+            <ConfirmModal
+                isOpen={showRejectConfirm}
+                title="Reject Weekly Report"
+                message={`Please provide feedback explaining why ${report.submitted_by.name}'s report is being returned for revision.`}
+                confirmText="Reject with Feedback"
+                isDanger={true}
+                inputMode={true}
+                inputLabel="Reviewer Revision Notes"
+                inputPlaceholder="Explain what needs to be added or clarified…"
+                inputRequired={true}
+                onConfirm={handleReject}
+                onCancel={() => setShowRejectConfirm(false)}
+                loading={actionLoading}
+            />
         </div>
     );
 };

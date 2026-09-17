@@ -2,7 +2,22 @@ import React, { useState, useEffect, useCallback } from 'react';
 import api from '../services/api';
 import Layout from '../components/Layout';
 import WeeklyReportDetailsModal, { WeeklyReportItem } from '../components/WeeklyReportDetailsModal';
+import { SkeletonTable } from '../components/SkeletonLoader';
+import EmptyState from '../components/EmptyState';
 import { getISOWeek } from '../utils/week';
+import {
+    Calendar,
+    CheckCircle2,
+    Clock,
+    XCircle,
+    UserX,
+    RotateCcw,
+    Eye,
+    ChevronLeft,
+    ChevronRight,
+    User,
+    Layers,
+} from 'lucide-react';
 
 interface Meta { current_page: number; last_page: number; total: number; }
 interface TeacherOption { id: number; name: string; role: string; }
@@ -10,9 +25,9 @@ interface PanitiaOption { id: number; name: string; }
 interface NotSubmittedUser { id: number; name: string; email: string; }
 
 const statusBadge = (status: string) => {
-    if (status === 'Approved') return 'badge-success';
-    if (status === 'Rejected') return 'badge-danger';
-    return 'badge-warning';
+    if (status === 'Approved') return <span className="badge badge-success"><CheckCircle2 size={11} /> Approved</span>;
+    if (status === 'Rejected') return <span className="badge badge-danger"><XCircle size={11} /> Rejected</span>;
+    return <span className="badge badge-warning"><Clock size={11} /> Pending Review</span>;
 };
 
 const WeeklyReportTracker: React.FC = () => {
@@ -49,11 +64,16 @@ const WeeklyReportTracker: React.FC = () => {
             const res = await api.get('/weekly-reports', { params });
             setReports(res.data.data);
             setMeta({ current_page: res.data.current_page, last_page: res.data.last_page, total: res.data.total });
-        } catch (e) { console.error(e); }
-        finally { setLoading(false); }
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setLoading(false);
+        }
     }, [page, weekFilter, teacherFilter, panitiaFilter, statusFilter, lateOnly]);
 
-    useEffect(() => { if (tab === 'all') load(); }, [tab, load]);
+    useEffect(() => {
+        if (tab === 'all') load();
+    }, [tab, load]);
 
     useEffect(() => {
         api.get('/users').then((res) => setTeachers(res.data.filter((u: TeacherOption) => u.role === 'Teacher'))).catch(() => {});
@@ -66,55 +86,125 @@ const WeeklyReportTracker: React.FC = () => {
         try {
             const res = await api.get('/weekly-reports-not-submitted', { params: { week_number: notSubmittedWeek } });
             setNotSubmitted(res.data);
-        } catch (e) { console.error(e); }
-        finally { setNotSubmittedLoading(false); }
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setNotSubmittedLoading(false);
+        }
     }, [notSubmittedWeek]);
 
-    useEffect(() => { if (tab === 'not-submitted') loadNotSubmitted(); }, [tab, loadNotSubmitted]);
+    useEffect(() => {
+        if (tab === 'not-submitted') loadNotSubmitted();
+    }, [tab, loadNotSubmitted]);
+
+    const resetFilters = () => {
+        setWeekFilter('');
+        setTeacherFilter('');
+        setPanitiaFilter('');
+        setStatusFilter('');
+        setLateOnly(false);
+        setPage(1);
+    };
 
     return (
         <Layout
             title="Weekly Report Tracker"
-            subtitle="Monitor weekly activity report submissions across all teachers"
+            subtitle="Monitor and verify weekly activity reports submitted by teaching staff"
         >
-            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
-                <button className={`btn btn-sm ${tab === 'all' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => setTab('all')}>All Reports</button>
-                <button className={`btn btn-sm ${tab === 'not-submitted' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => setTab('not-submitted')}>Not Submitted</button>
+            {/* Tab navigation */}
+            <div className="tab-group">
+                <button
+                    className={`tab-btn ${tab === 'all' ? 'active' : ''}`}
+                    onClick={() => setTab('all')}
+                >
+                    <Calendar size={15} /> All Submissions
+                </button>
+                <button
+                    className={`tab-btn ${tab === 'not-submitted' ? 'active' : ''}`}
+                    onClick={() => setTab('not-submitted')}
+                >
+                    <UserX size={15} /> Missing Reports
+                </button>
             </div>
 
             {tab === 'all' ? (
                 <>
+                    {/* Filters */}
                     <div className="filter-bar">
-                        <input className="form-control" style={{ maxWidth: '120px' }} type="number" placeholder="Week #"
-                            value={weekFilter} onChange={(e) => { setWeekFilter(e.target.value); setPage(1); }} />
-                        <select className="form-control" style={{ maxWidth: '200px' }} value={teacherFilter} onChange={(e) => { setTeacherFilter(e.target.value); setPage(1); }}>
-                            <option value="">All teachers</option>
+                        <input
+                            className="form-control"
+                            style={{ maxWidth: '110px' }}
+                            type="number"
+                            placeholder="Week #"
+                            value={weekFilter}
+                            onChange={(e) => { setWeekFilter(e.target.value); setPage(1); }}
+                        />
+
+                        <select
+                            className="form-control"
+                            style={{ maxWidth: '180px' }}
+                            value={teacherFilter}
+                            onChange={(e) => { setTeacherFilter(e.target.value); setPage(1); }}
+                        >
+                            <option value="">All Teachers</option>
                             {teachers.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
                         </select>
-                        <select className="form-control" style={{ maxWidth: '200px' }} value={panitiaFilter} onChange={(e) => { setPanitiaFilter(e.target.value); setPage(1); }}>
-                            <option value="">All Panitia</option>
+
+                        <select
+                            className="form-control"
+                            style={{ maxWidth: '180px' }}
+                            value={panitiaFilter}
+                            onChange={(e) => { setPanitiaFilter(e.target.value); setPage(1); }}
+                        >
+                            <option value="">All Departments</option>
                             {panitiaOptions.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
                         </select>
-                        <select className="form-control" style={{ maxWidth: '180px' }} value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}>
-                            <option value="">All statuses</option>
+
+                        <select
+                            className="form-control"
+                            style={{ maxWidth: '170px' }}
+                            value={statusFilter}
+                            onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
+                        >
+                            <option value="">All Statuses</option>
                             <option value="Pending Review">Pending Review</option>
                             <option value="Approved">Approved</option>
                             <option value="Rejected">Rejected</option>
                         </select>
-                        <label style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                            <input type="checkbox" checked={lateOnly} onChange={(e) => { setLateOnly(e.target.checked); setPage(1); }} />
-                            Late only
+
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.82rem', cursor: 'pointer', userSelect: 'none' }}>
+                            <input
+                                type="checkbox"
+                                checked={lateOnly}
+                                onChange={(e) => { setLateOnly(e.target.checked); setPage(1); }}
+                            />
+                            <span>Late Only</span>
                         </label>
-                        <span style={{ marginLeft: 'auto', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                            {meta?.total ?? 0} report{meta?.total !== 1 ? 's' : ''}
+
+                        {(weekFilter || teacherFilter || panitiaFilter || statusFilter || lateOnly) && (
+                            <button className="btn btn-secondary btn-sm" onClick={resetFilters}>
+                                <RotateCcw size={13} /> Reset
+                            </button>
+                        )}
+
+                        <span style={{ marginLeft: 'auto', fontSize: '0.82rem', color: 'var(--text-muted)' }}>
+                            <strong>{meta?.total ?? 0}</strong> reports
                         </span>
                     </div>
 
                     <div className="panel">
                         {loading ? (
-                            <div className="empty-state"><div className="icon">⏳</div>Loading reports…</div>
+                            <div style={{ padding: '1.5rem' }}>
+                                <SkeletonTable rows={5} columns={6} />
+                            </div>
                         ) : reports.length === 0 ? (
-                            <div className="empty-state"><div className="icon">🗎</div>No weekly reports match these filters.</div>
+                            <EmptyState
+                                icon={<Calendar size={42} className="text-slate-400" />}
+                                title="No reports match criteria"
+                                description="Try removing some filters to see more submissions."
+                                secondaryActionText="Reset Filters"
+                                onSecondaryAction={resetFilters}
+                            />
                         ) : (
                             <>
                                 <div className="table-wrap">
@@ -122,27 +212,55 @@ const WeeklyReportTracker: React.FC = () => {
                                         <thead>
                                             <tr>
                                                 <th>Teacher</th>
-                                                <th>Panitia</th>
+                                                <th>Department</th>
                                                 <th>Week</th>
-                                                <th>Submission Date</th>
-                                                <th>Report Status</th>
+                                                <th>Date Submitted</th>
+                                                <th>Timing</th>
                                                 <th>Approval Status</th>
-                                                <th>Actions</th>
+                                                <th style={{ textAlign: 'right' }}>Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {reports.map((r) => (
-                                                <tr key={r.id} style={{ cursor: 'pointer' }} onClick={() => setSelected(r)}>
-                                                    <td style={{ fontWeight: 600 }}>{r.submitted_by.name}</td>
-                                                    <td>{r.panitia?.name || '—'}</td>
-                                                    <td>Week {r.week_number}</td>
-                                                    <td style={{ color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>{new Date(r.created_at).toLocaleString()}</td>
-                                                    <td>
-                                                        <span className={`badge ${r.is_late ? 'badge-neutral' : 'badge-success'}`}>{r.is_late ? 'Late' : 'On Time'}</span>
+                                                <tr
+                                                    key={r.id}
+                                                    style={{ cursor: 'pointer' }}
+                                                    onClick={() => setSelected(r)}
+                                                >
+                                                    <td style={{ fontWeight: 600 }}>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                                            <User size={14} style={{ color: 'var(--primary)' }} />
+                                                            <span>{r.submitted_by.name}</span>
+                                                        </div>
                                                     </td>
-                                                    <td><span className={`badge ${statusBadge(r.status)}`}>{r.status}</span></td>
-                                                    <td onClick={(e) => e.stopPropagation()}>
-                                                        <button className="row-action" onClick={() => setSelected(r)}>View</button>
+                                                    <td>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--text-secondary)' }}>
+                                                            <Layers size={13} style={{ color: 'var(--text-muted)' }} />
+                                                            <span>{r.panitia?.name || '—'}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <span className="badge badge-neutral" style={{ fontWeight: 700 }}>
+                                                            Week {r.week_number}
+                                                        </span>
+                                                    </td>
+                                                    <td style={{ color: 'var(--text-muted)', whiteSpace: 'nowrap', fontSize: '0.8rem' }}>
+                                                        {new Date(r.created_at).toLocaleString()}
+                                                    </td>
+                                                    <td>
+                                                        <span className={`badge ${r.is_late ? 'badge-warning' : 'badge-success'}`}>
+                                                            {r.is_late ? <Clock size={11} /> : <CheckCircle2 size={11} />}
+                                                            {r.is_late ? 'Late' : 'On Time'}
+                                                        </span>
+                                                    </td>
+                                                    <td>{statusBadge(r.status)}</td>
+                                                    <td style={{ textAlign: 'right' }} onClick={(e) => e.stopPropagation()}>
+                                                        <button
+                                                            className="btn btn-secondary btn-sm"
+                                                            onClick={() => setSelected(r)}
+                                                        >
+                                                            <Eye size={13} /> View
+                                                        </button>
                                                     </td>
                                                 </tr>
                                             ))}
@@ -153,9 +271,9 @@ const WeeklyReportTracker: React.FC = () => {
                                 {meta && meta.last_page > 1 && (
                                     <div className="pagination">
                                         <button className="page-btn" disabled={page === 1} onClick={() => setPage(1)}>«</button>
-                                        <button className="page-btn" disabled={page === 1} onClick={() => setPage((p) => p - 1)}>‹</button>
-                                        <span className="page-info">Page {meta.current_page} of {meta.last_page}</span>
-                                        <button className="page-btn" disabled={page === meta.last_page} onClick={() => setPage((p) => p + 1)}>›</button>
+                                        <button className="page-btn" disabled={page === 1} onClick={() => setPage((p) => p - 1)}><ChevronLeft size={14} /></button>
+                                        <span className="page-info">Page <strong>{meta.current_page}</strong> of <strong>{meta.last_page}</strong></span>
+                                        <button className="page-btn" disabled={page === meta.last_page} onClick={() => setPage((p) => p + 1)}><ChevronRight size={14} /></button>
                                         <button className="page-btn" disabled={page === meta.last_page} onClick={() => setPage(meta.last_page)}>»</button>
                                     </div>
                                 )}
@@ -164,40 +282,80 @@ const WeeklyReportTracker: React.FC = () => {
                     </div>
                 </>
             ) : (
+                /* Not Submitted Tracker */
                 <>
                     <div className="filter-bar">
-                        <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Week Number</label>
-                        <input className="form-control" style={{ maxWidth: '120px' }} type="number" value={notSubmittedWeek}
-                            onChange={(e) => setNotSubmittedWeek(e.target.value)} />
+                        <label style={{ fontSize: '0.84rem', fontWeight: 600, color: 'var(--text)' }}>
+                            Check Week Number:
+                        </label>
+                        <input
+                            className="form-control"
+                            style={{ maxWidth: '120px' }}
+                            type="number"
+                            value={notSubmittedWeek}
+                            onChange={(e) => setNotSubmittedWeek(e.target.value)}
+                        />
                     </div>
+
                     <div className="panel">
                         {notSubmittedLoading ? (
-                            <div className="empty-state"><div className="icon">⏳</div>Checking submissions…</div>
-                        ) : notSubmitted.length === 0 ? (
-                            <div className="empty-state"><div className="icon">✓</div>All teachers have submitted their report for this week.</div>
-                        ) : (
-                            <div className="table-wrap">
-                                <table className="data-table">
-                                    <thead>
-                                        <tr><th>Teacher Name</th><th>Email</th></tr>
-                                    </thead>
-                                    <tbody>
-                                        {notSubmitted.map((u) => (
-                                            <tr key={u.id}>
-                                                <td style={{ fontWeight: 600 }}>{u.name}</td>
-                                                <td>{u.email}</td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
+                            <div style={{ padding: '1.5rem' }}>
+                                <SkeletonTable rows={4} columns={2} />
                             </div>
+                        ) : notSubmitted.length === 0 ? (
+                            <EmptyState
+                                icon={<CheckCircle2 size={42} style={{ color: 'var(--success)' }} />}
+                                title="100% Submission Compliance!"
+                                description={`All registered teachers have submitted their activity report for Week ${notSubmittedWeek}.`}
+                            />
+                        ) : (
+                            <>
+                                <div className="panel-header">
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                                        <UserX size={18} style={{ color: 'var(--danger)' }} />
+                                        <strong>Teachers with Missing Reports — Week {notSubmittedWeek}</strong>
+                                        <span className="badge badge-danger" style={{ fontSize: '0.7rem' }}>
+                                            {notSubmitted.length} missing
+                                        </span>
+                                    </div>
+                                </div>
+                                <div className="table-wrap">
+                                    <table className="data-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Teacher Name</th>
+                                                <th>Email Address</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {notSubmitted.map((u) => (
+                                                <tr key={u.id}>
+                                                    <td style={{ fontWeight: 600 }}>{u.name}</td>
+                                                    <td style={{ color: 'var(--text-secondary)' }}>{u.email}</td>
+                                                    <td>
+                                                        <span className="badge badge-danger">
+                                                            <XCircle size={11} /> Not Submitted
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </>
                         )}
                     </div>
                 </>
             )}
 
+            {/* Modal */}
             {selected && (
-                <WeeklyReportDetailsModal report={selected} onClose={() => setSelected(null)} onChanged={load} />
+                <WeeklyReportDetailsModal
+                    report={selected}
+                    onClose={() => setSelected(null)}
+                    onChanged={load}
+                />
             )}
         </Layout>
     );
