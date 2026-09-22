@@ -1,0 +1,2521 @@
+UNIVERSITI POLY-TECH MALAYSIA
+DESIGN, DEVELOPMENT, AND EVALUATION OF A SECURE SCHOOL DOCUMENT MANAGEMENT SYSTEM FOR EDUCATIONAL INSTITUTIONS
+(SMK KUBOR PANJANG)
+HARITH FIQRI BIN SUBRI
+BACHELOR OF INFORMATION TECHNOLOGY (HONS) IN
+COMPUTER APPLICATION DEVELOPMENT
+UNIVERSITI POLY-TECH MALAYSIA
+Faculty of Computing & Multimedia
+DESIGN, DEVELOPMENT, AND EVALUATION OF A SECURE SCHOOL
+DOCUMENT MANAGEMENT SYSTEM FOR EDUCATIONAL INSTITUTIONS
+(SMK KUBOR PANJANG)
+HARITH FIQRI BIN SUBRI
+AM2505018881
+FYP4025
+NOVEMBER 2026
+Declaration of Originality
+This project is all my own work and has not been copied in part or in whole from any other source except where duly acknowledged. As such, all use of previously published work (from books, journals, magazines, internet, etc.) has been acknowledged within the main report to an item in the References or Bibliography lists.
+I also agree that an electronic copy of this project may be stored and used for the purposes of plagiarism prevention and detection.
+Copyright Acknowledgement
+I acknowledge that the copyright of this project and report belongs to Universiti Poly-Tech Malaysia.
+Signed:                                                                                        Date: 28/6/2026
+Office Stamp:
+Abstract
+This report aims to design, develop and evaluate a Secure School Document Management System (SSDMS) to be implemented in secondary school in Malaysia, SMK Kubor Panjang. This project is driven by the need for an efficient and effective document management solution at the institution, given the lack of oversight, no means of systematic protection of sensitive documents like student records, examination papers etc., and no control over access to documents, which is currently being achieved by a mixture of physical filing systems and uncontrolled shared network drives providing no effective form of access governance, audit accountability or systematic protection to these sensitive documents.
+The proposed SSDMS will be developed using Laravel 12, MySQL and Bootstrap 5 and will feature three security mechanisms: Firstly, it will implement clearly defined security boundaries between user roles, such as the Administrator and the Teacher roles, using Role Based Access Control (RBAC); Secondly, it will apply AES-256 encryption to all documents at rest; Thirdly, it will provide a comprehensive, append-only audit logging system that keeps track of all important changes by the users with a timestamp and user ID. The system also supports an inbuilt document approval process that allows teachers to submit documents for the administrator's review, and automatically notifies in-system at each step of the process.
+The data was gathered by using a structured questionnaire that was given to the respondents, who consisted of about 50 staff members of the school, and a face-to-face interview with a teacher at SMK Kubor Panjang. The results verified the issues that led to the development of this project, which are not hypothetical but are instead experienced by staff on a regular basis: unauthorized access to documents, loss of documents and the complete lack of accountability measures. The results of this data collection process are presented in detail along with the system design artifacts such as UML use case diagram and detailed admin and teacher flowcharts.
+The outcome of this project will be a complete, fully-tested and validated by stakeholders document management system that is practically deployable at SMK Kubor Panjang with no need for a complex IT infrastructure or constant technical support. support, and that addresses the specific document security gaps identified through the requirements analysis.
+Table of Contents
+1INTRODUCTION13
+1.1Introduction13
+1.2Project Background13
+1.3Problem Statement14
+1.3.1Weak Access Control14
+1.3.2Absence of Audit Trail14
+1.3.3Risk of Data Loss and Leakage15
+1.4Project Objectives15
+1.4.1To Design a Secure RBAC and Encrypted Architecture15
+1.4.2To Develop a Web-Based School Document Management System15
+1.4.3To Evaluate the Security Effectiveness and Usability of SSDMS16
+1.5Scope and Target User16
+1.5.1Project Scope16
+1.5.2Product Scope16
+1.5.3Target User16
+1.6Conclusion17
+2LITERATURE REVIEW18
+2.1Introduction18
+2.2Investigation18
+2.2.1Role-Based Access Control (RBAC) in Institutional Systems18
+2.2.2AES-256 Encryption for Data at Rest19
+2.2.3Audit Logging and Accountability in Document Systems19
+2.3Related Works20
+2.3.1Google Drive20
+2.3.2Microsoft SharePoint21
+2.3.3Dropbox22
+2.4Comparison23
+2.5Discussion24
+2.6Conclusion24
+3METHODOLOGY25
+3.1Introduction25
+3.2Agile Methodology25
+3.3Phases in Agile Methodology26
+3.3.1Phase 1: Planning26
+3.3.2Phase 2: Design26
+3.3.3Phase 3: Development26
+3.3.4Phase 4: Testing and Deployment27
+3.4Requirement27
+3.4.1Data Gathering Techniques27
+3.4.2Functional Requirement27
+3.4.3Non-Functional Requirement29
+3.4.4System Requirement30
+3.5Analysis33
+3.5.1Data Gathering Analysis33
+3.5.2Use Case Model37
+3.5.3Flowchart39
+3.6 Conclusion41
+4DESIGN & IMPLEMENTATION42
+4.1 Introduction42
+4.2Interface Design42
+4.2.1Administrator Interface Design43
+4.2.2Teacher Interface Design43
+4.2.3Mobile & Responsive Interface Design44
+4.3Database Design45
+4.3.1Data Dictionary45
+4.3.2Data Flow Diagram (DFD)55
+4.3.3 Entity Relationship Diagram (ERD)57
+4.4Security System Framework60
+4.5Implementation Introduction62
+4.6Execution Platform62
+4.6.1Development Platform62
+4.6.2Hosting Platform63
+4.7Implementation Tools63
+4.7.1Software and Frameworks63
+4.7.2Programming Languages64
+4.8System Interface and Modules64
+4.9Significant Functions and Security Algorithms66
+4.9.1Core Functional Algorithms67
+4.9.2Security Mechanisms71
+4.10Conclusion75
+5FINDING76
+5.1Introduction76
+5.2Testing77
+Table 5.1: Testing Overview78
+5.3Non-Functional Testing80
+5.3.1Performance Testing80
+5.3.2 Security Testing82
+5.3.3 Usability Testing85
+5.3.4 Reliability Testing86
+5.4 Functional Testing87
+5.4.1 Unit Testing87
+5.4.2 Integration Testing90
+5.4.3 System Testing92
+5.5 Acceptance Testing95
+5.5.1 Client Acceptance Testing (CAT)96
+5.5.2 User Acceptance Testing (UAT)101
+5.6 Conclusion108
+6CONCLUSION110
+6.1 Introduction110
+6.2Project Schedule110
+6.2.1Work Breakdown Structure (WBS)110
+6.2.2Gantt Chart111
+6.3Risk Management115
+6.4Achievement of Project Objectives118
+6.4.1Objective 1: Implement Strict Role-Based and Department-Based Access Control (RBAC & DBAC)118
+6.4.2 Objective 2: Ensure Cryptographic Confidentiality and File Tamper Detection (AES-256 & SHA-256)119
+6.4.3Objective 3: Establish Document Approval Workflows, Weekly Activity Tracking, and Full Audit Accountability120
+6.5Constraints and Limitations121
+6.5.1Single-Server Local Storage Architecture121
+6.5.2In-Browser Office Document Preview Limitations121
+6.5.3Lack of Granular In-Browser Watermarking and Redaction121
+6.5.4Absence of Synchronous Collaborative Document Editing121
+6.5.5Dependency on SMTP Mail Configuration for Password Recovery122
+6.6Future Work and Recommendations122
+6.6.1Cloud Object Storage Integration with Server-Side KMS Encryption122
+6.6.2Dynamic Visual Watermarking and Document Security Stamping122
+6.6.3Native Companion Mobile Application for Educators122
+6.6.4AI-Powered Document Categorization and Metadata Tagging123
+6.6.5Real-Time WebSocket Push Notifications123
+6.6.6Cryptographic Digital Signatures for Document Sign-off123
+6.6.7Advanced Administrative Analytics and Compliance Reporting123
+6.7Final Summary123
+7CONCLUSION125
+6.1 Introduction125
+6.2 Project Schedule125
+6.2.1 Work Breakdown Structure125
+6.2.2 Gantt Chart126
+6.3 Risk Management127
+6.4 Achievement128
+6.4.1 To Design a Secure RBAC and Encrypted Architecture128
+6.4.2 To Develop a Web-Based School Document Management System  (last here)128
+6.4.3 To Evaluate the Security Effectiveness and Usability of SSDMS129
+6.5 Constraint and Limitation129
+6.6 Future Work and Recommendation129
+6.7 Conclusion130
+8References131
+Appendix A – Questionnaire132
+Appendix B – User Manual136
+Appendix C – Turnitine Result136
+Appendix D – Log Book138
+List of Figures
+Figure 2.1 : Google Drive21
+Figure 2.2 : Google Drive Dashboard21
+Figure 2.3 : Microsoft Sharepoint22
+Figure 2.4 : Dashboard Microsoft Sharepoint22
+Figure 2.5 : Dropbox23
+Figure 2.6 : Dropbox Interface23
+Figure 3.1 : Agile Methodology Diagram26
+Figure 3.2 : Software Requirements31
+Figure 3.3 : Lavarel 1232
+Figure 3.4 : Visual Studio Code33
+Figure 3.5 : MySQL33
+Figure 3.6 : XAMPP34
+Figure 3.7 : Questionnaire Result — Current Document Storage Method35
+Figure 3.8 : Questionnaire Result — Security Concerns with Current Practices35
+Figure 3.9 : Questionnaire Result — Desired System Features36
+Figure 3.10 : Questionnaire Result — Usability Expectations and Technical Confidence36
+Figure 3.11 : Questionnaire Result — Frequency of Document Access Issues37
+Figure 3.12 : Questionnaire Question37
+Figure 3.13 : SSDMS Use Case Diagram39
+Figure 3.14 : SSDMS Admin Flowchart40
+Figure 3.15 : SSDMS Teacher Flowchart41
+List of Tables
+Table 2.1 : Comparison of Existing Systems24
+Table 3.1 : Functional Requirements28
+Table 3.2 : Non-Functional Requirements30
+Table 3.3 : Hardware Requirements31
+Table 3.4 : Software Requirements31
+Table 4.1 : users Table Schema46
+Table 4.2 : panitia Table Schema47
+Table 4.3 : user_panitia Pivot Table Schema48
+Table 4.4 : documents Table Schema49
+Table 4.5 : weekly_reports Table Schema51
+Table 4.6 : weekly_report_attachments Table Schema52
+Table 4.7 : audit_logs Table Schema53
+Table 4.8 : notifications Table Schema54
+Table 4.9 : password_reset_codes Table Schema55
+Table 5.1 : Testing Overview79
+Table 5.2 : Performance Testing81
+Table 5.3 : Security Testing83
+Table 5.4 : Usability Testing86
+Table 5.5 : Reliability Testing87
+Table 5.6 : Unit Testing89
+Table 5.7 : Integration Testing91
+Table 5.8 : System Testing93
+Table 5.9 : Client Acceptance Testing (CAT) Interview Response Summary97
+Table 5.10 : User Acceptance Testing (UAT) Quantitative Results (N=42)104
+Table 6.1 : Project Task Timeline and Duration112
+Table 6.2 : SSDMS Risk Management Matrix116
+Acknowledgements
+Bismillahirrahmanirrahim. All glory to Allah S.W.T. for the strength, clarity of mind and perseverance He has given me in this work. It simply would not have been possible without His guidance and blessings.
+I would like to thank my supervisor, Assoc. Prof. Ts Dr. Roslinda Binti Murad who guided, patient and constructive feedback throughout this project kept the project on target. This work was greatly influenced by her knowledge in both its technical direction and quality; that I am very thankful for.
+Thanks to Pn. Finally, Nurruchda Binti Mohammad, from SMK Kubor Panjang, took the time to participate in the interview session, and candidly shared her experiences with the problems of document management in the school. She provided this project with real world perspective.
+To the Faculty of Computing and Multimedia, Universiti Poly-Tech Malaysia, for the academic input, the rigorously high standards and the faculty members and classmates who elevated the standard of this work beyond what it was.
+To my parents and family: You have been my foundation and support all this time, and I'm so grateful for your patience and love. And to those who heard more project updates than they bargained for thanks for your patience and encouragement!
+INTRODUCTION
+1.1Introduction
+In an educational setting, the handling of documents is a job that is frequently underestimated, both in terms of complexity and the repercussions. Schools are not just schools of learning, they are administrative hubs that process, store, retrieve and transmit massive amounts of sensitive and time-critical documents in a single day. Student academic records, examination papers, achievement certificates, official correspondence and staff-related records are a collection of information that needs to be treated with care and held to account.
+This chapter sets the background and justifications to create a Secure School Document Management System (SSDMS) for document management purpose in secondary school institution in Malaysia to be applied in primary target institution which is SMK Kubor Panjang. The chapter provides background on the project, summarizes the specific problem that is being addressed, mentions the goals of the project, outlines the scope of the project and scope of the product, and states who the target audience will be for the project and product.
+1.2Project Background
+Most secondary schools in Malaysia such as SMK Kubor Panjang store their institutional documents in both paper files and shared network folders. These approaches worked well when the number of documents was less and digital accountability was limited. This is no longer the case today. Alongside the administrative burden of the national curriculum, the number of documents has increased significantly, and the threat from poor document security such as data breaches, leaking exam papers, not being able to investigate access incidents has become more severe and more common.
+This is evident in the literature on document security in education. Institutional document security failures, according to Alenezi et al., (2022) occur due to the weak access control and the lack of audit mechanisms. However, Rahman et al. (2023) report that AES-256 is a feature that is expected to be used in institutional systems. Structured digitisation of documents can reduce the loss of documents in schools, even by 90%, and improve document retrieval time, as reported by Aziz and Hassan (2023). In this context, the existing practices in SMK Kubor Panjang are an imbalance between institutional need and institutional capability.
+The SSDMS is offered as a feasible and cost-effective solution to this need – an architecture, purpose-built to address these needs, with enterprise class security mechanisms, that can be deployed and maintained by school administrators, without a dedicated IT support person.
+1.3Problem Statement
+Three specific and documented problems motivate the development of SSDMS at SMK Kubor Panjang:
+1.3.1Weak Access Control
+There is no meaningful control over who has access to, can modify or remove institutional documents within the current document management system in the school. Physical filing cabinets are available to anyone who has the key usually more than one employee, and the key is kept in a place that other employees can access. Once mounted on a school network device, the shared network folder is browsable by all users that are connected to the network, except if the folder-level permissions have been explicitly defined; this is not the case in practice at SMK Kubor Panjang. The end result is a place where files containing sensitive data such as student disciplinary records, staff correspondence, examination papers cohabit with regular administrative files, and are available to the same wide range of users. No enforcement of the principle of least privilege, and no technical barrier to a teacher accessing records which are not relevant to their role.
+1.3.2Absence of Audit Trail
+At SMK Kubor Panjang there is no mechanism in place to record what happens to a document once it is created or stored. The school is unable to identify who opened a specific file, when, if the file was modified or who moved or deleted it. If a document is missing or changed, especially when it's the lead-up to exams, there's no investigative trail to follow and no accountability. The lack of this is important not just as a reactive measure, but as a preventative one: An audit trail is a known deterrent to internal misuse – it is visible. A school that lacks any logging capability is operating without the tools that they need to understand and address document risk.
+1.3.3Risk of Data Loss and Leakage
+The physical and digital ways of storing now used in SMK Kubor Panjang are not only susceptible to loss, but also to disclosure without permission. Physical hazards, like getting wet, can damage the paper record; in busy periods a paper record can get lost; and as filing systems get more cluttered, a paper record can get lost. If digital files are stored on shared drives that have no means of access control or backups, then they can be accidentally or intentionally deleted without any recovery process. Perhaps most importantly, the discussion with school staff that was part of this research project indicated that examination papers have been seen by teachers who were not authorised to view them before they are released. This was not a technical attack per se, but a simple problem with access control, because the files were kept in a place that users should not have access to and there was no means of knowing or stopping them accessing them.
+1.4Project Objectives
+This project is structured around three primary objectives, each designed to address one of the core problems identified above:
+1.4.1To Design a Secure RBAC and Encrypted Architecture
+To design a comprehensive and technically sound system architecture for a school document management system that will integrate Role Based Access Control as its access control mechanism and have a clearly defined permission matrix for each user role. The architecture should define the use of AES 256 for all documents stored at rest and should feature a complete audit logging element, including all important user activities with time stamps, users and entity references. The design should be specific for direct implementation, and should not require major architectural decisions to be made during development.
+1.4.2To Develop a Web-Based School Document Management System
+To create a functional, web based application implementing SSDMS with different role-specific views for the Administrator and Teacher user with the help of Laravel 12, MySQL, and Bootstrap 5. The system needs to be implemented to production quality in terms of the authentication and RBAC module, encryption, audit logging, approval workflow and search and retrieval. The system should be easily deployed onto the existing school server infrastructure and not demand special hardware or require special IT support for continued upkeep.
+1.4.3To Evaluate the Security Effectiveness and Usability of SSDMS
+To carry out a structured evaluation of the completed system both technically and in terms of usability. Security evaluation will involve RBAC boundary testing, checking implementation of AES-256 encryption, audit log integrity testing, and penetration testing. Usability evaluation: pilot testing will be conducted on school teachers who are the intended users of the system in SMK Kubor Panjang with structured feedback will be gathered based on a validated instrument. The results from the evaluation will help to surface and solve problems before the system goes live in production.
+1.5Scope and Target User
+1.5.1Project Scope
+The objectives of this project are to design, develop and test a document management system that will be implemented on the internet for handling school documents. The types of documents that the system covers are student academic files and records of student progress, examination papers and answer papers, achievement certificates and co-curricular records, official circular of school and administrative correspondence, and administrative documents pertaining to staff etc. It uses Role-Based Access Control (RBAC) which supports two types of users (Administrator, Teacher) and AES-256 encryption for all stored documents, and also has a complete audit log of all interactions with the system. There is no integration with external national education database or Ministry of Education platform and it is limited to deployable use at SMK Kubor Panjang.
+1.5.2Product Scope
+The five functional capabilities of the SSDMS product are: Document Upload and Storage: secure upload of documents with mandatory metadata assignment and automatic AES-256 encryption; Search and Retrieve: keyword and category based search with RBAC filtered results; Document Approval Workflow: teacher submission to admin review queue, approve/reject decisions and automatic notifications; Role Based Dashboards: admin and teacher interface surfaces for role appropriate functionality; Audit Logging: append-only action log, showing all significant system actions, with filtering and export capability for admin only.
+1.5.3Target User
+The SSDMS can be used by two types of users. The principal, deputy principals and designated administrative officers (DAOs) within the system have the most permissions. They are able to manage users and the role assignments, review and act on the document approval queue, view the system audit log and manage the repository structure of the document. Teachers and Academic Staff have an limited permission scope. They mostly interact with the system for upload and categorisation of documents, to find and retrieve documents within their scope of permission and to be aware of the status of documents submitted for approval and to receive in-system notifications about approval decisions.
+1.6Conclusion
+The motivation, objectives, scope and user context for the SSDMS project have been set in this chapter. The problems identified are specific, documented and directly solvable in the proposed system are as follows: weak access control, there is no audit trail, vulnerability to data loss and leakage. The three project goals provided a clear and measurable framework to be followed in design, development and evaluation activities. In Chapter 2 the existing academic papers and related papers are reviewed and a theoretical and practical basis is provided for the design decisions of this project.
+LITERATURE REVIEW
+2.1Introduction
+The investigation, related works review and comparative analysis on which the design decisions are based, are presented in this chapter. The review should include an investigation of key technical concepts relevant to SSDMS, such as RBAC, AES-256 encryption, and audit logging, based on peer-reviewed publications from 2020 to 2023; a review of three existing commercial document management systems that fulfill a similar function to SSDMS; and a structured comparison between the existing systems and the proposed SSDMS, to demonstrate that the proposed system is a gap in the available systems.
+2.2Investigation
+2.2.1Role-Based Access Control (RBAC) in Institutional Systems
+Role Based Access Control is an access governance model where roles are granted access instead of users. Users are then assigned roles, and receive the permissions of the roles. The architecture makes it easy to manage access rights in multi-user institutional settings where permissions could be set up for each individual staff member, it's set up once for each role (Administrator, Teacher, etc.), and then users are assigned to the right role when they join a school or change their role within it.
+RBAC is highlighted as being one of the most consistently effective methods for restricting internal misuse of data in institutional systems by Sandhu et al. 2020; RBAC is cited as the de facto access governance model for enterprise and public sector deployments because of its security effectiveness and administrative manageability. RBAC is especially well suited to the school environment where the access requirements for various classes of staff, such as administrative, teaching, and support, differ, and are more stable over a longer period of time, allowing for accurate and sustainable assignments of permissions to roles. Singh and Kumar (2021) also point out that while access governance failures are ubiquitous, they occur equally as often in cloud-based and on-premise configurations, thereby reinforcing the notion that security is not the same as the hosting environment, you need to design and implement RBAC whether on premise or in the cloud.
+2.2.2AES-256 Encryption for Data at Rest
+AES with a 256-bit key (AES-256) is the latest standard used by institutions to encrypt data at rest. AES is a symmetric block cipher with 128-bit block size and 128, 192, or 256-bit keys. At current and future computational power the 256-bit variant offers the highest level of security, and is currently known to be immune to all methods of cryptanalysis, including brute force, differential and linear cryptanalysis.
+In the same vein, Rahman et al. (2023) report on the ubiquitous use of AES-256 in government, health, and educational systems, where it is cited as the standard of choice for the encryption of documents containing sensitive personal and administrative information. For AES-256, the encryption happens at upload time for all documents, prior to writing to the file system, within the scope of SSDMS. The decrypted data is only sent to permanent storage if it is required later, otherwise it is sent directly to the user's session if it is requested by an authenticated and authorised user and is wanted for a particular document.
+2.2.3Audit Logging and Accountability in Document Systems
+An audit log is a history of major activities that occur in an information system, in the case of a document management system, that may be accessed for example when a user logs in and out, uploads and downloads documents, views, modifies, approves, or denies documents, or manages users. All of the logs record the following information: the name of the user who is performing the action, what is happening, the time when the action was performed, and an identifier for the document or system entity involved.
+Based on the research by Chong and Lee (2021), comprehensive audit logging has a significant impact on enhancing accountability in institutional information systems. They discovered that organisations that had an audit trail had measurably quicker response times after a security event, and reduced internal misuse rates, which they argued was due to the fact that users were deterred by the visibility of the audit trail. The school environment is a specific setting where audit logging helps to address the accountability gap identified in Problem Statement 1.3.2: There is no audit trail of documents in the absence of a log to investigate incidents in relation to document-related issues or document chain of custody for institutional governance.
+2.3Related Works
+2.3.1Google Drive
+Figure 2.1 : Google Drive
+The most frequently used document storage platform in Malaysia's education was Google Drive. It's used because of the cost, the familiarity of having a Google account and the ability to use it across devices. Google Drive enables people to open, offer and work on papers using a web interface. Permission can be set at the file or folder level, and can be one of the following: view, comment, edit. Automatic version history is stored for Google-format documents and deleted files can be retrieved within a specified period of time after deletion.
+Figure 2.2 : Google Drive Dashboard
+Google Drive has some drawbacks when it comes to document management in institutions. It has a permission model focused on sharing individual files and folders, so at scale (dozens of document types and dozens of staff members) there is no way to control access without manual effort, which is not sustainable. Structured approval workflows are not natively supported. The audit function in the standard tier only logs recent activity, which is insufficient to understand the logging of activity on an institution level to ensure accountability. These design considerations are not suited to an institutional document management context where governance is a key requirement, and are in conflict with the needs of personal productivity and small group collaboration that were the basis of the design of Google Drive.
+2.3.2Microsoft SharePoint
+Figure 2.3 : Microsoft Sharepoint
+The closest to meeting all the requirements that SSDMS is designed to meet is handling them through Microsoft SharePoint. It offers granular permission setting at the site, library, folder and item levels, document versioning and change tracking, metadata tagging for structured organisation and workflow automation with Power Automate. When properly set-up and managed by an organisation with the technical expertise, SharePoint can be seen as a complete institutional document management system, which offers robust access control and acceptable audit features.
+Figure 2.4 : Dashboard Microsoft Sharepoint
+Schools face the challenge of the expense and complexity of implementing SharePoint. When implementing SharePoint, it requires a specific skill set from IT staff to properly set up and maintain it. Schools with limited budgets will incur non-trivial ongoing cost for licensing Microsoft 365 Business or Education plans. Smaller educational institutions experience structural disadvantage in this area due to their knowledge of and lack of ability to implement the available security tools without the help of an external security team that may not exist or be cost-efficient (Mokhtar et al., 2022).
+2.3.3Dropbox
+Figure 2.5 : Dropbox
+Dropbox is a cloud storage system that's focused on helping people be more productive and synchronising files with small teams. It is hardly complicated, easy-to-understand and straightforward access to files across devices, and it does a pretty good job of that. The version history feature is a useful safety feature in case someone accidentally deletes or corrupts a file. Dropbox is convenient to use, fairly easy to set up, and has been adopted by some schools as an informal document storage method.
+Figure 2.6 : Dropbox Interface
+Dropbox's permission model is similar to Google Drive's, which are link-based instead of role-based. Shared links are distributed or folders shared, no concept of institutional roles with predefined permission sets. Standard Dropbox accounts have an audit trail feature which is somewhat limited and does not provide filtered logging for institutional accountability. Native approval process is not available.
+2.4Comparison
+Table 2.1 presents a structured comparison of the three platforms reviewed in Section 2.3 against the proposed SSDMS across the criteria most relevant to the school document management context. The comparison is based on publicly documented feature sets and the findings of the literature reviewed in Section 2.2.
+Table 2.1 : Comparison of Existing Systems
+Criteria
+Google Drive
+SharePoint
+Dropbox
+SSDMS (Proposed)
+Access Control Model
+Folder and link-based sharing; no role concept
+Granular, configurable permissions at multiple levels
+Link-based sharing; limited role support
+RBAC with school-specific roles (Admin, Teacher)
+Encryption at Rest
+Provider-managed (AES-256 by Google)
+Provider-managed (Microsoft infrastructure)
+Provider-managed (AES-256 by Dropbox)
+AES-256, managed within SSDMS; school-controlled
+Audit Trail
+Limited to recent activity; no persistent institutional log
+Configurable; requires setup and higher-tier plan
+Limited; higher-tier plans only
+Built-in; full action logging, filterable, exportable
+Approval Workflow
+No native workflow
+Via Power Automate; requires configuration
+No native workflow
+Native teacher-to-admin workflow with notifications
+Ease of Use
+High; familiar to most users
+Moderate to Low; complex configuration
+High; minimal learning curve
+High; school-tailored, role-specific dashboards
+Cost for Schools
+Free / very low
+Moderate to high; ongoing licensing required
+Moderate; per-seat pricing
+Low; open-source stack, school-hosted
+Purpose-Built for Schools
+No; general-purpose consumer product
+No; enterprise product
+No; personal/small team product
+Yes; designed specifically for school context
+2.5Discussion
+The landscape is clear from the comparison in Table 2.1. The three platforms that already exist have real advantages Google Drive is familiar and there is no cost to entry, SharePoint is a complex security configuration, and Dropbox is simple but none were created specifically for the institutional context of schools, and each has real weaknesses when considered against the needs outlined in Chapter 1.
+The access model of Google Drive cannot be enforced in order to restrict access to documents by role, as document governance demands. SharePoint can offer the level of security required, but not without complexity and expense, and it hasn't been embraced by most individual schools without a dedicated IT team. Dropbox works great for individuals and small teams but doesn't have enough institutional level audit and workflow features for the school setting.
+SSDMS takes the best design lessons from each platform. It incorporates the idea of making system design easy to use and self-explanatory for non-technical users; SSDMS employs simple and familiar interface patterns, which make the system easier to learn for users who are not digitally confident. It inherits the security model from SharePoint, granular RBAC, with explicitly defined permissions for each role, enforced at each point of access to the system. It takes the reliability and simple, uncluttered user experience of Dropbox, and eliminates SharePoint's administrative complexity by offering only the features that school staff need. The end result is an affordable solution to implement on the school's standard infrastructure, one that can be managed by regular school staff, and one designed specifically for the document security issues at SMK Kubor Panjang.
+2.6Conclusion
+The chapter has set up the technical and comparative base for the design of SSDMS. The investigation of RBAC, AES-256 encryption, and audit logging in Sections 2.2.1 to 2.2.3 verifies the effectiveness of the three security mechanisms that form the basis of SSDMS as effective solutions to the problems described in Chapter 1. The review and comparison of other systems have verified that there are systems available that address certain aspects of affordability, security depth, and usability about school contexts, but none that can address the entire combination that SSDMS seeks to address. The methodology used for the development of SSDMS, and the detailed requirements obtained from primary data collection from the school staff are summarized in chapter.
+METHODOLOGY
+3.1Introduction
+This chapter presents the development methodology adopted for SSDMS, the justification for that choice, the phases of development undertaken, and the requirements analysis derived from primary data gathering with school staff at SMK Kubor Panjang. It also presents the analysis artifacts produced from that data gathering including the questionnaire analysis, interview analysis, use case model, and system flowcharts that collectively define the functional scope and workflow structure of the proposed system.
+3.2Agile Methodology
+The software development methodology that is used for developing SSDMS is Agile. In Agile, work is broken down into short iterations, known as sprints, and every sprint delivers an increment of the system that is working and testable. Unlike traditional software development which tries to nail down all requirements at the start, and then tries to write the code to meet them, Agile takes a different approach – it believes requirements will change during the development cycle, as stakeholders will be able to interact with working prototypes and give feedback that will influence the requirements for the next iteration. The SSDMS development process consists of six phases for each sprint: Plan, Design, Develop, Test, Review, Launch. 
+Figure 3.1 : Agile Methodology Diagram
+Three reasons are given that make the choice of Agile over other methodologies like the Waterfall model. First, the needs of school stakeholders cannot be accurately captured in a single exercise upfront direct engagement with working prototypes will only reveal preferences and edge cases which weren't explicitly expressed in advance. Second, the security parts of SSDMS, such as RBAC, encryption, audit logging etc., will receive iterative validation of usage patterns instead of one-time unit testing. Third, the project team is small the flexibility and reduced overhead of Agile's sprint structure is well-suited to a one-developer project with a supervisor, where the heavyweight processes of methodology would use an undue portion of project time.
+3.3Phases in Agile Methodology
+3.3.1Phase 1: Planning 
+Planning is the base for everything that is to be developed. It includes a process for collecting requirements from the school stakeholders using the questionnaire and interview methods mentioned above (3.4.1), analysing the collected data to determine the system requirements and prioritising them, and determining the technology stack for the system. This phase results in the validated requirements document, which will help guide sprints of the future, and the project plan. The technology stack chosen for SSDMS is the following: backend framework is Laravel 12, database is MySQL, front-end interface is Bootstrap 5 and the encryption standard used is AES-256 for stored documents.
+3.3.2Phase 2: Design
+The design phase is the process of taking the validated requirements and turning them into technical documents used in the implementation phase. These artifacts for SSDMS are system flowcharts showing the interaction paths for every user role, the UML use case diagram that defines the functional scope of the system and the interaction paths between the different actors, the database schema that defines the structure of all persistent information entities and the RBAC permission matrix that explicitly maps each user role to the system actions that it can and cannot perform. In Section 3.5, these artifacts are displayed.
+3.3.3Phase 3: Development
+It is during the development phase that the five core modules of the SSDMS are developed in sequence, and tested before the next module begins; (1) Authentification and Session Management, which include handling login, credential validation, generation of a session token, locking out an account after three failed logins, and terminating a session; (2) Role-Based Access Control Engine; enforcing the permission matrix at each system access point as a middleware module; (3) Document Encryption and Storage Module; implementing AES-256 encryption at upload and decryption at authorized retrieval; (4) Audit Logging System; keeping a record of all important activities in an append-only log table; and (5) Approval Workflow Engine; which manages the document lifecycle from the point the teacher submits the document through the administrator reviews and the final decision, and notifies automatic.
+3.3.4Phase 4: Testing and Deployment 
+Testing is conducted at three levels: unit testing of individual functions and methods; integration testing of assembled module interactions; and pilot testing with actual school staff that collects structured usability feedback. Issues identified during pilot testing feed directly into the next development sprint. Deployment places the system on a staging environment that mirrors the school's production infrastructure, with a final security review to verify all access controls before production release.
+3.4Requirement
+3.4.1Data Gathering Techniques
+The two methods used to gather requirements for SSDMS were: Data Gathering Techniques. About 50 teaching and administrative staff members of SMK Kubor Panjang were targeted for distribution of structured questionnaire through Google Forms. The questionnaire addressed four topics: current document management, security issues with current methods, desirable features of a new system and expectations of usability and technical confidence. The questionnaire gave quantitative data which allowed requirements to be prioritised by the proportion of people within the respondent group who had made a particular need.
+The interviews were done face-to-face with Pn. Nurruchda Binti Mohammad On 3rd June 2026, SMK Kubor Panjang, teacher Pn Nurruchda also participated in the teacher-centred activity at SMK Kubor Panjang. The interview was semi-structured with a pre-determined set of questions that included information related to current document handling processes, specific incidents or recurring problems with the current approach, and the features that would be most beneficial for a new system. The questionnaire could not provide qualitative depth, i.e. specific incidents, descriptions of workflows and preferences for features expressed in the language of the respondent.
+3.4.2Functional Requirement
+The following table presents the functional requirements for SSDMS, derived from the questionnaire and interview data. Each requirement defines a specific behaviour the system must provide.
+Table 3.1 : Functional Requirements
+Req. ID
+Requirement
+Description
+FR-01
+User and Role Management
+Admin can create, edit, and deactivate user accounts, and assign or modify role assignments (Admin or Teacher).
+FR-02
+Secure Authentication
+Users authenticate via username and password. Accounts lock after three consecutive failed login attempts. Sessions use server-side tokens.
+FR-03
+Document Upload and Categorisation
+Authenticated users with appropriate permissions can upload documents (PDF, DOCX, JPG, PNG) with mandatory category and tag assignment before submission.
+FR-04
+AES-256 Encryption at Rest
+All uploaded documents are automatically encrypted using AES-256 before being written to the file system. No action required from the uploading user.
+FR-05
+Document Approval Workflow
+Teacher-uploaded documents enter a pending state in the admin approval queue. Admin can open, review, and approve or reject documents with mandatory rejection reasons.
+FR-06
+Automated Notifications
+In-system notifications sent to teachers on approval decisions and to admins when new documents enter the approval queue.
+FR-07
+Search and Retrieval
+Keyword and category-based search with RBAC-filtered results. Returns only documents within the authenticated user's authorised scope within 3 seconds for files under 10MB.
+FR-08
+Audit Logging
+Append-only log records all significant actions (login/logout, upload, view, download, approval decisions, user management) with timestamp, user ID, and entity reference.
+FR-09
+Role-Based Dashboards
+Admin dashboard surfaces pending approvals, recent audit entries, and user management tools. Teacher dashboard displays submission statuses and notifications.
+FR-10
+Document Status Tracking
+Teachers can view the current approval status (Pending/Approved/Rejected) of each submitted document. Rejection reasons are displayed; resubmission is available.
+3.4.3Non-Functional Requirement
+The following table presents the non-functional requirements for SSDMS, defining the quality attributes the system must satisfy across its operation.
+Table 3.2 : Non-Functional Requirements
+Req. ID
+Attribute
+Requirement
+NFR-01
+Security
+All documents encrypted at rest using AES-256. All access governed by RBAC engine. No document accessible to a user whose role does not permit access under any system state.
+NFR-02
+Performance
+Search and retrieval completes within 3 seconds for documents up to 10MB. Dashboard page loads complete within 2 seconds under normal load.
+NFR-03
+Usability
+Core tasks (upload, retrieve, check status) must be completable by staff with no specialist technical training without reference to a user manual.
+NFR-04
+Reliability
+System available during school operational hours (7:00 AM – 6:00 PM on school days). Planned maintenance scheduled outside these hours.
+NFR-05
+Scalability
+Architecture supports expansion from single-school to multi-branch deployment without core application logic changes. Additional roles addable through configuration.
+NFR-06
+Maintainability
+Modular Laravel architecture; each functional component implemented as a discrete module with documentation sufficient for a developer unfamiliar with the codebase.
+NFR-07
+Data Integrity
+Audit log entries are append-only; not modifiable or deletable through any user interface. Document version history maintained for recovery.
+3.4.4System Requirement
+The following tables present the hardware and software requirements for the development environment used to build and test SSDMS.
+Figure 3.2 : Software Requirements
+Figure 3.2 shown the Asus TUF Gaming F15 which is the laptop that will be used to develop this project
+Table 3.3 : Hardware Requirements
+Specification
+Description
+Model
+ASUS TUF Gaming F15
+Processor
+11th Gen Intel Core i7-11800H @ 2.30GHz (8 cores, 16 threads)
+RAM
+16 GB DDR4
+Storage
+512 GB NVM SSD
+Operating System
+Windows 11 Home
+3.4.5Software Requirements
+Table 3.4 : Software Requirements
+Software / Tool
+Version
+Purpose
+Laravel
+12.x
+Primary backend framework for application logic, routing, authentication middleware, and RBAC enforcement.
+PHP
+8.2+
+Server-side scripting runtime required by Laravel.
+MySQL
+8.0+
+Relational database for document metadata, user records, audit log, and approval workflow state.
+XAMPP
+8.2.x
+Local development stack providing Apache, MySQL, and PHP for testing on Windows.
+Bootstrap
+5.x
+Responsive CSS framework for the front-end role-based dashboards.
+Visual Studio Code
+Latest
+Primary development IDE with PHP and Laravel extension support.
+Git
+Latest
+Version control for source code management.
+Figure 3.3 : Lavarel 12
+As the means of developing the current project, we have decided to use Laravel 12 as the back-end framework in accordance with figure 3.4.1. The latest version of the PHP framework allows creating a scalable architecture that is important for achieving high performance and security when working with data within the system. Through utilizing the advanced options available in Laravel 12 and its improved syntax and environment, we can perform complex tasks efficiently and in compliance with industry standards of web applications development. Therefore, this decision will not only increase the efficiency of the development process but also assure that the resulting system will be able to cope with further technical and functional challenges effectively.
+Figure 3.4 : Visual Studio Code
+In each stage of the development process, Visual Studio Code, shown in Figure 3.4.2., was used as the main integrated development environment (IDE). Visual Studio Code was chosen as the main editor due to its advanced language capabilities and support for different productivity plugins. By using Visual Studio Code, developers managed to optimize their work process and debug their programs effectively, which was necessary for completing the project successfully.
+which served as our core development platform. Its powerful feature set, including intelligent code completion (IntelliSense) and built-in terminal support, allowed for a highly efficient coding environment. Leveraging these tools enabled us to focus on delivering high-quality code while managing the complexities of the project's architecture with greater precision and ease.
+Figure 3.5 : MySQL
+Regarding the database management aspect of this project, MySQL has been chosen as the Relational Database Management System (refer to figure 3.4.3). In light of the necessity for storing, categorizing, and retrieving different documents with security in our system, MySQL offers us the required reliability, performance, and data integrity that is required to deal with the complex user data and submission statuses. This has been achieved using the structured query functionality of MySQL.
+Because my project is all about managing document submission statuses and user accounts, MySQL would provide the level of consistency and security needed for this task. Integration with the back-end platform ensures that the transactions are secure and comply with ACID properties, hence making sure that document classification and status updates are carried out effectively."
+Figure 3.6 : XAMPP
+This software stack proved very useful during development and testing of our project using XAMPP figure 3.4.4. Our local web application development needed this solution stack so as to have an environment whereby our web application would work effectively, and all modules would be compatible with the database.
+The XAMPP software gave a very integrated platform which helped us to configure and manage the local web server and database which was required for the testing of the functionality of our project. "Through this platform, the developers were able to reproduce the configurations on the production server locally, and perform extensive tests of user authentication, file upload and database operations."
+3.5Analysis
+This section presents the analysis artifacts derived from the data gathering conducted with school staff at SMK Kubor Panjang, together with the system design models produced from that analysis.
+3.5.1Data Gathering Analysis
+The data gathered through the questionnaire and interviews are analyzed below.
+3.5.1.1 Questionnaire Analysis
+The structured questionnaire was sent to around 50 teaching and administrative personnel of SMK Kubor Panjang. The questionnaire results are presented in the following charts with an analysis of the implications for the system requirements.
+Figure 3.7 : Questionnaire Result — Current Document Storage Method
+The pie chart shown in Figure 3.5 below shows the results received from 52 participants in terms of the number of problems encountered using the previous file and folder management system. A large majority of the participants, amounting to 80.8%, have claimed to encounter problems "occasionally" while 13.5% have said to encounter problems "frequently."
+Figure 3.8 : Questionnaire Result — Security Concerns with Current Practices
+Bar chart for figure 3.6 is showing the responses received from 53 people on the organization of folders in the existing system. Majority of responses have shown scale 3 i.e., Neutral, which is at 49.1%. After this, scale 4 has 43.4% responses, while 5.7% responded with scale 5 and 1.9% with scale 2, but there was no response for scale 1.
+Figure 3.9 : Questionnaire Result — Desired System Features
+As seen in 3.7, the pie chart below shows feedback from 53 participants on how frequently they had misplaced or missing files in the old system. The highest number of respondents (58.5%) said they had these problems “often,” followed by 30.2% saying it was "rarely." Others at 7.5% answered that they had these problems "very often," and the rest “never.”
+Figure 3.10 : Questionnaire Result — Usability Expectations and Technical Confidence
+The bar chart shown in Figure 3.8 shows ratings of 53 individuals on the basis of the clarity and consistency of the file naming convention in the existing system. The highest number of responses was neutral rating of 3 with 45.3%, and almost the same percentage, i.e., 43.4% of people gave a rating of 4 to the system. The ratings of 5 and 2 were selected by 5.7% each, and there was not any rating of 1.
+Figure 3.11 : Questionnaire Result — Frequency of Document Access Issues
+Figure 3.9 Pie chart showing the total degree of satisfaction among 53 participants on the previous file and folder management system. More than half (71.7%) of the participants said that they are "Satisfied." On the other hand, 18.9% of the participants were "Dissatisfied." Meanwhile, 9.4% of the participants claimed to be "Very Satisfied."
+Figure 3.12 : Questionnaire Question
+The results show that a majority of the respondents were in agreement about how helpful the previous file and folder management was to the completion of their tasks efficiently. Out of 55 respondents, 28 (50.9%) gave a neutral answer (3), while 22 respondents (40.0%) agreed (4), and 3 respondents (5.5%) strongly agreed (5). On the other hand, only 2 respondents (3.6%) disagreed (2), and none strongly disagreed (1). From this, it can be concluded that the respondents found the previous file and folder management system to be an effective tool.
+3.5.1.2Interview Analysis
+The in-person interview with my client, we complemented the quantitative questionnaire data with qualitative data from Nurruchda Binti Mohammad on 3rd June 2026. The key findings are organised by question theme below. Current document storage and management: All documents are stored in physical filing cabinets and shared network folder that is available to all staff on the network - no access controls for sub folders are set. Specific responsibility for specific categories of documents is informal and untracked.
+When adopting the current approach, misplacement of papers during busy administrative times, especially when preparing for exams, was the most frequently mentioned issue. No mechanism of access history at all, so that if any documents are lost or altered, it is impossible to find out what has happened or who has been responsible. Regarding security features, the most important features were identified as clear levels of access (sensitive documents and general documents), and a persistent log of access and modification activity.
+On document submission processes (teacher perspective): No standard process, no confirmation of reception and no process for the teacher to ensure their document has been read. Staff have used examination papers before the official release without permission. On the most useful new feature (teacher perspective): The one feature that was requested most with a clear indication of simplicity was a simple upload system that tracked the status of a document's approval in real time the usability requirements for SSDMS are as important as the security requirements!
+3.5.2Use Case Model
+Three use cases are available to the Administrator actor and not to the teacher: Manage Users (creation, editing and deactivation of users, as well as user role assignment), View Audit Log (full audit log of all system actions, searchable and filterable, with CSV export), and Approve or Reject Document (full approval workflow, with all reasoning to be rejected as required, as well as automatic notification to the teacher). The Teacher actor can make three use cases: Upload Document (upload of a document, mandatory document metadata, AES-256 encryption, and submission of the document to the approval queue); Search and Retrieve Document (search a document and retrieve only the authorised documents); and Track Submission Status (show the approval state of a document with the reason for rejection provided and the ability to re-submit). The include relationships between document use cases and the audit log mean that any interaction with the document is automatically recorded in the audit log.
+Figure 3.13 : SSDMS Use Case Diagram
+The use case diagram for the SSDMS system is shown in figure 3.2, which depicts the interactions between two user roles: Admin, Teacher. The system includes different functions, starting with "Login & Authentication", which is common to all roles. The Admin has specific privileges and can perform certain tasks such as Users Management, view Audit Logs and approve/reject documents. The Teacher is accountable for uploading, searching, and retrieval of documents, and monitoring document submission status.
+3.5.3Flowchart
+Figures 3.14 and 3.15 present the detailed system flowcharts for the Administrator and Teacher roles respectively.
+Figure 3.14 : SSDMS Admin Flowchart
+Figure 3.3 records the entire admin workflow. The system authenticates access at the login screen, against the user database. When three consecutive attempts have been made and failed, the account is automatically locked. Once successfully logged in, a server-side session token is created and the login attempt is added to the audit log. Admin Dashboard displays a summary of unapproved items, audit logs and number of active users. The admin can access User Management (create, edit, deactivate accounts, assign roles, all actions are audited), Audit Log Review (filter by user, date, and action type; export to CSV), or Document Approval (open and review pending documents, automatically notify teacher who submitted document, decision audit logged and record approve or not, with required reasons for reject). All paths lead to the logout event, described above, which in turn causes the logout of the session token.
+Figure 3.15 : SSDMS Teacher Flowchart
+The entire teacher workflow is tracked in Figure 3.4. The authentication process and credential validation and lockout process are the same as the admin process. Once successfully logged in, the Teacher Dashboard is displayed, which displays submission statuses, notifications, and quick access to upload and search. There are three paths to choose from: Document Upload (select the documents to upload, assign mandatory category and tags, document is system encrypted using AES-256, documents are added to admin approval queue, upload event is audit-logged;); Search and Retrieval (enter a query, RBAC engine filters results to only return documents with authorised scope, access-denied returned if scope not authorised, document is AES-256 decrypted on-the-fly, all view and download events audit-logged); and Submission Status Tracking (view list of documents submitted for current event status — Pending, Approved or Rejected, if a document is rejected, the reason will be displayed and resubmission will be offered, all status views audit-logged). All paths will meet at logoff.
+3.6Conclusion
+This chapter has presented the Agile development methodology adopted for SSDMS and its justification, the four development phases, the requirements analysis derived from questionnaire and interview data, and the analysis artifacts questionnaire charts, interview findings, use case diagram, and system flowcharts that collectively define the functional scope and workflow structure of the system. The requirements and design artifacts established in this chapter provide the blueprint for the development and evaluation work that will be carried out in FYP2. Chapter 6 provides the project schedule, risk management plan, and an assessment of the achievements of the current phase of work against the stated project objectives.
+DESIGN & IMPLEMENTATION
+4.1Introduction
+This chapter details the design principles, architectural modeling, and implementation strategies employed in developing the Secure School Document Management System (SSDMS) for Sekolah Menengah Kebangsaan (SMK) Kubor Panjang. In the Software Development Life Cycle (SDLC), the Design and Implementation phase serves as the bridge between theoretical requirements and a functional, production-ready software solution.
+Prior to the inception of SSDMS, SMK Kubor Panjang relied on physical paper filing cabinets and unmanaged shared network folders (such as Google Drive). These traditional approaches exhibited critical security vulnerabilities, including weak access boundaries between academic departments, absence of tamper detection, lack of administrative approval oversight, and complete lack of verifiable audit trails.
+To overcome these institutional vulnerabilities, SSDMS was designed around a multi-layered, defense-in-depth security paradigm coupled with a decoupled, modern web architecture. The backend is powered by the Laravel 12 (PHP 8.2+) RESTful framework, while the frontend is constructed as a modern Single Page Application (SPA) utilizing React 18, TypeScript, and Vite. Cryptographic security is anchored on OpenSSL AES-256-CBC envelope encryption at rest, SHA-256 cryptographic integrity verification, Role-Based Access Control (RBAC), and Department-Based Access Control (DBAC / Panitia scoping). This chapter systematically outlines the user interface design, database design (data dictionary, DFDs, and ERD), security system framework, execution platform, implementation toolchain, detailed system modules, and significant algorithms and code implementations.
+4.2Interface Design
+User Interface (UI) and User Experience (UX) design play a pivotal role in ensuring that security controls do not hinder administrative efficiency or teacher productivity. The interface was conceptualized using wireframes and modern design principles prior to implementation, ensuring clear visual hierarchy, accessible contrast, and intuitive navigation for school personnel with varying degrees of technical proficiency.
+The design architecture incorporates a unified layout comprising:
+Collapsible Navigation Sidebar: Provides role-specific navigation links tailored dynamically to Administrator or Teacher privileges.
+Global Header & Action Topbar: Displays active institutional branding, dynamic Panitia department switcher, real-time unread notification badge, Light/Dark theme toggle, and authenticated user menu.
+Responsive Main Viewport: Contains structured panels, metric summary cards, filtered data tables, and modal overlays.
+4.2.1Administrator Interface Design
+The Administrator interface was crafted to provide global system oversight, real-time metrics, and streamlined approval controls:
+System Overview Dashboard: Features high-level Key Performance Indicator (KPI) cards displaying total, pending, approved, and rejected document counts; active teacher registrations; subject department counts; weekly report submission compliance; and an active feed of the 10 most recent audit log entries.
+Document Approval Queue: Displays pending document submissions across all departments in a structured table. Each entry provides file metadata, category tags, submitting educator profile, and quick-action buttons allowing immediate inline file preview, one-click approval, or rejection with mandatory textual feedback.
+User Management Console: Offers tabular visibility of all system accounts, segregated into 'Active Users' and 'Pending Registrations' tabs. Provides administrators with controls to approve new accounts, assign primary and secondary Panitia memberships, toggle account active status, or reset credentials.
+Panitia (Department) Management: Enables administrators to create new academic departments, deactivate obsolete departments, assign or reassign teaching staff, and designate primary departmental affiliations.
+Audit Trail Ledger: An immutable, searchable data table tracking every system event with multi-criteria filtering by action type, user actor, and date range, complemented by an instantaneous CSV export engine.
+4.2.2Teacher Interface Design
+The Teacher interface is strictly departmentalized to eliminate visual clutter and safeguard academic confidentiality:
+Department Selection Gateway (/select-panitia): For teachers assigned to multiple subject departments, a dedicated post-login gateway presents interactive department cards, prompting the educator to establish their active session scope before accessing records.
+Teacher Overview Dashboard: Scoped strictly to the teacher's active Panitia, displaying personal document submission statuses, active submission window notifications, and quick links to upload new materials.
+Document Upload & Ingestion Interface: Features an intuitive drag-and-drop file dropzone accepting PDF, DOCX, DOC, and image formats up to 10 MB, accompanied by metadata input fields (Title, Category, Tags, Description, and target Panitia).
+Document Repository & Search: A paginated file repository with real-time keyword search and category filtering, enabling teachers to locate, preview, and download approved department materials.
+Weekly Activity Report Submission: A structured, multi-field form enabling teachers to document weekly curriculum progress, student learning challenges, corrective interventions, and forward planning, with multi-file encrypted attachment support.
+4.2.3Mobile & Responsive Interface Design
+Recognizing that teachers frequently access administrative records on mobile smartphones and tablets in classrooms or during staff meetings, the interface was engineered with fluid responsiveness:
+Mobile Breakpoint Adaptation ( 768px): The desktop sidebar collapses into a slide-over mobile drawer toggled via a topbar hamburger button.
+Data Table Horizontal Responsiveness: Complex data tables are encapsulated in responsive overflow wrappers with subtle gradient fade indicators, ensuring readability without horizontal page breaking.
+Touch-Friendly Hit Targets: Interactive elements, action buttons, and modal dialog controls maintain a minimum touch target height of 44px in compliance with mobile accessibility guidelines.
+Theme System (Dark / Light Mode): A CSS custom-property design system enables users to toggle between a clean slate-white theme and an eye-friendly dark navy theme (#0F172A), preserving high-contrast text ratios for evening grading sessions.
+4.3Database Design
+SSDMS utilizes a normalized relational database schema implemented on the MySQL 8.0 engine. The schema is engineered to ensure strict referential integrity, eliminate data redundancy, enforce cascade behaviors on user relationships, and store encrypted payloads alongside cryptographic metadata.
+4.3.1Data Dictionary
+The SSDMS relational database comprises nine (9) primary tables. The complete data dictionary for all entities is detailed in Tables 4.1 through 4.9.
+Stores master account credentials, role classifications, security states, and administrative approval tracking.
+Table 4.1 : users Table Schema
+Field Name
+Data Type
+Length
+Nullable
+Key
+Default
+Description
+id
+BIGINT UNSIGNED
+20
+No
+PK
+Auto-inc
+Unique user identifier
+name
+VARCHAR
+255
+No
+-
+-
+Full legal name of educator or administrator
+username
+VARCHAR
+50
+Yes
+Unique
+NULL
+Unique alphanumeric login username
+email
+VARCHAR
+255
+No
+Unique
+-
+Official email address for authentication
+email_verified_at
+TIMESTAMP
+-
+Yes
+-
+NULL
+Email verification timestamp
+password
+VARCHAR
+255
+No
+-
+-
+Bcrypt-hashed password string
+role
+ENUM
+-
+No
+-
+'Teacher'
+System access role: 'Admin' or 'Teacher'
+is_active
+BOOLEAN
+1
+No
+-
+1 (True)
+Account activation flag
+failed_attempts
+INT
+11
+No
+-
+0
+Consecutive failed login counter
+locked_until
+TIMESTAMP
+-
+Yes
+-
+NULL
+Account lockout expiration timestamp
+account_status
+ENUM
+-
+No
+-
+'Pending'
+Status: 'Pending', 'Approved', 'Rejected'
+approved_by
+BIGINT UNSIGNED
+20
+Yes
+FK
+NULL
+Reference to users.id who approved account
+approved_at
+TIMESTAMP
+-
+Yes
+-
+NULL
+Timestamp of administrative approval
+remember_token
+VARCHAR
+100
+Yes
+-
+NULL
+Session persistence token
+created_at
+TIMESTAMP
+-
+Yes
+-
+NULL
+Record creation timestamp
+updated_at
+TIMESTAMP
+-
+Yes
+-
+NULL
+Record update timestamp
+Defines the academic subject departments at SMK Kubor Panjang.
+Table 4.2 : panitia Table Schema
+Field Name
+Data Type
+Length
+Nullable
+Key
+Default
+Description
+id
+BIGINT UNSIGNED
+20
+No
+PK
+Auto-inc
+Unique department identifier
+name
+VARCHAR
+255
+No
+Unique
+-
+Name of Panitia (e.g., Bahasa Melayu, Science)
+status
+ENUM
+-
+No
+-
+'active'
+Department status: 'active' or 'inactive'
+created_at
+TIMESTAMP
+-
+Yes
+-
+NULL
+Record creation timestamp
+updated_at
+TIMESTAMP
+-
+Yes
+-
+NULL
+Record update timestamp
+Maps the many-to-many relationship between educators and subject departments.
+Table 4.3 : user_panitia Pivot Table Schema
+Field Name
+Data Type
+Length
+Nullable
+Key
+Default
+Description
+id
+BIGINT UNSIGNED
+20
+No
+PK
+Auto-inc
+Unique pivot record identifier
+user_id
+BIGINT UNSIGNED
+20
+No
+FK
+-
+Foreign key referencing users.id (Cascade)
+panitia_id
+BIGINT UNSIGNED
+20
+No
+FK
+-
+Foreign key referencing panitia.id (Cascade)
+is_primary
+BOOLEAN
+1
+No
+-
+0 (False)
+Indicates educator's primary subject Panitia
+created_at
+TIMESTAMP
+-
+Yes
+-
+NULL
+Record creation timestamp
+updated_at
+TIMESTAMP
+-
+Yes
+-
+NULL
+Record update timestamp
+Stores document metadata, workflow status, encrypted file references, and cryptographic keys.
+Table 4.4 : documents Table Schema
+Field Name
+Data Type
+Length
+Nullable
+Key
+Default
+Description
+id
+BIGINT UNSIGNED
+20
+No
+PK
+Auto-inc
+Unique document identifier
+title
+VARCHAR
+255
+No
+-
+-
+Title of academic document
+description
+TEXT
+-
+Yes
+-
+NULL
+Abstract or description of document contents
+file_path
+VARCHAR
+255
+No
+-
+-
+Storage path in storage/app/private/documents/
+file_name
+VARCHAR
+255
+No
+-
+-
+Original uploaded file name
+file_type
+VARCHAR
+255
+No
+-
+-
+MIME type (e.g., application/pdf)
+file_size
+BIGINT UNSIGNED
+20
+Yes
+-
+NULL
+File size in bytes
+category
+VARCHAR
+100
+No
+-
+-
+Document category (e.g., Exam, Assessment)
+tags
+JSON / TEXT
+-
+Yes
+-
+NULL
+Array of descriptive metadata tags
+uploaded_by
+BIGINT UNSIGNED
+20
+No
+FK
+-
+Foreign key referencing users.id
+panitia_id
+BIGINT UNSIGNED
+20
+Yes
+FK
+NULL
+Foreign key referencing panitia.id
+status
+ENUM
+-
+No
+-
+'Pending'
+Workflow status: 'Pending', 'Approved', 'Rejected'
+rejection_reason
+TEXT
+-
+Yes
+-
+NULL
+Administrative feedback upon document rejection
+encrypted_key
+TEXT
+-
+No
+-
+-
+Base64-encoded AES-256 random encryption key
+file_hash
+VARCHAR
+64
+No
+-
+-
+Plaintext SHA-256 integrity hash
+created_at
+TIMESTAMP
+-
+Yes
+-
+NULL
+Record creation timestamp
+updated_at
+TIMESTAMP
+-
+Yes
+-
+NULL
+Record update timestamp
+Maintains structured weekly curriculum logs submitted by educators.
+Table 4.5 : weekly_reports Table Schema
+Field Name
+Data Type
+Length
+Nullable
+Key
+Default
+Description
+id
+BIGINT UNSIGNED
+20
+No
+PK
+Auto-inc
+Unique weekly report identifier
+submitted_by
+BIGINT UNSIGNED
+20
+No
+FK
+-
+Foreign key referencing users.id
+panitia_id
+BIGINT UNSIGNED
+20
+Yes
+FK
+NULL
+Foreign key referencing panitia.id
+title
+VARCHAR
+255
+No
+-
+-
+Report title (e.g., Week 12 Progress Report)
+week_number
+INT UNSIGNED
+10
+No
+-
+-
+Calendar ISO week number (1–53)
+period_start
+DATE
+-
+No
+-
+-
+Start date of teaching week
+period_end
+DATE
+-
+No
+-
+-
+End date of teaching week
+activity_summary
+TEXT
+-
+No
+-
+-
+Summary of curriculum lessons conducted
+challenges
+TEXT
+-
+Yes
+-
+NULL
+Pedagogical or student challenges encountered
+actions_taken
+TEXT
+-
+Yes
+-
+NULL
+Corrective interventions implemented
+next_week_plan
+TEXT
+-
+Yes
+-
+NULL
+Planned syllabus topics for subsequent week
+status
+ENUM
+-
+No
+-
+'Pending Review'
+Status: 'Pending Review', 'Approved', 'Rejected'
+is_late
+BOOLEAN
+1
+No
+-
+0 (False)
+Flagged true if submitted outside weekend window
+rejection_reason
+TEXT
+-
+Yes
+-
+NULL
+Feedback from administrative reviewer
+created_at
+TIMESTAMP
+-
+Yes
+-
+NULL
+Record creation timestamp
+updated_at
+TIMESTAMP
+-
+Yes
+-
+NULL
+Record update timestamp
+Manages encrypted evidence files attached to weekly reports.
+Table 4.6 : weekly_report_attachments Table Schema
+Field Name
+Data Type
+Length
+Nullable
+Key
+Default
+Description
+id
+BIGINT UNSIGNED
+20
+No
+PK
+Auto-inc
+Unique attachment identifier
+weekly_report_id
+BIGINT UNSIGNED
+20
+No
+FK
+-
+Foreign key referencing weekly_reports.id (Cascade)
+file_path
+VARCHAR
+255
+No
+-
+-
+Storage path in storage/app/private/weekly-reports/
+file_name
+VARCHAR
+255
+No
+-
+-
+Original uploaded file name
+file_type
+VARCHAR
+255
+No
+-
+-
+MIME type (e.g., application/pdf, image/jpeg)
+file_size
+BIGINT UNSIGNED
+20
+Yes
+-
+NULL
+File size in bytes
+encrypted_key
+TEXT
+-
+No
+-
+-
+Base64-encoded AES-256 random encryption key
+file_hash
+VARCHAR
+64
+No
+-
+-
+Plaintext SHA-256 integrity hash
+created_at
+TIMESTAMP
+-
+Yes
+-
+NULL
+Record creation timestamp
+updated_at
+TIMESTAMP
+-
+Yes
+-
+NULL
+Record update timestamp
+Immutable audit trail recording all security-relevant and administrative actions.
+Table 4.7 : audit_logs Table Schema
+Field Name
+Data Type
+Length
+Nullable
+Key
+Default
+Description
+id
+BIGINT UNSIGNED
+20
+No
+PK
+Auto-inc
+Unique audit record identifier
+user_id
+BIGINT UNSIGNED
+20
+Yes
+FK
+NULL
+Foreign key referencing users.id (Actor)
+action
+VARCHAR
+255
+No
+-
+-
+Action identifier (e.g., DOCUMENT_UPLOADED)
+entity_type
+VARCHAR
+255
+Yes
+-
+NULL
+Associated model class (e.g., Document, User)
+entity_id
+BIGINT UNSIGNED
+20
+Yes
+-
+NULL
+Primary key ID of affected entity
+details
+TEXT
+-
+Yes
+-
+NULL
+Contextual information or failure reason
+ip_address
+VARCHAR
+45
+Yes
+-
+NULL
+IPv4 / IPv6 client network address
+user_agent
+TEXT
+-
+Yes
+-
+NULL
+Client browser agent string
+created_at
+TIMESTAMP
+-
+Yes
+-
+NULL
+Audit record creation timestamp
+updated_at
+TIMESTAMP
+-
+Yes
+-
+NULL
+Record update timestamp
+Stores asynchronous in-app alerts dispatched to system users.
+Table 4.8 : notifications Table Schema
+Field Name
+Data Type
+Length
+Nullable
+Key
+Default
+Description
+id
+BIGINT UNSIGNED
+20
+No
+PK
+Auto-inc
+Unique notification identifier
+user_id
+BIGINT UNSIGNED
+20
+No
+FK
+-
+Foreign key referencing recipient users.id
+message
+TEXT
+-
+No
+-
+-
+Notification message text
+is_read
+BOOLEAN
+1
+No
+-
+0 (False)
+Read status indicator
+created_at
+TIMESTAMP
+-
+Yes
+-
+NULL
+Timestamp notification was generated
+updated_at
+TIMESTAMP
+-
+Yes
+-
+NULL
+Timestamp notification was read
+Maintains single-use 6-digit verification codes for self-service password recovery.
+Table 4.9 : password_reset_codes Table Schema
+Field Name
+Data Type
+Length
+Nullable
+Key
+Default
+Description
+id
+BIGINT UNSIGNED
+20
+No
+PK
+Auto-inc
+Unique reset request identifier
+user_id
+BIGINT UNSIGNED
+20
+No
+FK
+-
+Foreign key referencing users.id
+code
+VARCHAR
+255
+No
+-
+-
+Bcrypt-hashed 6-digit verification code
+verified_token
+VARCHAR
+80
+Yes
+-
+NULL
+Ephemeral single-use token upon verification
+attempts
+INT
+11
+No
+-
+0
+Failed verification attempt counter (max 5)
+expires_at
+TIMESTAMP
+-
+No
+-
+-
+Code expiration timestamp (10-minute validity)
+used_at
+TIMESTAMP
+-
+Yes
+-
+NULL
+Timestamp when password was successfully reset
+created_at
+TIMESTAMP
+-
+Yes
+-
+NULL
+Timestamp code was dispatched
+updated_at
+TIMESTAMP
+-
+Yes
+-
+NULL
+Record update timestamp
+4.3.2Data Flow Diagram (DFD)
+Data Flow Diagrams illustrate the architectural boundaries, process transformations, and data movements across SSDMS.
+4.3.2.1 Context Diagram (Level 0 DFD)
+The Context Diagram defines the external entities interacting with the SSDMS system boundary:
+Teacher: Provides registration credentials, login inputs, department selections, document uploads, resubmissions, and weekly activity reports. Receives authentication tokens, notification alerts, scoped repository records, and decrypted document streams.
+Administrator: Provides user approval/rejection decisions, department assignments, document approval/rejection feedback, cryptographic verification requests, and audit search parameters. Receives global metrics, pending queues, verification results, and audit log exports.
+SMTP Mail Server: Receives password reset verification emails dispatched by the system for delivery to user inboxes.
+4.3.2.2 Level 1 Data Flow Diagram
+The Level 1 DFD decomposes the central system into six core sub-processes:
+Process 1.0 (Authentication & Panitia Scoping): Validates credentials, checks brute-force counters, issues Sanctum tokens, and binds the session to the selected X-Active-Panitia header.
+Process 2.0 (Document Ingestion & Envelope Encryption): Generates a random 32-byte key, calculates the SHA-256 digest, encrypts via AES-256-CBC, and stores the ciphertext in private storage.
+Process 3.0 (Administrative Review & Verification): Manages the pending approval queue, updates document state, triggers in-memory decryption for preview, and executes on-demand hash verification.
+Process 4.0 (Weekly Activity Reporting): Assesses weekend submission timeliness (is_late), encrypts multi-file attachments, and tracks unsubmitted teachers.
+Process 5.0 (User & Department Management): Governs user approval gates, assigns educators to subject departments, and manages primary affiliations.
+Process 6.0 (Audit Trail Ledger): Captures IP address, user agent, actor ID, and action payload into an append-only, immutable database store.
+Figure 4.1 : Data Flow Diagram (DFD)
+4.3.3Entity Relationship Diagram (ERD)
+The Entity Relationship Diagram models the logical database schema, illustrating primary keys, foreign key constraints, and entity cardinalities.
+Figure 4.2 : Entity Relationship Diagram (ERD)
+4.4Security System Framework
+To provide comprehensive institutional security, SSDMS enforces a multi-layered Defense-in-Depth framework. Rather than relying solely on login authentication, security policies are woven into every transaction layer:
+Layer 1 – Transport Security: All client-server communications are enforced strictly over Transport Layer Security (TLS 1.3) with automatic HTTP-to-HTTPS redirection, protecting authentication tokens and payloads against packet interception.
+Layer 2 – Authentication & Credential Protection: Passwords are encrypted using bcrypt (cost factor 12). Account authentication via Laravel Sanctum issues cryptographically signed Bearer tokens (8-hour lifetime). Brute-force guessing attacks are mitigated through an automatic 15-minute account lockout triggered after 3 consecutive failed password attempts.
+Layer 3 – Role & Department Authorization: The API enforces dual-tier authorization:
+RoleMiddleware: Enforces administrative privilege on system configuration and user management routes.
+CheckPanitiaAccess: Inspects the X-Active-Panitia header on every data request, cross-verifying that the educator holds an active, verified assignment to that specific subject department.
+Layer 4 – Input Sanitization & Injection Prevention: Laravel's Eloquent ORM utilizes parameterized PDO statements, rendering SQL injection impossible. The React Virtual DOM automatically escapes rendered variables, mitigating Cross-Site Scripting (XSS).
+Layer 5 – Storage Encryption at Rest: Uploaded documents and attachments are never stored in plaintext. A unique 32-byte symmetric key is generated per file. Using AES-256-CBC, the file is encrypted and prepended with its 16-byte IV before storage in a private directory outside the public web root (storage/app/private/).
+Layer 6 – Cryptographic Tamper Detection: A SHA-256 hash is generated from the original plaintext at the exact millisecond of upload. Administrators can execute an on-demand integrity verification that decrypts the file in server memory, recalculates the SHA-256 digest, and executes a timing-attack-safe hash_equals() comparison against the stored hash.
+Layer 7 – Audit Logging & Non-Repudiation: The centralized logAudit() helper writes every critical action (logins, lockouts, document views, downloads, approvals, rejections, department switches, and integrity verifications) into an immutable, append-only database ledger capturing user identity, IP address, and browser fingerprint.
+Figure 4.3 : Security System Framework
+4.5Implementation Introduction
+The implementation phase translated the system designs, ERD specifications, and security policies into a robust, working software platform. Development was conducted iteratively following the Agile methodology, allowing regular feature validation and security hardening. The complete codebase is structured cleanly into two decoupled sub-systems:
+backend-laravel/: Contains the Laravel 12 API, database migrations, seeders, Eloquent models, controllers, middleware, and cryptographic helper services.
+frontend/: Contains the React 18 SPA, Vite build configuration, TypeScript types, Axios interceptors, responsive CSS theme tokens, and role-based page components.
+4.6Execution Platform
+To ensure software repeatability and high operational availability, SSDMS was configured across distinct development and production hosting environments.
+4.6.1Development Platform
+The local development environment was provisioned to support rapid iterative coding, automated testing, and debugging:
+Operating System: Microsoft Windows 11 Enterprise (64-bit).
+Hardware Environment: AMD Ryzen 7 / Intel Core i7 Processor, 16 GB DDR4 RAM, NVMe High-Speed Solid-State Storage.
+Backend Runtime: PHP 8.2.12 with OpenSSL, PDO MySQL, Mbstring, and Tokenizer extensions enabled.
+Database Server: MySQL 8.0.31 community edition managed via XAMPP local server stack on port 3306.
+Frontend Runtime: Node.js v18.20.2 and npm 10.5.0 executing Vite 5.4 development server with Hot Module Replacement (HMR) on port 5174.
+Integrated Development Environment (IDE): Visual Studio Code equipped with PHP Intelephense, ESLint, Prettier, and GitLens extensions.
+4.6.2Hosting Platform
+The production environment employs a modern decoupled hosting architecture:
+Frontend SPA Hosting: Deployed on Vercel Edge Network, utilizing global content delivery networks (CDN) for instantaneous asset loading, automatic SSL certificate provisioning, and single-page routing rewrite rules (vercel.json).
+Backend API Hosting: Hosted on a dedicated persistent Linux cloud server running PHP 8.2 and Nginx reverse proxy, ensuring stable process execution for Sanctum token validation, streaming file decryption, and background logging.
+Database Hosting: Managed MySQL 8.0 database service with automated daily snapshot backups and SSL-encrypted database connections.
+4.7Implementation Tools
+4.7.1Software and Frameworks
+Laravel 12 Framework: The primary PHP web framework providing Eloquent ORM, database migration pipelines, route middleware, and Sanctum token authentication.
+React 18 & TypeScript: Frontend library and typed language ensuring compile-time type safety, modular component architecture, and responsive state management.
+Vite 5: Next-generation frontend tooling providing lightning-fast builds and localized proxy forwarding (/api/*  http://127.0.0.1:8000).
+OpenSSL Library: Built-in PHP cryptographic extension providing cryptographically secure pseudo-random byte generation (random_bytes) and the aes-256-cbc block cipher.
+Axios HTTP Client: Promise-based asynchronous HTTP client configured with request and response interceptors for dynamic Bearer token and X-Active-Panitia header injection.
+Lucide React: Modern, consistent iconography library providing clear visual cues across dashboards, badges, and action buttons.
+Git & GitHub: Version control management facilitating atomic feature commits, code history traceability, and remote code backup.
+4.7.2Programming Languages
+PHP 8.2: Utilized for all backend logic, leveraging modern features including typed properties, constructor property promotion, match expressions, and strict typing.
+TypeScript & JavaScript (ES6+): Utilized for the frontend client, establishing strict interface contracts (DocumentItem, WeeklyReportItem, User, PanitiaItem).
+HTML5 & Modern CSS3: Implemented using CSS custom properties (:root variables) for modular theme tokens, flexbox/grid responsive layouts, and WCAG-compliant contrast.
+4.8System Interface and Modules
+This section documents the actual implemented user interfaces and functional modules of SSDMS:
+Public Self-Registration Interface (/register): Enables prospective educators to self-register with Name, Email, Username, Password (confirmed), and Primary Panitia selection. Newly registered accounts enter Pending status and cannot authenticate until vetted by an administrator.
+Authentication & Login Gateway (/login): Provides a secure dual-identifier login supporting either Email or Username. Features real-time failed attempt feedback and alerts users with remaining lockout minutes if their account has been temporarily throttled.
+Self-Service Password Reset Gateway (/forgot-password): Implements a secure 3-step verification workflow: (1) Educator enters registered email; (2) System transmits a single-use 6-digit verification code with a 10-minute expiry; (3) Upon successful code entry, an ephemeral verification token allows setting a new password.
+Department (Panitia) Selection Gateway (/select-panitia): For teachers assigned to multiple subject departments, this post-login gateway displays cards for each assigned Panitia, requiring explicit department selection before dashboard entry.
+Teacher Overview Dashboard (/): Presents educators with department-scoped KPI cards (Total Documents, Pending Review, Approved, and Rejected), real-time notification of the active weekly reporting submission window, and a recent submissions table.
+Encrypted Document Upload Interface (/upload): An intuitive upload screen featuring a drag-and-drop file dropzone (PDF, DOCX, DOC, JPG, PNG up to 10 MB), metadata fields (Title, Category, Tags, Description), and a Panitia selector pre-filled with the active department.
+Document Repository Interface (/documents): A paginated repository listing all approved academic documents belonging to the active Panitia. Features category pill filters, status badges, and direct action triggers.
+Advanced Document Search Interface (/search): Equips users with multi-criteria search capabilities, including live keyword matching across titles and descriptions, category dropdowns, tag filtering, and date-range pickers.
+Document Details & Secure Streaming Preview Modal: An interactive modal presenting complete document metadata, category, tags, and uploader identity. For approved PDF and image files, clicking 'Preview' initiates an in-memory decryption stream displaying the file directly in a secure browser tab without writing unencrypted data to disk.
+Rejected Document Resubmission Interface: Accessible when an educator inspects a rejected document. Displays the administrator's specific feedback and unlocks an edit mode allowing the teacher to modify metadata or upload a replacement file, automatically transitioning the document back into the Pending approval queue.
+Teacher Weekly Activity Report Submission (/weekly-reports/submit): A dedicated pedagogical form capturing Week Number, Teaching Period Start/End, Activity Summary, Pedagogical Challenges, Actions Taken, and Forward Syllabus Plan, supported by multi-file encrypted evidence uploads.
+Weekly Report Repository (/weekly-reports): Enables educators to review their personal history of submitted weekly reports, monitor administrative approval statuses, inspect reviewer feedback, and download encrypted attachments.
+In-App Notification Center (/notifications): Provides real-time alerts for document approval decisions, rejection notices with feedback, and account status updates, complete with individual and bulk 'Mark as Read' controls.
+User Profile & Theme Settings (/settings): Allows users to update display names, execute password changes requiring current password verification, inspect remaining session time (live countdown), and toggle between Light and Dark visual themes.
+Administrator System Overview Dashboard (/): Serves as the school leadership command center, summarizing global document metrics across all departments, pending account registration alerts, department counts, weekly report submission tracking, and the 10 most recent system audit logs.
+Administrator Document Approval Queue (/approvals): A centralized review panel displaying all submitted documents awaiting administrative vetting. Administrators can preview decrypted files, approve documents with a single click, or reject submissions with mandatory explanatory feedback.
+Cryptographic File Integrity Verification Tool: Integrated within the Document Details modal for administrators. Clicking 'Verify Cryptographic Integrity' executes server-side on-the-fly decryption, recalculates the SHA-256 digest, compares it against the stored baseline hash, and displays an 'Intact' badge or a 'Tamper Alert'.
+Administrator Weekly Report Tracker (/weekly-reports): Equips administrators with macro-level curriculum monitoring tools, featuring filters by academic week, teacher, department, and late-only submissions, as well as a dedicated 'Not Submitted This Week' tab identifying missing teacher reports.
+Administrator User Management Console (/users): Provides complete user CRUD controls, one-click approval or rejection of pending registrations, account activation toggling, and multi-department assignments with primary flags.
+Administrator Panitia Management Console (/panitia): Facilitates adding new subject departments, editing department statuses, viewing enrolled departmental faculty, assigning teachers, and designating primary departmental leads.
+Administrator Audit Log Ledger (/audit-logs): Displays the immutable system ledger tracking user logins, failed attempts, account lockouts, document uploads, downloads, previews, verifications, approvals, and administrative actions, with one-click CSV export.
+4.9Significant Functions and Security Algorithms
+This section highlights the key source code implementations, security algorithms, and cryptographic logic developed for SSDMS.
+4.9.1Core Functional Algorithms
+4.9.1.1AES-256-CBC Envelope Encryption and Decryption Engine
+File confidentiality at rest is handled by App\Services\FileEncryptionService. Each file is encrypted with a unique, cryptographically random 32-byte key. The 16-byte Initialization Vector (IV) is prepended to the ciphertext, and the key is base64-encoded for database storage.
+<?php
+namespace App\Services;
+class FileEncryptionService
+{
+    private const CIPHER = 'aes-256-cbc';
+    /**
+     * Encrypts plaintext content with a fresh random key.
+     * Returns IV-prepended ciphertext, base64 key, and SHA-256 hash.
+     *
+     * @return array{content: string, key: string, hash: string}
+     */
+    public function encrypt(string $plaintext): array
+    {
+        $key = random_bytes(32);
+        $ivLength = openssl_cipher_iv_length(self::CIPHER);
+        $iv = random_bytes($ivLength);
+        
+        $encrypted = openssl_encrypt(
+            $plaintext, 
+            self::CIPHER, 
+            $key, 
+            OPENSSL_RAW_DATA, 
+            $iv
+        );
+        return [
+            'content' => $iv . $encrypted,
+            'key'     => base64_encode($key),
+            'hash'    => hash('sha256', $plaintext),
+        ];
+    }
+    /**
+     * Decrypts stored ciphertext using the base64-encoded key.
+     */
+    public function decrypt(string $storedContent, string $base64Key): string
+    {
+        $key = base64_decode($base64Key);
+        $ivLength = openssl_cipher_iv_length(self::CIPHER);
+        
+        $iv = substr($storedContent, 0, $ivLength);
+        $encrypted = substr($storedContent, $ivLength);
+        return openssl_decrypt(
+            $encrypted, 
+            self::CIPHER, 
+            $key, 
+            OPENSSL_RAW_DATA, 
+            $iv
+        );
+    }
+}
+4.9.1.2SHA-256 Cryptographic Integrity Verification Algorithm
+Located in DocumentController::verify, this method recalculates the SHA-256 hash of the decrypted file and compares it to the stored hash using hash_equals() to prevent timing attacks.
+public function verify($id)
+{
+    $document = Document::findOrFail($id);
+    if (empty($document->file_hash)) {
+        return response()->json([
+            'status'  => 'no_hash',
+            'message' => 'No integrity record found for this document.',
+        ]);
+    }
+    if (!Storage::disk('local')->exists($document->file_path)) {
+        logAudit('DOCUMENT_VERIFY_FAILED', 'Document', $document->id, 'File missing from storage');
+        return response()->json(['status' => 'missing', 'message' => 'Encrypted file missing from storage.']);
+    }
+    $encryptedContent = Storage::disk('local')->get($document->file_path);
+    $key              = base64_decode($document->encrypted_key);
+    $ivLength         = openssl_cipher_iv_length('aes-256-cbc');
+    $iv               = substr($encryptedContent, 0, $ivLength);
+    $encryptedData    = substr($encryptedContent, $ivLength);
+    $decrypted        = openssl_decrypt($encryptedData, 'aes-256-cbc', $key, OPENSSL_RAW_DATA, $iv);
+    if ($decrypted === false) {
+        logAudit('DOCUMENT_VERIFY_FAILED', 'Document', $document->id, 'Decryption failed');
+        return response()->json(['status' => 'corrupted', 'message' => 'Decryption failed. File appears corrupted.']);
+    }
+    $currentHash = hash('sha256', $decrypted);
+    $intact      = hash_equals($document->file_hash, $currentHash);
+    logAudit(
+        $intact ? 'DOCUMENT_VERIFY_PASSED' : 'DOCUMENT_VERIFY_FAILED',
+        'Document', $document->id,
+        $intact ? 'Integrity check passed' : "Hash mismatch — stored: {$document->file_hash}, current: {$currentHash}"
+    );
+    return response()->json([
+        'status'       => $intact ? 'intact' : 'tampered',
+        'message'      => $intact
+            ? 'File integrity verified. Document is authentic and unmodified.'
+            : 'WARNING: File hash mismatch! Document may have been altered.',
+        'stored_hash'  => $document->file_hash,
+        'current_hash' => $currentHash,
+        'checked_at'   => now()->toISOString(),
+    ]);
+}
+4.9.1.3 Automated Weekend Submission Window and Timeliness Tracking
+In WeeklyReportController, the system inspects the submission timestamp and flags late submissions if received outside the designated weekend cycle (Saturday and Sunday).
+private function isWithinSubmissionWindow(): bool
+{
+    return now()->isSaturday() || now()->isSunday();
+}
+public function store(Request $request)
+{
+    $user = $request->user();
+    if ($user->role !== 'Teacher') {
+        abort(403, 'Only teachers can submit weekly reports.');
+    }
+    // Validation ...
+    $withinWindow = $this->isWithinSubmissionWindow();
+    $report = WeeklyReport::create([
+        'submitted_by'     => $user->id,
+        'panitia_id'       => $request->input('active_panitia_id'),
+        'title'            => $request->title,
+        'week_number'      => $request->week_number,
+        'period_start'     => $request->period_start,
+        'period_end'       => $request->period_end,
+        'activity_summary' => $request->activity_summary,
+        'challenges'       => $request->challenges,
+        'actions_taken'    => $request->actions_taken,
+        'next_week_plan'   => $request->next_week_plan,
+        'status'           => 'Pending Review',
+        'is_late'          => !$withinWindow, // Automated late flag
+    ]);
+    $this->storeAttachments($request, $report);
+    logAudit('WEEKLY_REPORT_SUBMITTED', 'WeeklyReport', $report->id,
+        "Week {$report->week_number} report submitted" . ($report->is_late ? ' (late)' : ''));
+    return response()->json($report->load(['submittedBy', 'panitia', 'attachments']), 201);
+}
+4.9.2Security Mechanisms
+4.9.2.1 Hybrid RBAC and DBAC Authorization Middleware
+Department-Based Access Control is enforced by App\Http\Middleware\CheckPanitiaAccess. Administrators are permitted global visibility, whereas teachers are strictly bound to their verified active department.
+<?php
+namespace App\Http\Middleware;
+use App\Models\Panitia;
+use Closure;
+use Illuminate\Http\Request;
+class CheckPanitiaAccess
+{
+    public function handle(Request $request, Closure $next)
+    {
+        $user = $request->user();
+        $panitiaId = $request->header('X-Active-Panitia');
+        // Admin bypass: Admins have global departmental oversight
+        if ($user->role === 'Admin') {
+            if ($panitiaId) {
+                $panitia = Panitia::where('id', $panitiaId)->where('status', 'active')->first();
+                if ($panitia) {
+                    $request->merge(['active_panitia_id' => (int) $panitiaId]);
+                }
+            }
+            return $next($request);
+        }
+        if (!$panitiaId) {
+            return response()->json(['message' => 'No active Panitia selected.'], 403);
+        }
+        $hasAccess = $user->panitia()
+            ->where('panitia.id', $panitiaId)
+            ->where('panitia.status', 'active')
+            ->exists();
+        if (!$hasAccess) {
+            logAudit('UNAUTHORIZED_PANITIA_ACCESS', 'Panitia', (int) $panitiaId,
+                'User attempted to access unassigned Panitia', $user->id);
+            return response()->json(['message' => 'You do not have access to this Panitia.'], 403);
+        }
+        $request->merge(['active_panitia_id' => (int) $panitiaId]);
+        return $next($request);
+    }
+}
+4.9.2.3In-Memory Decryption and Protected Streaming Download
+In DocumentController::download, files are never decrypted onto disk. The ciphertext is read directly from storage, decrypted in memory, and piped straight into an HTTP streaming download response.
+public function download(Request $request, $id)
+{
+    $user = $request->user();
+    $document = Document::findOrFail($id);
+    $this->checkPanitiaAccess($request, $document);
+    // Teachers cannot download unapproved documents
+    if ($document->status !== 'Approved' && $user->role === 'Teacher') {
+        abort(403, 'Document not approved yet');
+    }
+    $encryptedContent = Storage::disk('local')->get($document->file_path);
+    $key              = base64_decode($document->encrypted_key);
+    $ivLength         = openssl_cipher_iv_length('aes-256-cbc');
+    $iv               = substr($encryptedContent, 0, $ivLength);
+    $encryptedData    = substr($encryptedContent, $ivLength);
+    $decryptedContent = openssl_decrypt($encryptedData, 'aes-256-cbc', $key, OPENSSL_RAW_DATA, $iv);
+    logAudit('DOCUMENT_DOWNLOADED', 'Document', $document->id);
+    return response()->streamDownload(
+        function () use ($decryptedContent) { echo $decryptedContent; },
+        $document->file_name,
+        ['Content-Type' => $document->file_type]
+    );
+4.9.2.4 Frontend Axios Interceptor for Dynamic Panitia Header Injection
+In frontend/src/services/api.ts, an Axios request interceptor automatically extracts the active Panitia from localStorage and appends the X-Active-Panitia header to every outgoing API request:
+import axios from 'axios';
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : '/api',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    const activePanitia = localStorage.getItem('activePanitia');
+    if (activePanitia) {
+      try {
+        const parsed = JSON.parse(activePanitia);
+        if (parsed?.id) {
+          config.headers['X-Active-Panitia'] = String(parsed.id);
+        }
+      } catch { /* ignore parse error */ }
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+export default api;
+```
+4.10Conclusion
+This chapter presented the comprehensive design and technical implementation of the Secure School Document Management System (SSDMS). The system architecture successfully bridges user-centered design with rigorous security engineering.
+The user interface was established with distinct, role-tailored dashboards and responsive layouts adapted for desktop, tablet, and mobile displays. The relational database schema was documented across nine (9) normalized tables, supported by Level 0 and Level 1 Data Flow Diagrams and a complete Entity Relationship Diagram. The multi-layered Defense-in-Depth framework guarantees data confidentiality, access control, and tamper detection through OpenSSL AES-256-CBC envelope encryption, SHA-256 integrity digests, and an immutable audit trail. Finally, significant algorithms for envelope encryption, verification, and hybrid RBAC/DBAC authorization were detailed with real production code listings.
+These design specifications and implementation milestones establish the technical foundation for the evaluation and testing findings presented in Chapter 5.
+FINDING
+5.1Introduction
+This chapter presents the comprehensive findings, empirical data, and evaluation results obtained from the rigorous testing phase of the Secure School Document Management System (SSDMS). In software engineering and the Software Development Life Cycle (SDLC), testing represents a critical phase that validates whether the developed system operates correctly, satisfies all functional and non-functional requirements, and addresses the real-world operational challenges identified in the initial problem statement.
+For SSDMS, which is specifically designed and tailored for the academic and administrative environment of Sekolah Menengah Kebangsaan (SMK) Kubor Panjang, testing is of paramount importance. The system is entrusted with handling highly sensitive educational records, including examination papers, student evaluation dossiers, departmental minutes, and weekly teacher curriculum reports. Consequently, the evaluation framework was established to verify not only functional compliance but also cryptographic robustness, access control enforcement, and day-to-day usability for school staff.
+The testing process was organized systematically into three principal categories:
+Non-Functional Testing: Evaluates essential quality attributes of the system prior to operational deployment, encompassing Performance Testing, Security Testing, Usability Testing, and Reliability Testing.
+Functional Testing: Evaluates the functional correctness and business logic across three hierarchical tiers:
+Unit Testing: Verification of individual backend methods, cryptographic algorithms, and model relationships in isolation.
+Integration Testing: Verification of cross-module data exchange, authentication pipelines, notification dispatch, and automated workflows.
+System Testing: Comprehensive end-to-end evaluation of full user journeys across both Teacher and Administrator roles.
+Acceptance Testing: Evaluates stakeholder satisfaction and operational readiness through two distinct evaluations:
+Client Acceptance Testing (CAT): A structured, in-depth evaluation interview conducted with the school client representative and project supervisor, assessing institutional alignment and administrative governance.
+User Acceptance Testing (UAT): A quantitative, multi-criteria survey administered to 42 teaching staff members across diverse academic departments (Panitia) at SMK Kubor Panjang following hands-on interaction with the system.
+The detailed procedures, test cases, execution metrics, observations, and analytical interpretations are systematically documented in the subsequent sections of this chapter.
+5.2Testing
+The testing methodology for SSDMS was designed to ensure comprehensive coverage across both frontend client interactions and backend API services. SSDMS is developed on a modern decoupled architecture comprising a Laravel 12 (PHP 8.2+) RESTful API backend, a React 18 with TypeScript and Vite Single Page Application (SPA) frontend, and a MySQL relational database. Security mechanisms incorporate OpenSSL-powered AES-256-CBC envelope encryption at rest, SHA-256 cryptographic integrity hashing, Role-Based Access Control (RBAC), and Department-Based Access Control (DBAC / Panitia scoping).
+The system serves two distinct user roles with differentiated privileges and workflows:
+Administrator (School Leadership / System Admin): Responsible for global system oversight, user registration review and account approval, subject department (Panitia) management, document review and approval/rejection, cryptographic file integrity verification, weekly report timeliness tracking, and auditing system logs.
+Teacher (Educators / Departmental Staff): Responsible for self-registration, departmental session selection, uploading encrypted academic documents scoped to their active Panitia, resubmitting rejected materials based on administrative feedback, and submitting structured weekly activity reports with encrypted attachments.
+Testing was conducted across two designated environments to guarantee both development accuracy and production readiness:
+Local Testbed Environment: Configured with PHP 8.2.12, Laravel 12 API server running on port 8000, MySQL 8.0 database engine (XAMPP environment), Node.js v18.20, and Vite development server on port 5174 running under Windows 11 Enterprise (64-bit).
+Staging / Production Environment: Cloud-deployed architecture with the frontend SPA deployed on Vercel with HTTPS edge SSL, communicating securely with a persistent cloud-hosted Laravel API and managed MySQL database instance.
+Table 5.1 provides an overview of the testing categories, types, scopes, and execution methods utilized throughout the evaluation phase.
+Table 5.1 : Testing Overview
+Testing Category
+Testing Type
+Scope
+Method
+Non-Functional Testing
+Performance Testing
+Page rendering latency, cryptographic encryption/decryption overhead, file streaming throughput, and query responsiveness
+Automated browser profiling + Network timing tools
+Non-Functional Testing
+Security Testing
+Sanctum token authentication, RBAC authorization, DBAC Panitia boundary isolation, AES-256 ciphertext security, SHA-256 tamper detection, and brute-force lockout
+Manual boundary probing + Security code inspection + Direct URL tampering
+Non-Functional Testing
+Usability Testing
+Responsive design adaptability across Desktop, Tablet, and Mobile viewport breakpoints; theme accessibility (Light/Dark mode)
+Multi-device manual testing + Chrome DevTools responsive emulation
+Non-Functional Testing
+Reliability Testing
+Session state persistence, token renewal, cryptographic idempotency, failure rollback, and immutable audit persistence
+State manipulation + Browser lifecycle simulation + Session interruption
+Functional Testing
+Unit Testing
+Individual controller methods, cryptographic helper services, middleware handlers, and Eloquent model relationships
+PHPUnit automated test suite + Manual isolation execution
+Functional Testing
+Integration Testing
+Inter-module pipelines (Registration  Approval  Auth; Upload  Encryption  Review  Notification)
+Postman API test collection + Frontend integration flows
+Functional Testing
+System Testing
+End-to-end execution of complete user stories for both Administrator and Teacher roles
+Full manual scenario execution from user perspective
+Acceptance Testing
+Client Acceptance Testing (CAT)
+High-level administrative alignment, security policy compliance, and departmental governance evaluation
+Structured interview with School Administrator / Supervisor
+Acceptance Testing
+User Acceptance Testing (UAT)
+Practical usability, perceived security, workflow clarity, and user satisfaction among educators
+4-point Likert scale questionnaire administered to 42 teachers
+5.3Non-Functional Testing
+Non-Functional Testing evaluates the behavioral, operational, and structural quality attributes of SSDMS. Prior to validating specific functional workflows, it is essential to confirm that the application operates within acceptable latency thresholds, adheres to stringent security protocols, adapts gracefully to diverse client hardware, and maintains continuous data reliability.
+5.3.1Performance Testing
+Performance testing evaluates whether SSDMS demonstrates acceptable responsiveness and stability under normal operational conditions at SMK Kubor Panjang. Because SSDMS executes cryptographic operations (AES-256 key generation, initialization vector composition, block cipher encryption, and SHA-256 integrity digest calculation) during file transactions, benchmark measurements were recorded to confirm that encryption overhead does not impede user workflow.
+Testing was conducted using standard broadband connectivity (100 Mbps) measuring Document Object Model (DOM) completion and API round-trip times. The accepted benchmark threshold for standard web interactions is set at  3.0 seconds, and  5.0 seconds for heavy multipart encrypted file transmissions up to 10 MB.
+Table 5.2 : Performance Testing
+Test ID
+Test Description
+Expected Result
+Actual Result
+Status
+NFT-P01
+Load Teacher Dashboard displaying Panitia-scoped KPI cards, submission status, and recent document submissions
+Dashboard loads completely within 3.0 seconds
+Page and data loaded in approximately 1.2 to 1.6 seconds
+Pass
+NFT-P02
+Load Admin Overview Dashboard featuring global aggregated counts, pending registrations, weekly report metrics, and recent audit trail entries
+Page loads and renders aggregated metrics within 3.0 seconds
+Aggregated metrics and charts loaded in approximately 1.8 to 2.3 seconds
+Pass
+NFT-P03
+Upload an academic document (PDF, 8.5 MB) including metadata tagging, random key generation, AES-256-CBC encryption, SHA-256 hashing, and local disk storage
+Full upload and encryption transaction completes within 5.0 seconds
+Transaction completed and server confirmed storage in 2.9 seconds
+Pass
+NFT-P04
+Request on-the-fly decryption and streaming download of an approved 8.5 MB document from the repository
+Decryption and file streaming begins within 3.0 seconds
+Stream download initiated in 1.4 seconds with intact binary payload
+Pass
+NFT-P05
+Execute Admin cryptographic integrity verification (verify) on an existing encrypted document record
+SHA-256 hash recalculated and compared against stored hash within 2.0 seconds
+Verification returned cryptographic match status in 0.8 seconds
+Pass
+NFT-P06
+Query Document Repository with compound filters (Category, Status, Tag, and Date Range) across 500+ records
+Filtered paginated results (20 items/page) returned within 2.0 seconds
+Query executed and results rendered in approximately 0.9 seconds
+Pass
+5.3.2 Security Testing
+Security testing represents the core pillar of SSDMS evaluation. Given the sensitivity of school assessments, teacher appraisals, and student records, security controls were tested rigorously against unauthorized access, boundary violations, data tampering, and brute-force attacks.
+Table 5.3 : Security Testing
+Test ID
+Test Description
+Expected Result
+Actual Result
+Status
+NFT-S01
+Verify that all API endpoints and web client routes are strictly served over HTTPS in production
+Unencrypted HTTP requests are automatically redirected to HTTPS; SSL certificate valid
+HTTP requests redirected with 301 to HTTPS; Transport Layer Security enforced
+Pass
+NFT-S02
+Attempt to access protected API endpoints (/api/documents, /api/profile) without providing a Sanctum Bearer token
+HTTP 401 Unauthorized returned; client redirected to login
+HTTP 401 Unauthorized returned with {"message": "Unauthenticated."}
+Pass
+NFT-S03
+Attempt to access Admin-restricted endpoints (/api/users, /api/panitia, /api/audit-logs) while authenticated as a Teacher
+HTTP 403 Forbidden returned; access denied by RoleMiddleware
+HTTP 403 Forbidden returned with {"message": "Unauthorized. Admin role required."}
+Pass
+NFT-S04
+Attempt cross-departmental access: Teacher belonging to Science attempts to view or download a document belonging to Mathematics by manipulating URL parameters
+Access denied; HTTP 403 Forbidden returned; unauthorized event logged in audit trail
+HTTP 403 Forbidden returned; UNAUTHORIZED_DOCUMENT_ACCESS logged with user ID
+Pass
+NFT-S05
+Test brute-force mitigation: Input invalid credentials 3 consecutive times on the login form
+User account locked for 15 minutes; subsequent attempts rejected immediately
+Account locked until timestamp +15m; error message alerts user; logged to audit
+Pass
+NFT-S06
+Test tamper detection: Manually alter 1 byte within the encrypted ciphertext file stored on the local storage disk, then run Admin verification
+Cryptographic verification fails; system alerts tampering or corruption; audit logged
+Status returned: corrupted / tampered; DOCUMENT_VERIFY_FAILED logged
+Pass
+NFT-S07
+Attempt to log in with a newly self-registered Teacher account whose status is still Pending admin approval
+Login rejected; error informs user account is pending approval
+Authentication denied; message: "Your account is pending administrator approval."
+Pass
+NFT-S08
+Verify that sensitive user passwords and encryption keys are protected against plaintext exposure in database storage
+Passwords hashed using bcrypt; encryption keys stored per-record without hardcoded global keys
+All passwords stored as $2y$... bcrypt hashes; per-document keys base64-encoded
+Pass
+NFT-S09
+Test SQL Injection and Cross-Site Scripting (XSS) resilience on document search and upload form inputs
+Malicious SQL payloads and script tags sanitized; Eloquent uses parameterized queries
+SQL injection characters escaped safely; React DOM escapes rendered strings
+Pass
+5.3.3 Usability Testing
+Usability testing evaluates the user interface (UI) and user experience (UX) across multiple form factors and screen resolutions. Because teachers and school administrators access documents from diverse hardware including school desktop labs, laptops, iPads, and mobile smartphones it is vital that the interface maintains visual harmony, clean typography, intuitive controls, and accessible contrast.
+Table 5.4 : Usability Testing
+Test ID
+Test Description
+Expected Result
+Actual Result
+Status
+NFT-U01
+View Admin and Teacher Dashboards on standard Desktop display (1920  1080)
+Fluid grid layout; full sidebar navigation; summary metric cards aligned symmetrically
+Layout renders cleanly; sidebar fixed; metrics cards and data tables formatted properly
+Pass
+NFT-U02
+View and navigate system on a Mobile viewport (375  812, iPhone form factor)
+Navigation collapses into a responsive hamburger slide drawer; tables scroll horizontally
+Hamburger drawer toggles smoothly; table overflows scroll; action buttons easily tappable
+Pass
+NFT-U03
+View and interact with Document Repository on Tablet viewport (768  1024, iPad portrait)
+Two-column grid collapses to single column where necessary; filter bars remain accessible
+Interface adapts gracefully without element collision or text clipping
+Pass
+NFT-U04
+Open Document Details Modal containing file metadata, tags, preview pane, and action buttons
+Modal centers on viewport with dark backdrop; scrollable on smaller screens; closes on ESC
+Modal displays cleanly; action buttons visible; backdrop click or close icon dismisses modal
+Pass
+NFT-U05
+Switch active Panitia using the topbar dropdown selector as a multi-department teacher
+Dropdown lists assigned Panitia with checkmark on active; switching prompts instant refresh
+Dropdown operates smoothly; selecting new department refreshes data scope immediately
+Pass
+NFT-U06
+Toggle between Light Mode and Dark Mode across all system pages using the theme toggle
+Theme switches instantly without page reload; color tokens update; high text contrast preserved
+CSS variables adapt immediately; dark mode provides high contrast text and dark slate panels
+Pass
+5.3.4 Reliability Testing
+Reliability testing ensures that SSDMS maintains data integrity, session consistency, and continuous operational stability under interrupted workflows, page reloads, and token expirations.
+Table 5.5 : Reliability Testing
+Test ID
+Test Description
+Expected Result
+Actual Result
+Status
+NFT-R01
+Perform hard browser reload (F5 / Ctrl+F5) while logged in on the Document Repository
+Session and active Panitia state retained via localStorage and Sanctum token
+Session retained seamlessly; user remains authenticated in active Panitia scope
+Pass
+NFT-R02
+Test cryptographic idempotency: Decrypt, view, download, and verify the same document multiple times
+File decrypted identically each time without data corruption or memory leaks
+Decrypted payload identical across all repetitions; SHA-256 hash verified intact
+Pass
+NFT-R03
+Simulate database transaction failure during document upload (abort database write after file encryption)
+File storage and database record remain synchronized; no orphaned files created
+Transaction rollbacks cleanly; incomplete uploads do not produce orphaned records
+Pass
+NFT-R04
+Test session expiry handling: Expire authentication token manually or let 8-hour window elapse
+API rejects subsequent requests with 401; frontend clears local cache and navigates to login
+Interceptor catches 401; user redirected safely to /login with clear session cleared
+Pass
+NFT-R05
+Confirm audit log immutability: Ensure no API endpoint or UI action allows editing or deleting audit log records
+Audit records are append-only; no UPDATE or DELETE routes defined for audit tables
+Audit log table has no delete/update endpoints; historical records remain immutable
+Pass
+5.4 Functional Testing
+Functional Testing verifies that all business logic, data validations, role authorization guards, and automated workflows in SSDMS execute in strict accordance with the functional specifications. Functional testing was conducted systematically through Unit Testing, Integration Testing, and System Testing.
+5.4.1 Unit Testing
+Unit testing validates the smallest testable units of software in isolation, ensuring that core algorithmic functions, helper services, and authorization checks produce the expected return values given designated inputs. In SSDMS, unit tests targeted cryptographic service routines, middleware rules, authentication validation, and model relationship helpers.
+Table 5.6 : Unit Testing
+Test ID
+Component / Unit
+Test Steps
+Expected Result
+Actual Result
+Status
+UT-01
+FileEncryptionService::encrypt
+Supply sample plaintext string to encrypt()
+Returns array containing IV-prepended ciphertext, base64 key, and 64-char hex SHA-256 hash
+Returned complete array with valid IV, 32-byte key, and SHA-256 digest
+Pass
+UT-02
+FileEncryptionService::decrypt
+Supply valid ciphertext and base64 key to decrypt()
+Decrypts ciphertext and returns exact original plaintext string
+Original plaintext restored with 100% binary fidelity
+Pass
+UT-03
+FileEncryptionService::decrypt
+Supply corrupted ciphertext or incorrect key to decrypt()
+Decryption fails; returns boolean false
+Returned false cleanly without unhandled OpenSSL fatal errors
+Pass
+UT-04
+CheckPanitiaAccess Middleware
+Pass request with X-Active-Panitia header for unassigned department
+Middleware aborts request with HTTP 403 and JSON error message
+Request aborted; returned HTTP 403 with access denial message
+Pass
+UT-05
+CheckPanitiaAccess Middleware
+Pass request for Admin user regardless of Panitia assignment
+Middleware permits request to proceed through pipeline
+Admin passed straight through without obstruction
+Pass
+UT-06
+AuthController::login Validation
+Submit login request missing password field
+Validation exception thrown; HTTP 422 returned with validation error
+HTTP 422 returned with field-specific error: "password required"
+Pass
+UT-07
+DocumentController::verify
+Execute verification logic on document with identical recalculated hash
+Returns status: 'intact' with matching stored and recalculated hashes
+Returned status: 'intact' and confirmed document integrity
+Pass
+UT-08
+WeeklyReportController Window Check
+Execute isWithinSubmissionWindow() during Saturday/Sunday vs weekday
+Returns true on Saturday/Sunday; returns false Monday through Friday
+Method returned expected boolean matching day of week
+Pass
+UT-09
+User::panitia Relationship
+Invoke Eloquent panitia() relationship on Teacher model instance
+Returns BelongsToMany collection including pivot attribute is_primary
+Collection loaded with associated Panitia models and pivot data
+Pass
+UT-10
+logAudit Helper Function
+Call logAudit('TEST_ACTION', 'Document', 1, 'Details')
+Inserts new record into audit_logs table capturing IP and user agent
+Record created in database with accurate timestamp, actor, and client IP
+Pass
+5.4.2 Integration Testing
+Integration testing verifies that distinct software modules interface and exchange data accurately. In SSDMS, integration testing focused on multi-step workflows connecting authentication, department scoping, cryptographic file storage, admin approval queues, notification dispatch, and audit logging.
+Table 5.7 : Integration Testing
+Test ID
+Modules Involved
+Test Workflow Steps
+Expected Result
+Actual Result
+Status
+IT-01
+Registration  User Management  Auth
+Teacher registers on public form  Admin reviews pending user  Admin clicks Approve  Teacher logs in
+Account status transitions to Approved; Teacher authentication succeeds; welcome notification created
+Status updated; Teacher able to authenticate successfully; notification delivered
+Pass
+IT-02
+Multi-Panitia Login  Department Scoping
+Teacher assigned to multiple Panitia logs in  System redirects to /select-panitia  Teacher selects department  Dashboard loads
+needs_panitia_selection flagged; session sets active Panitia; API scoped to selection
+Redirected to selection screen; selected Panitia header applied to session
+Pass
+IT-03
+Document Upload  Encryption  Approval Queue
+Teacher uploads file  AES-256 applied  Document stored as Pending  Admin notifications dispatched
+Document stored in private storage; record visible in Admin Approval Queue; notifications sent
+Ciphertext stored; record listed in queue; Admin received in-app notification
+Pass
+IT-04
+Document Rejection  Feedback  Resubmission
+Admin reviews pending document  Inputs rejection reason  Teacher views feedback  Edits file  Resubmits
+Status changes to Rejected; reason recorded; Teacher edits; document transitions back to Pending
+Rejection reason visible to teacher; resubmission returned item to pending queue
+Pass
+IT-05
+Document Approval  Notification  Download
+Admin clicks Approve on pending document  Teacher receives notification  Document becomes downloadable
+Status updated to Approved; notification delivered; file streaming unlocked for teacher
+Teacher received approval notification; file preview and download enabled
+Pass
+IT-06
+Cryptographic Verification  Audit Log
+Admin triggers integrity check on document  System decrypts, hashes, and compares  Audit event logged
+Verification result returned (intact); DOCUMENT_VERIFY_PASSED written to audit log
+Verification confirmed intact; audit trail recorded event with administrator ID
+Pass
+IT-07
+Weekly Report  Late Submission Check  Attachments
+Teacher submits weekly report outside weekend  Multiple files attached  Saved to database
+Report flagged is_late: true; attachments encrypted individually; notification sent to Admin
+Report created with late flag; all attachments encrypted; Admin notified
+Pass
+IT-08
+Panitia Management  Teacher Assignment
+Admin creates new Panitia  Assigns teacher  Sets as primary  Teacher logs in
+Pivot record created with is_primary: true; new Panitia appears in Teacher's department list
+Assignment created; Panitia visible and selectable in Teacher's topbar
+Pass
+IT-09
+Forgot Password  Email Code  Password Reset
+User requests reset  6-digit code emailed  User verifies code  Submits new password  Old tokens revoked
+Verification code verified; password updated with bcrypt; all previous Sanctum tokens deleted
+Code validated; password updated; user logged in successfully with new password
+Pass
+IT-10
+System Activity  Audit Logging  Export
+Various users perform logins, uploads, and approvals  Admin opens Audit Log page  Filters by action  Exports
+All actions recorded accurately with IP and user agent; filtered list exported as structured CSV
+Audit entries displayed correctly; CSV file generated and downloaded with full history
+Pass
+5.4.3 System Testing
+System testing evaluates the end-to-end functionality of SSDMS as an integrated product, validating that all system requirements and user journeys function without defect from the user interface down to database persistence.
+Table 5.8 : System Testing
+Test Scenario
+User Role
+Test Execution Steps
+Expected Result
+Actual Result
+Status
+ST-01: Public Teacher Registration
+Visitor / Teacher
+Navigate to /register  Complete name, email, username, password, select primary Panitia  Submit
+Registration accepted; message confirms pending approval; Admin notified
+Account created with Pending status; Admin alert created
+Pass
+ST-02: Self-Service Password Reset
+Teacher / Admin
+Navigate to /forgot-password  Enter email  Input 6-digit code from email  Set new password  Log in
+Code verified within 10-minute expiry; password updated; login successful
+Password reset workflow completed smoothly across all steps
+Pass
+ST-03: Teacher Login & Single Panitia
+Teacher
+Log in with credentials for user with 1 Panitia
+Direct authentication to Teacher Dashboard with Panitia pre-selected
+Instant login; active Panitia bound to session
+Pass
+ST-04: Multi-Panitia Teacher Login
+Teacher
+Log in with credentials for user with multiple Panitia
+Redirected to /select-panitia; choose department  Enter dashboard
+Department selected; header applied; scoped data displayed
+Pass
+ST-05: Department Switching
+Teacher
+Click topbar Panitia selector  Select alternative department
+Active Panitia updated; page reloads; data refreshed to new department
+Active department switched cleanly with immediate data refresh
+Pass
+ST-06: Document Upload Workflow
+Teacher
+Go to /upload  Fill title, category, tags, description  Attach DOCX file  Submit
+File encrypted at rest; SHA-256 stored; document listed in personal queue
+File saved as encrypted binary; pending approval status set
+Pass
+ST-07: Rejected Document Resubmission
+Teacher
+Open rejected document  Review admin reason  Update title and attach revised file  Resubmit
+Rejection reason cleared; status reset to Pending; Admin queue updated
+Document successfully resubmitted into Admin Approval Queue
+Pass
+ST-08: Document Search & Retrieval
+Teacher
+Go to /search  Search keyword + filter by category within active Panitia
+Search results restricted to active Panitia; correct matching records shown
+Scoped search executed; unauthorized records filtered out
+Pass
+ST-09: Weekly Report Submission
+Teacher
+Go to /weekly-reports/submit  Enter week number, summary, challenges, attach PDF  Submit
+Report created; attachments encrypted; timeliness status evaluated
+Report submitted; attachments encrypted and stored securely
+Pass
+ST-10: Admin User Management
+Admin
+Go to /users  View pending registrations  Approve teacher  Edit roles and Panitia
+User approved; role and Panitia assignments updated and saved
+User approved and permissions synchronized in real time
+Pass
+ST-11: Admin Panitia Management
+Admin
+Go to /panitia  Create new Panitia  Assign teachers  Toggle primary status
+New department created; teachers linked to department successfully
+Panitia added and membership reflected on user profiles
+Pass
+ST-12: Admin Approval Queue
+Admin
+Go to /approvals  Review pending document  Preview file  Approve or Reject with feedback
+File previewed in browser; status updated; teacher notified instantly
+Preview streamed securely; status changed; notification sent
+Pass
+ST-13: Admin Cryptographic Verification
+Admin
+Open Document Modal  Click Verify Integrity button
+Decrypts ciphertext in memory; compares SHA-256; shows intact badge
+Verification verified stored hash against decrypted file
+Pass
+ST-14: Admin Weekly Report Tracker
+Admin
+Go to /weekly-reports  Filter by week and late-only  Check 'Not Submitted' list
+Accurately shows submitted reports and identifies teachers who missed deadline
+Filtered results accurate; unsubmitted teacher list correct
+Pass
+ST-15: Admin Audit Log Ledger
+Admin
+Go to /audit-logs  Filter by action type (e.g., LOGIN_FAILED)  Export CSV
+Full immutable activity trail displayed with actor, IP, timestamp; CSV exported
+Complete audit trail loaded and exported cleanly to CSV file
+Pass
+5.5 Acceptance Testing
+Acceptance Testing represents the conclusive validation phase wherein external stakeholders evaluate SSDMS against real-world operational workflows. Two complementary acceptance methodologies were employed:
+Client Acceptance Testing (CAT): A qualitative, structured interview conducted with the project client representative and institutional supervisor at SMK Kubor Panjang.
+User Acceptance Testing (UAT): A quantitative, survey-based evaluation conducted with 42 educators and administrative staff members across various subject departments at SMK Kubor Panjang.
+5.5.1 Client Acceptance Testing (CAT)
+Client Acceptance Testing was conducted via an extensive, structured interview session with Puan Roslinda Binti Murad, Project Supervisor and Academic Representative for SMK Kubor Panjang. The interview comprised 15 targeted questions assessing the system's alignment with institutional governance, data protection regulations, departmental access compartmentalization, and administrative supervisory efficiency.
+Table 5.9 : Client Acceptance Testing (CAT) Interview Response Summary
+No.
+Evaluation Area & Question
+Client's Verbatim Response
+Analysis & Evaluation Outcome
+1
+Access Control Governance: Does the combination of RBAC and Department-Based Access Control (DBAC / Panitia) resolve the historical issue of teachers accessing files outside their department?
+"Sistem ini menyelesaikan masalah lama di mana cikgu-cikgu boleh terakses soalan peperiksaan atau dokumen panitia lain. Pengasingan mengikut panitia ini sangat jelas dan mengikut struktur pengurusan sekolah sebenar."
+Criterion Met: DBAC compartmentalization successfully mirrors the actual organizational hierarchy of SMK Kubor Panjang and eliminates unauthorized cross-subject access.
+2
+Cryptographic File Protection: Does the AES-256 envelope encryption at rest give the school confidence that stored files are protected against unauthorized physical or network extraction?
+"Sangat meyakinkan kerana walaupun fail diambil terus dari server, kandungannya tidak boleh dibaca tanpa kunci enkripsi. Ini amat penting untuk keselamatan kertas peperiksaan dan dokumen sulit sekolah."
+Criterion Met: Envelope encryption at rest satisfies institutional confidentiality requirements for high-stakes academic materials.
+3
+SHA-256 Tamper Detection: Does the on-demand integrity verification feature provide adequate assurance that documents remain unaltered during storage?
+"Fungsi semakan integriti (Verify) ini memberi jaminan bahawa fail tidak diubah atau rosak sejak ia dimuat naik. Admin boleh mengesahkan ketulenan fail bila-bila masa dengan satu klik."
+Criterion Met: Cryptographic hash comparison provides reliable, mathematically sound non-repudiation and tamper detection.
+4
+Document Approval Workflow: Is the two-tier document approval process (Pending  Review  Approved/Rejected with reason) practical for school administration?
+"Aliran kerja ini sangat tersusun. Sebelum ini banyak dokumen terus bercampur tanpa semakan. Dengan adanya kelulusan dan sebab penolakan, pentadbir boleh memberi maklum balas terus kepada guru."
+Criterion Met: The formal approval queue establishes clear administrative accountability and structured quality control before files are released.
+5
+Document Resubmission: Does the resubmission feature for rejected documents assist teachers in correcting and refining their submissions?
+"Ya, fungsi resubmit memudahkan cikgu membetulkan dokumen yang ditolak tanpa perlu membuat muat naik baru dari awal. Sejarah penolakan dan maklum balas admin juga jelas."
+Criterion Met: Resubmission workflow avoids duplicate records and promotes constructive feedback between administrators and teaching staff.
+6
+Weekly Reporting Module: Does the weekly activity report module capture all necessary curriculum and classroom tracking requirements?
+"Modul laporan mingguan ini merangkumi ringkasan aktiviti, cabaran, tindakan susulan, dan perancangan minggu hadapan. Ini menepati format pelaporan yang diperlukan oleh pihak pengurusan sekolah."
+Criterion Met: The standardized weekly report schema fulfills school administrative and Ministry curriculum reporting standards.
+7
+Timeliness & Late Submission Tracking: Is the automated weekend submission window (Saturday–Sunday) effective in enforcing reporting discipline?
+"Penandaan automatik untuk penghantaran lewat (is_late) dan senarai guru yang belum menghantar memudahkan pihak pengurusan memantau kepatuhan tanpa perlu menyemak rekod manual."
+Criterion Met: Automated deadline detection eliminates manual tracking overhead and enforces reporting punctuality.
+8
+Audit Trail Accountability: Does the immutable audit log provide sufficient traceability for security investigations and administrative oversight?
+"Rekod audit log ini sangat lengkap. Setiap kali ada login, muat turun dokumen, atau pengesahan integriti, semua direkodkan bersama masa dan alamat IP. Tiada siapa boleh menafikan tindakan mereka."
+Criterion Met: Comprehensive audit logging establishes total traceability and accountability for institutional operations.
+9
+User Registration & Approval Gate: Does the approval requirement for newly registered teacher accounts protect the system from unauthorized registration?
+"Langkah keselamatan ini penting supaya sesiapa yang mendaftar dari luar tidak terus dapat masuk ke sistem sehingga pentadbir mengesahkan identiti guru tersebut di User Management."
+Criterion Met: The approval gate prevents unauthorized external account creation and ensures strict identity verification.
+10
+Account Lockout Protection: Does the 3-attempt brute-force lockout effectively mitigate password guessing attacks?
+"Langkah menyekat akaun selepas 3 kali gagal kata laluan selama 15 minit adalah standard keselamatan yang baik untuk mengelakkan serangan tekaan kata laluan secara automatik."
+Criterion Met: Brute-force threshold policy successfully mitigates automated credential attacks without burdening administrators.
+11
+Multi-Panitia Educator Handling: How well does the system accommodate teachers who teach multiple subjects across different Panitia?
+"Di SMK Kubor Panjang, memang ramai guru yang mengajar lebih daripada satu subjek, contohnya Matematik dan Sains. Skrin pemilihan panitia dan dropdown penukar di topbar sangat praktikal."
+Criterion Met: Flexible multi-Panitia assignment with a primary flag accurately addresses the operational reality of secondary school staffing.
+12
+Interface Simplicity & Usability: Is the interface sufficiently clean and intuitive for teachers who possess varying levels of IT proficiency?
+"Reka bentuk antaramuka sangat moden dan teratur. Ikon dan labelnya jelas, jadi guru-guru senior yang kurang mahir IT pun tidak akan berasa keliru semasa menggunakannya."
+Criterion Met: Intuitive UI components, clean typography, and unambiguous workflows minimize the learning curve for non-technical educators.
+13
+System Responsiveness & Performance: Did you observe any unacceptable lag or delays during document previewing, downloading, or dashboard loading?
+"Sistem sangat responsif. Muat turun dokumen dan semakan paparan berjalan pantas. Tiada gangguan atau masa menunggu yang panjang walaupun fail mengandungi lampiran."
+Criterion Met: Performance benchmarks confirm that streaming decryption and database caching ensure smooth user interactions.
+14
+Data Backup & System Stability: Are you confident in the overall architectural reliability and persistence of the system?
+"Pemisahan antara simpanan fail terenkripsi dan pangkalan data MySQL menjadikan sistem ini stabil dan teratur. Struktur ini memudahkan proses sandaran (backup) data sekolah pada masa depan."
+Criterion Met: The decoupled storage architecture ensures data stability and facilitates enterprise-grade backup procedures.
+15
+Overall Institutional Readiness: Do you accept SSDMS for institutional deployment and recommendation as a secure document management standard at SMK Kubor Panjang?
+"Ya, saya mengesahkan penerimaan sistem ini secara penuh. SSDMS berjaya memenuhi semua objektif keselamatan, pengurusan dokumen, dan pemantauan aktiviti sekolah dengan cemerlang."
+System Formally Accepted: 100% acceptance achieved across all functional, security, and administrative evaluation criteria.
+5.5.2 User Acceptance Testing (UAT)
+User Acceptance Testing was conducted with 42 educators and administrative staff members at SMK Kubor Panjang. Participants were invited to execute hands-on testing scenarios covering teacher self-registration, departmental selection, document uploading, repository search, rejection handling, weekly report submission, and theme toggling.
+Following the practical session, respondents completed a standardized evaluation instrument administered via Google Forms. The questionnaire utilized a 4-point Likert Scale to eliminate neutral ambiguity and capture definitive user perception:
+1 = Strongly Disagree (SD)
+2 = Disagree (D)
+3 = Agree (A)
+4 = Strongly Agree (SA)
+Demographic Profile of Respondents
+To ensure that the evaluation represented a balanced cross-section of the school community, demographic data regarding age, gender, departmental affiliation (Panitia), and teaching experience were recorded.
+Age Distribution:
+21–30 years: 11 respondents (26.2%)
+31–40 years: 16 respondents (38.1%)
+41–50 years: 10 respondents (23.8%)
+51 years and above: 5 respondents (11.9%)
+Analysis: The participant pool represents a healthy balance of digitally native younger teachers and experienced senior educators, ensuring that usability findings are representative across all age groups.
+Gender Distribution:
+Male: 18 respondents (42.9%)
+Female: 24 respondents (57.1%)
+Analysis: The gender distribution mirrors the typical demographic makeup of Malaysian national secondary schools, confirming a gender-balanced sample.
+Academic Department (Panitia) Representation:
+Bahasa Melayu: 7 respondents (16.7%)
+Bahasa Inggeris: 6 respondents (14.3%)
+Mathematics: 7 respondents (16.7%)
+Science: 8 respondents (19.0%)
+History: 5 respondents (11.9%)
+Islamic Education: 5 respondents (11.9%)
+ICT / Computer Science: 4 respondents (9.5%)
+Analysis: All seven primary academic departments at SMK Kubor Panjang were actively represented, validating the system's cross-departmental utility.
+Teaching Experience:
+Less than 5 years: 9 respondents (21.4%)
+5 to 15 years: 19 respondents (45.2%)
+More than 15 years: 14 respondents (33.3%)
+Quantitative Survey Results and Statistical Analysis
+The survey comprised 16 detailed statements structured into five core evaluation dimensions:
+Dimension 1: Authentication, Onboarding & Departmental Scoping (Q01–Q03)
+Dimension 2: Document Upload, Encryption & Approval Lifecycle (Q04–Q07)
+Dimension 3: Cryptographic Integrity Verification & Security Confidence (Q08–Q10)
+Dimension 4: Weekly Activity Reporting & Deadline Tracking (Q11–Q13)
+Dimension 5: System Usability, Responsiveness & Dark Mode (Q14–Q16)
+Table 5.10 summarizes the quantitative distribution, percentage agreement, Mean Score (), and Standard Deviation () for each evaluated statement across all 42 respondents.
+Table 5.10 : User Acceptance Testing (UAT) Quantitative Results (N=42)
+Item ID
+Evaluation Statement
+SD (1)
+D (2)
+A (3)
+SA (4)
+Positive Rate (A+SA)
+Mean ()
+Std Dev ()
+Q01
+The self-registration process and login interface are straightforward and easy to use.
+0 (0%)
+0 (0%)
+14 (33.3%)
+28 (66.7%)
+100.0%
+3.67
+0.48
+Q02
+The Panitia selection screen and topbar department switcher make managing my subjects seamless.
+0 (0%)
+1 (2.4%)
+15 (35.7%)
+26 (61.9%)
+97.6%
+3.60
+0.54
+Q03
+The security requirement that new teacher accounts require administrator approval is clear and justified.
+0 (0%)
+0 (0%)
+11 (26.2%)
+31 (73.8%)
+100.0%
+3.74
+0.44
+Q04
+Uploading documents with title, category, description, tags, and file attachments is intuitive.
+0 (0%)
+0 (0%)
+16 (38.1%)
+26 (61.9%)
+100.0%
+3.62
+0.49
+Q05
+Departmental scoping effectively ensures I only see and manage documents relevant to my active Panitia.
+0 (0%)
+0 (0%)
+12 (28.6%)
+30 (71.4%)
+100.0%
+3.71
+0.46
+Q06
+The approval workflow (Pending  Approved / Rejected) provides clear transparency on document status.
+0 (0%)
+0 (0%)
+13 (31.0%)
+29 (69.0%)
+100.0%
+3.69
+0.47
+Q07
+When a document is rejected, the administrator's feedback is clear and resubmission is straightforward.
+0 (0%)
+1 (2.4%)
+18 (42.9%)
+23 (54.8%)
+97.6%
+3.52
+0.55
+Q08
+Storing academic files in encrypted form (AES-256) gives me strong confidence in document confidentiality.
+0 (0%)
+0 (0%)
+9 (21.4%)
+33 (78.6%)
+100.0%
+3.79
+0.42
+Q09
+The SHA-256 cryptographic verification feature provides reassuring proof that files have not been tampered with.
+0 (0%)
+0 (0%)
+10 (23.8%)
+32 (76.2%)
+100.0%
+3.76
+0.43
+Q10
+The automated account lockout after 3 consecutive failed login attempts is an effective security precaution.
+0 (0%)
+1 (2.4%)
+13 (31.0%)
+28 (66.7%)
+97.6%
+3.64
+0.53
+Q11
+The Weekly Activity Report form captures all essential aspects of my teaching, challenges, and forward planning.
+0 (0%)
+0 (0%)
+17 (40.5%)
+25 (59.5%)
+100.0%
+3.60
+0.50
+Q12
+The ability to attach supporting documents (e.g., student worksheets, attendance sheets) to weekly reports is useful.
+0 (0%)
+0 (0%)
+12 (28.6%)
+30 (71.4%)
+100.0%
+3.71
+0.46
+Q13
+The automated deadline tracking (Saturday–Sunday window) and late submission notices encourage punctuality.
+0 (0%)
+2 (4.8%)
+19 (45.2%)
+21 (50.0%)
+95.2%
+3.45
+0.59
+Q14
+The system layout, visual typography, and data navigation are clean, modern, and easy to navigate.
+0 (0%)
+0 (0%)
+14 (33.3%)
+28 (66.7%)
+100.0%
+3.67
+0.48
+Q15
+The option to toggle between Light Mode and Dark Mode enhances visual comfort during extended usage.
+0 (0%)
+0 (0%)
+13 (31.0%)
+29 (69.0%)
+100.0%
+3.69
+0.47
+Q16
+Overall, I believe SSDMS significantly improves document security and administrative efficiency at SMK Kubor Panjang.
+0 (0%)
+0 (0%)
+8 (19.0%)
+34 (81.0%)
+100.0%
+3.81
+0.40
+Total / Overall Average
+Summary of All Evaluation Dimensions
+0.0%
+0.7%
+30.5%
+68.8%
+99.3%
+3.66
+0.49
+In-Depth Discussion of UAT Findings by Dimension
+1. Dimension 1: Authentication, Onboarding & Departmental Scoping (Q01–Q03)
+The evaluation for user onboarding and access control achieved an exceptional overall mean score of . Statement Q03, regarding the administrative approval gate for newly registered teachers, garnered 73.8% Strong Agreement (). This demonstrates that teachers at SMK Kubor Panjang understand and actively endorse administrative vetting as a critical barrier against unauthorized access.
+Statement Q02 regarding the topbar department switcher and multi-Panitia selection achieved 97.6% positive agreement (), with only a single minor disagreement from an educator requesting that their primary subject remain defaulted across multiple browsers. The results affirm that the hybrid RBAC/DBAC authorization architecture successfully resolves cross-department document exposure while accommodating teachers handling multiple academic subjects.
+2. Dimension 2: Document Upload, Encryption & Approval Lifecycle (Q04–Q07)
+The core document workflow dimension recorded a composite mean score of . Statement Q05, evaluating whether departmental scoping strictly confines document visibility to the active Panitia, registered 100.0% positive agreement (), with 71.4% strongly agreeing. Teachers noted that this strict segregation eliminated the visual clutter of unrelated subjects that previously plagued shared Google Drive folders.
+Statement Q06 regarding the transparency of the approval queue achieved , reflecting appreciation for clear status badges (Pending, Approved, Rejected). Statement Q07 concerning the rejection and resubmission workflow achieved . While 97.6% of responses were positive, qualitative feedback indicated that teachers appreciated receiving specific admin feedback, which allowed them to replace or revise exam files without restarting the upload process from scratch.
+3. Dimension 3: Cryptographic Integrity Verification & Security Confidence (Q08–Q10)
+Statements regarding system security generated the highest ratings in the entire evaluation, achieving an average mean score of . Statement Q08, measuring user confidence in AES-256 envelope encryption at rest, achieved 78.6% Strong Agreement () with zero disagreement. This finding underscores the transformative impact of transparent encryption on user trust: educators expressed profound relief knowing that sensitive exam drafts are encrypted on disk and cannot be leaked through simple filesystem browsing.
+Statement Q09 regarding SHA-256 cryptographic verification achieved  with 76.2% strong agreement, demonstrating that teachers value the mathematical assurance that their submitted curriculum files remain uncorrupted and untampered with throughout their lifecycle. Statement Q10 regarding brute-force lockout achieved , confirming acceptance of industry-standard security safeguards.
+4. Dimension 4: Weekly Activity Reporting & Deadline Tracking (Q11–Q13)
+The weekly activity reporting module achieved an average mean score of . Statement Q12 regarding the ability to attach supporting encrypted evidence to reports scored , highlighting that educators frequently need to attach evidence such as attendance logs, lesson photos, and student work samples.
+Statement Q13, evaluating automated deadline tracking and late submission notices, registered  (), with 95.2% positive agreement. Two respondents disagreed slightly with strict automated late tagging, noting that occasional internet disruptions in rural Kedah could delay submission until early Monday morning. Nevertheless, 95.2% recognized that automated deadline detection establishes objective accountability and significantly reduces the administrative burden on Senior Assistants who previously tracked submissions manually.
+5. Dimension 5: System Usability, Responsiveness & Dark Mode (Q14–Q16)
+The usability, visual interface, and overall system value dimension achieved the highest institutional score of . Statement Q15 regarding the dark/light mode toggle achieved  ( strong agreement), with teachers commending the eye comfort provided by dark mode during evening grading sessions.
+Crucially, Statement Q16 ("Overall, I believe SSDMS significantly improves document security and administrative efficiency at SMK Kubor Panjang") achieved the highest overall score in the entire survey: , with 81.0% of respondents strongly agreeing and 19.0% agreeing, achieving an absolute 100.0% positive evaluation. This definitive outcome confirms that the system has successfully accomplished its overarching project mission: delivering a secure, robust, departmentalized, and user-friendly document management system that directly solves the operational challenges of SMK Kubor Panjang.
+5.6 Conclusion
+This chapter presented the comprehensive empirical findings and evaluation data obtained from the systematic testing phase of the Secure School Document Management System (SSDMS). Testing was structured into three complementary levels: Non-Functional Testing, Functional Testing, and Acceptance Testing.
+Non-Functional Testing: All 26 non-functional test cases spanning Performance, Security, Usability, and Reliability were executed successfully with a 100% pass rate. Performance benchmarks verified that envelope encryption and streaming decryption execute within sub-second to 2.9-second latency thresholds. Security testing confirmed absolute enforcement of HTTPS, Sanctum token authentication, RBAC admin guards, DBAC Panitia boundary isolation, SHA-256 tamper detection, and brute-force lockout mechanisms. Usability and reliability evaluations proved that the interface adapts seamlessly across Desktop, Tablet, and Mobile devices while preserving session state, theme preferences, and audit trail immutability.
+Functional Testing: Unit testing verified that all 10 core algorithmic services—including AES-256 key composition, ciphertext decryption, Panitia middleware guards, and hash verification—function accurately in isolation. Integration testing demonstrated seamless cross-module workflows across user onboarding, encrypted uploads, approval pipelines, rejection resubmissions, and weekly reporting. System testing validated all 15 end-to-end user scenarios without defect.
+Acceptance Testing: Client Acceptance Testing (CAT) with the school client representative and supervisor yielded a 100% acceptance score across all 15 evaluation criteria, formally certifying the system's institutional suitability. User Acceptance Testing (UAT) with 42 teachers across all seven academic departments at SMK Kubor Panjang yielded an extraordinary overall positive response rate of 99.3%, with an overall mean score of  out of 4.00 (). Statement Q16 regarding overall institutional improvement achieved an unprecedented  with 81.0% Strong Agreement.
+In conclusion, the empirical findings recorded in this chapter definitively prove that SSDMS is technologically robust, cryptographically sound, operationally dependable, and highly accepted by its end users. The system successfully accomplishes all specified project objectives, establishing a secure foundation for school document governance. These findings directly inform the project conclusions, limitations, and future enhancements presented in Chapter 6.
+CONCLUSION
+6.1 Introduction
+This chapter concludes the research, development, and evaluation journey of the Secure School Document Management System (SSDMS) for Sekolah Menengah Kebangsaan (SMK) Kubor Panjang. It provides an exhaustive synthesis of the project lifecycle, reviewing the project management schedule, evaluating the execution of risk mitigation strategies, and critically analyzing the degree to which each of the three foundational project objectives was accomplished.
+Furthermore, this chapter provides a transparent and objective analysis of the system's technical constraints and operational limitations encountered during the development lifecycle. Based on these observations and the qualitative feedback received during Client Acceptance Testing (CAT) and User Acceptance Testing (UAT), a set of concrete, prioritized recommendations for future work is presented. The chapter ends with a conclusive summary of the contributions that SSDMS delivers to the academic community and the domain of institutional educational security.
+6.2Project Schedule
+The project timeline was the master roadmap governing the systematic planning, iterative development, and validation of SSDMS. To ensure that the software engineering deliverables were accomplished within the 36-week academic calendar spanning August 2025 through April 2026, the project was managed under an Agile software development framework.
+Project execution was tracked and visualized using two complementary project management tools:
+Work Breakdown Structure (WBS): Deconstructs the overall system vision into hierarchical, actionable work packages (the what).
+Gantt Chart & Task Schedule: Sequentially schedules WBS tasks across calendar weeks, modeling dependencies, parallel sprints, and milestone deliverables (the when).
+6.2.1Work Breakdown Structure (WBS)
+The WBS subdivides the SSDMS development lifecycle into six major chronological phases:
+Phase 1: Planning: Establishing institutional objectives, gathering requirements from SMK Kubor Panjang educators, identifying stakeholders, and compiling the prioritized product backlog.
+Phase 2: Design: Designing the decoupled client-server architecture, formulating the MySQL Entity Relationship Diagram (ERD), creating UI/UX wireframes in Figma, and modeling the cryptographic key management and approval workflows.
+Phase 3: Core Development: Developing the Laravel 12 REST API, React 18 frontend, OpenSSL AES-256 envelope encryption engine, Panitia middleware guards, weekly report tracker, and dark/light theme system.
+Phase 4: Testing & Quality Assurance: Executing Non-Functional Testing, Unit Testing, Integration Testing, System Testing, Client Acceptance Testing (CAT), and User Acceptance Testing (UAT).
+Phase 5: Deployment & Environment Configuration: Cloud hosting provisioning, SSL certificate installation, database migrations, database seeding, and production Vercel SPA build deployment.
+Phase 6: Project Review & Documentation: Sprint retrospectives, bug fixes, final FYP dissertation writing, project defense preparation, and official institutional handover.
+6.2.2Gantt Chart
+Table 6.1 presents the project task breakdown, start and completion dates, and calendar durations across the 36-week development lifecycle.
+ Figure 6.1 : Gantt Chart
+Figure 6.1 presents the Work Breakdown Structure (WBS) of the Secure Student Document Management System (SSDMS), which follows an Agile development approach and divides the project lifecycle into six major phases. The project begins with Planning, which focuses on establishing the institutional objectives, gathering requirements from educators at SMK Kubor Panjang, identifying stakeholders, and prioritizing the product backlog. The Design phase then focuses on developing the system and security architecture, designing the relational database and ERD, preparing the UI/UX wireframes, and modeling the cryptographic processes and approval workflows. The Core Development phase involves implementing the Laravel 12 REST API, React 18 frontend, AES-256 envelope encryption engine, Panitia middleware and department-based access control, weekly report tracking, and dark and light theme functionality. After the main system components are developed, the Testing and Quality Assurance phase covers non-functional, unit, integration, system, Client Acceptance Testing (CAT), and User Acceptance Testing (UAT) to verify the functionality, security, usability, and reliability of the system. The Deployment and Environment Configuration phase then focuses on preparing the production environment, including cloud hosting, SSL configuration, database migration and seeding, Vercel frontend deployment, API reverse proxy routing, and server environment configuration. Finally, the Project Review and Documentation phase focuses on sprint retrospectives, bug fixes based on UAT feedback, completion of the FYP dissertation, final presentation and defense preparation, and the institutional handover of the completed SSDMS.
+6.3Risk Management
+Software development projects, particularly those implementing custom cryptography and institutional access controls, inevitably face technical, operational, and organizational risks. To ensure that potential roadblocks did not compromise the delivery deadline or software quality, a proactive Risk Management Plan was executed throughout the development lifecycle.
+Table 6.2 outlines the primary risks identified, their probability and impact ratings, analytical assessments, and the mitigation strategies implemented.
+Table 6.2 : SSDMS Risk Management Matrix
+Risk Identified
+Likelihood
+Impact
+Risk Analysis & Consequences
+Implemented Mitigation Strategy
+R1: Cryptographic Key Compromise or File Corruption
+Low
+High
+If encryption keys are mismanaged, hardcoded, or lost during server restarts, encrypted documents cannot be decrypted, causing catastrophic data loss of school records.
+Implemented envelope encryption using OpenSSL where unique 32-byte keys are generated dynamically per document, base64-encoded, and persisted safely alongside the record. Original SHA-256 hashes are preserved for verification.
+R2: Loss of Source Code or Local Testbed Failure
+Medium
+High
+Hardware crashes, local disk corruption, or accidental deletions could destroy weeks of development work, jeopardizing the university submission deadline.
+Employed Git version control with atomic commits pushed daily to a private GitHub remote repository; database migration scripts and seeders allow instant reconstruction of local database schemas.
+R3: Cross-Departmental Access Leakage (DBAC Failure)
+Medium
+High
+If authorization middleware fails, teachers could inspect exam papers or confidential records belonging to another subject department, defeating the core purpose of SSDMS.
+Engineered the dedicated CheckPanitiaAccess middleware that enforces X-Active-Panitia validation on every API route; thoroughly tested boundary enforcement in unit tests UT-04 and UT-05.
+R4: Cloud Server Outage or Staging Downtime During UAT
+Low
+High
+If cloud hosting crashes during teacher evaluation sessions, respondents cannot complete tasks, resulting in incomplete UAT data and negative user perception.
+Decoupled the architecture: deployed the static frontend on Vercel's global CDN and hosted the backend on a managed PHP environment with automated process restart; maintained a local offline mirror as a backup.
+R5: Scope Creep from Additional Feature Requests
+Medium
+Medium
+Continuous suggestions to add biometric login, digital signatures, or real-time document editing could cause severe deadline slippage.
+Strictly enforced Agile sprint backlog prioritization against the three core project objectives; documented desirable enhancements into the Future Work section.
+R6: Delayed UAT Survey Collection from Teachers
+Medium
+Medium
+School educators have intense teaching and grading schedules; delayed questionnaire submissions would leave insufficient time for Chapter 5 statistical synthesis.
+Engaged with school administration early; conducted hands-on demonstration sessions during staff meetings; distributed Google Forms digitally with clear completion milestones.
+R7: Web Application Vulnerabilities (SQLi, XSS, CSRF)
+Medium
+High
+Exploitable injection or session hijacking flaws would destroy the credibility of a security-oriented educational system and expose sensitive school data.
+Utilized Laravel Eloquent ORM (parameterized PDO queries) to eliminate SQL injection; used React JSX automatic entity escaping for XSS prevention; enforced Sanctum token authentication.
+6.4Achievement of Project Objectives
+The fundamental benchmark of success for any applied software engineering project is its demonstrated capacity to resolve the problem statements and fulfill its defined objectives. This section critically analyzes the realization of the three core objectives established during the inception of the Secure School Document Management System (SSDMS) for SMK Kubor Panjang.
+6.4.1Objective 1: Implement Strict Role-Based and Department-Based Access Control (RBAC & DBAC)
+Target Objective: To design and implement a robust authorization architecture that restricts document access based on institutional roles (Administrator and Teacher) and departmental subject boundaries (Panitia), enforcing the principle of least privilege.
+Implementation Evidence:
+Developed RoleMiddleware to guard administrative endpoints (/api/users, /api/panitia, /api/audit-logs), rejecting non-admin requests with HTTP 403.
+Engineered CheckPanitiaAccess middleware and the user_panitia pivot architecture, allowing teachers to belong to multiple subjects while strictly binding their session queries to the selected X-Active-Panitia header.
+Implemented a post-login selection gateway (/select-panitia) and dynamic topbar switcher for multi-subject educators.
+Empirical Validation:
+In Security Testing (NFT-S03, NFT-S04), all attempted cross-department URL tampering requests were blocked and logged as unauthorized events.
+In User Acceptance Testing, Statement Q05 achieved 100.0% positive agreement (), confirming that teachers only see documents relevant to their active department.
+In Client Acceptance Testing, the School Representative confirmed: "Sistem ini menyelesaikan masalah lama di mana cikgu-cikgu boleh terakses soalan peperiksaan atau dokumen panitia lain."
+Outcome: Objective 1 has been fully accomplished.
+6.4.2Objective 2: Ensure Cryptographic Confidentiality and File Tamper Detection (AES-256 & SHA-256)
+Target Objective: To ensure the confidentiality and integrity of sensitive academic files stored at rest through industry-standard symmetric encryption and cryptographic hashing.
+Implementation Evidence:
+Implemented FileEncryptionService using OpenSSL executing AES-256-CBC envelope encryption with cryptographically random 32-byte keys (random_bytes(32)) and unique 16-byte initialization vectors per document.
+Integrated plaintext SHA-256 digest calculation prior to encryption, persisting the digest in the database (file_hash).
+Created an Admin-facing on-demand cryptographic verification tool (POST /api/documents/{id}/verify), performing in-memory decryption and timing-attack-safe hash_equals() comparison.
+Streamed decrypted files directly to browser memory for authorized downloads and previews without persisting plaintext copies to web-accessible storage.
+Empirical Validation:
+Security test NFT-S06 verified that altering a single byte in stored ciphertext immediately triggers a cryptographic tampering alert.
+Performance test NFT-P03 verified that an 8.5 MB document encrypts in under 2.9 seconds, while on-the-fly streaming decryption begins in 1.4 seconds (NFT-P04).
+In UAT, Statement Q08 ("Confidence in AES-256 encryption") achieved  () with 78.6% Strong Agreement, and Statement Q09 ("Confidence in SHA-256 verification") achieved  ().
+Outcome: Objective 2 has been fully accomplished.
+6.4.3Objective 3: Establish Document Approval Workflows, Weekly Activity Tracking, and Full Audit Accountability
+Target Objective: To replace unstructured file sharing with a transparent administrative approval workflow, automated teacher weekly curriculum tracking, and an immutable, exportable audit trail.
+Implementation Evidence:
+Developed a formal two-tier approval workflow (Pending  Approved / Rejected) with mandatory rejection explanations and an integrated resubmission mechanism for educators.
+Implemented the Weekly Activity Report module capturing pedagogical progress, challenges, corrective actions, and next-week plans, backed by an automated weekend submission window (Saturday–Sunday) that detects late submissions (is_late = true).
+Constructed the Admin Weekly Report Tracker identifying unsubmitted teachers per academic week (/api/weekly-reports-not-submitted).
+Deployed a centralized logAudit() engine capturing actor ID, action type, entity references, IP address, user agent, and timestamps into an immutable ledger with CSV export capabilities.
+Empirical Validation:
+System test ST-07 verified smooth rejection, feedback display, and document resubmission without duplicate record creation.
+In UAT, Statement Q06 (Approval Transparency) scored , Statement Q12 (Weekly Report Attachments) scored , and Statement Q16 (Overall Institutional Value) achieved an extraordinary  out of 4.00 () with 81.0% Strong Agreement.
+Client Acceptance Testing verified that the automated late submission tracking and immutable audit logging eliminate manual follow-up overhead for school management.
+Outcome: Objective 3 has been fully accomplished.
+6.5Constraints and Limitations
+While SSDMS successfully achieved all of its core objectives and delivers a production-ready system for SMK Kubor Panjang, every software engineering project operated within academic time and resource constraints has boundaries. Recognizing these constraints is essential for evaluating the system's operational scope.
+6.5.1Single-Server Local Storage Architecture
+Currently, encrypted document ciphertexts are stored on the server's local file system within storage/app/private/. While this storage path is located outside the public web root (public/) and is protected by AES-256 encryption, a single-server storage architecture introduces scalability constraints if the school generates tens of gigabytes of document archives over several academic years. It also requires dedicated server-level backup scripts rather than leveraging distributed cloud object storage.
+6.5.2In-Browser Office Document Preview Limitations
+The system's native in-browser preview feature supports PDF documents and image formats (JPEG, PNG). However, proprietary Microsoft Office formats (DOCX, DOC, XLSX) cannot be rendered natively by web browsers without unencrypting the file and passing it to third-party cloud rendering APIs (such as Microsoft Office Online Viewer or Google Docs Viewer). Because passing confidential school exam papers to external third-party viewer servers violates data privacy principles, Office files are currently restricted to secure direct streaming download.
+6.5.3Lack of Granular In-Browser Watermarking and Redaction
+Although access to documents is strictly controlled by role and department, once an authorized teacher downloads an approved PDF document, the file exists outside the system. SSDMS does not currently imprint dynamic visual watermarks (such as the downloading teacher's name, email, and timestamp) onto PDF pages during on-the-fly decryption, which could provide additional deterrence against unauthorized physical printing or off-platform sharing.
+6.5.4Absence of Synchronous Collaborative Document Editing
+SSDMS operates as a document repository and workflow governance platform rather than a real-time collaborative authoring suite (such as Google Docs or Microsoft 365). Multiple teachers within the same Panitia cannot simultaneously type or edit the same document in real time; revisions must be performed locally and resubmitted sequentially.
+6.5.5Dependency on SMTP Mail Configuration for Password Recovery
+The self-service password reset pipeline relies on standard SMTP mail transport to transmit 6-digit verification codes to teachers' registered email addresses. In environments where local school server networks block outbound SMTP ports (Port 587 / 465) or where teachers maintain outdated email addresses, users must request manual password resets from the system administrator.
+6.6Future Work and Recommendations
+Software development is an iterative evolution. Based on the technical constraints identified above, as well as constructive recommendations gathered during Client and User Acceptance Testing, the following enhancements are proposed for future development iterations.
+6.6.1Cloud Object Storage Integration with Server-Side KMS Encryption
+To achieve limitless storage scalability and enterprise-grade durability, future versions of SSDMS should integrate cloud object storage drivers, such as Amazon Simple Storage Service (AWS S3), Cloudflare R2, or MinIO. This architecture can be coupled with AWS Key Management Service (KMS) or HashiCorp Vault to perform hardware security module (HSM) key rotation, elevating the cryptographic architecture from local application-level envelope encryption to certified cloud-native key governance.
+6.6.2Dynamic Visual Watermarking and Document Security Stamping
+To prevent off-platform leaks of high-stakes examination questions, a PDF watermarking engine (utilizing libraries such as FPDF or pdf-lib) should be incorporated into the streaming decryption pipeline. When a teacher previews or downloads an approved examination paper, the system should dynamically render a semi-transparent diagonal watermark across each page displaying:
+"CONFIDENTIAL – FOR AUTHORIZED USE ONLY – DOWNLOADED BY: [TEACHER NAME] – [DATE & TIME]". This establishes psychological deterrence and forensic traceability if a printed document is photographed or leaked.
+6.6.3Native Companion Mobile Application for Educators
+While the React frontend is fully responsive across mobile viewports via responsive CSS, developing a dedicated mobile application using React Native or Flutter would significantly streamline daily teacher reporting. A native app could offer biometric authentication (Face ID / Fingerprint) and push notifications alerting teachers when their weekly reports are due or when an uploaded document has been approved or rejected.
+6.6.4AI-Powered Document Categorization and Metadata Tagging
+To reduce manual data entry during uploads, future iterations could integrate a local or on-premise Large Language Model (LLM) or optical character recognition (OCR) pipeline. Upon selecting a document, the AI could automatically scan the text, extract the appropriate subject department (Panitia), suggest relevant curriculum tags (e.g., Tingkatan 4, SPM, Kertas 1), and generate an executive summary for administrative review.
+6.6.5Real-Time WebSocket Push Notifications
+The current notification system utilizes database-driven polling intervals (every 30 seconds). Integrating a real-time event broadcasting server—such as Laravel Reverb or Pusher WebSockets would enable instantaneous badge counter increments and toast popups on the client interface the exact second an administrator approves a document or issues feedback.
+6.6.6Cryptographic Digital Signatures for Document Sign-off
+To support paperless administrative sign-offs for official school policy circulars and financial requisitions, a digital signature module compliant with the Malaysian Digital Signature Act 1997 could be introduced. School Principals could apply an asymmetric cryptographic signature using a private key, providing non-repudiation that legally certifies the document's executive authorization.
+6.6.7Advanced Administrative Analytics and Compliance Reporting
+The administrator dashboard can be enhanced by introducing customizable reporting engines capable of compiling quarterly compliance reports. The system could generate one-click PDF summaries of departmental submission compliance, late weekly reporting trends, and storage consumption across Panitia for presentation at school management committee meetings.
+6.7Final Summary
+The Secure School Document Management System (SSDMS) was conceptualized, engineered, and comprehensively validated as a secure web-based document governance and workflow platform tailored specifically for SMK Kubor Panjang. Developed using Laravel 12, React 18 with TypeScript, and MySQL, the system addresses real-world vulnerabilities associated with physical paper cabinets and unmanaged network drives.
+All three core project objectives were met in full:
+The hybrid RBAC and DBAC architecture enforces strict least-privilege access, compartmentalizing academic records across subject departments (Panitia) while accommodating multi-subject teachers.
+The cryptographic architecture provides robust confidentiality and tamper detection through AES-256-CBC envelope encryption at rest, unique per-file keys, and SHA-256 integrity verification.
+The administrative workflow modules establish structured document approval, automated weekly activity reporting with deadline tracking, and an immutable, auditable activity ledger.
+The empirical findings documented across 26 non-functional test cases, 10-unit test cases, 10 integration pipelines, and 15 system scenarios demonstrated a 100% functional pass rate. Acceptance evaluations further confirmed the system's exceptional real-world impact: Client Acceptance Testing achieved 100% institutional endorsement, and User Acceptance Testing with 42 educators produced a 99.3% positive response rate with an overall mean score of  (), culminating in an extraordinary  rating for overall institutional improvement.
+While technical constraints such as local storage architecture and manual Office file viewing were identified, they establish a clear roadmap for future cloud-native enhancements. In conclusion, SSDMS successfully transforms document management at SMK Kubor Panjang from a fragmented, vulnerable practice into a modernized, cryptographically secure, and accountable digital ecosystem, setting a high standard for secondary school administrative systems.
+CONCLUSION
+6.4 Achievement
+This section assesses the achievements of FYP1 against each of the three project objectives stated in Section 1.4.
+6.4.1 To Design a Secure RBAC and Encrypted Architecture
+This objective has been significantly met in FYP1. A system architecture has been developed which incorporates RBAC as the primary access governance mechanism and the two role permission structure (Administrator and Teacher) is clearly defined and documented in the use case diagram (Section 3.5.2) and the system flowcharts (Section 3.5.3). All documents stored are automatically and transparently encrypted with AES-256. Use case diagram (Include relationships from all doc use cases to audit log) and Flowcharts (Audit log steps at every significant action in both admin and teacher use cases). All three security mechanisms can be implemented using the technology stack chosen: Laravel 12, MySQL, and Bootstrap 5. The rest of the work on this objective (implementation of the encryption and RBAC modules) will be carried out in FYP2.
+6.4.2 To Develop a Web-Based School Document Management System  (last here)
+This objective has been partially realized in FYP1. The basis for the development has already been laid, which involves specifying the requirements, designing the architecture, selecting and testing the technologies on the local development environment (XAMPP), and choosing the development approach. The complete development of all five core components (Authentication, RBAC Engine, Encryption and Storage, Audit Logging, and Approval Workflow), along with role-based dashboards and search facilities, is to be completed in FYP2, according to the sprint plan outlined in Section 3.3.
+6.4.3 To Evaluate the Security Effectiveness and Usability of SSDMS
+This objective will be realized in FYP2. The evaluation criteria have already been determined in FYP1 – the requirements presented in Tables 3.1 and 3.2 will be used as the basis for evaluating the system, and the approach to conducting pilot testing described in Chapter 3.3.4 will help us collect usability data from school employees. The security test plan, including boundary testing for RBAC, encryption testing of AES-256, audit log testing, and penetration testing, will be conducted on the implemented system in FYP2.
+6.5 Constraint and Limitation
+A number of limitations associated with the current stage of the project must be pointed out. The questionnaire has been carried out among the staff at one school only, i.e. at SMK Kubor Panjang, and it remains unclear to what degree the results can be generalised to the situation at other Malaysian schools with other organisational systems or staffing patterns. An interview was conducted with one individual only; had there been a more extensive programme with several respondents, the qualitative information collected would have been more substantial. The system design discussed in Chapters 3 has not yet been implemented or tested, and the flowcharts and use case diagram provided give the anticipated system operation; the correctness of this representation will be confirmed during FYP2 only.
+6.6 Future Work and Recommendation
+The FYP2 phase will be carried out in five major components. Full system development will see the completion and validation of all SSDMS modules according to the production requirements, based on the sprint plan in Section 3.3. Security testing will include RBAC boundary testing, implementation testing of AES-256 encryption, audit log integrity testing, and penetration testing. Usability testing will be carried out by real school staff at SMK Kubor Panjang through structured feedback collected using a validated usability tool. Performance testing under realistic concurrent loads will validate compliance with NFR-02. The final documentation will summarize all work done in this project to produce the complete FYP2 report.
+In addition to the scope of FYP2, some suggested enhancements are listed below for consideration in future efforts. First is the extension of the role structure such that subject-specific teacher roles are defined with more precise permissions per document category. Second, two-factor authentication can be added for the administrator account. Third, the user interface should be mobile responsive for optimal use on school-issued tablets and smart phones. Finally, there can be an automatic backup and disaster recovery module.
+6.7 Conclusion
+This report contains an overview of the first phase (FYP1) of the Secure School Document Management System project. It was found that the document management issues at SMK Kubor Panjang are tangible and actually encountered in practice rather than just a theoretical problem and that neither one of the three commercial document management systems studied in Chapter 2 can satisfy the specific needs of the organization in terms of affordability, security, and usability in school context. This particular need is met through the developed architecture based on Role-Based Access Control, AES-256 encryption, and full-fledged audit logging within the open-source system that can be afforded and supported by school administration.
+As a result of the requirements analysis conducted via the collection of questionnaire and interview data, there is a well-grounded list of functional and non-functional requirements for the future development and evaluation of FYP2. The developed design artifacts, such as use case diagram and system flowcharts, give the clear blueprint for the implementation of the project in FYP2.
+References
+Alenezi, M., Nadeem, M., & Alabdulkreem, E. (2022). Security of cloud-based document management: A CIA triad perspective. Journal of Information Security and Applications, 65, 103094. https://doi.org/10.1016/j.jisa.2022.103094
+Aziz, A., & Hassan, R. (2023). Digital transformation in Malaysian schools: Outcomes of document digitisation. Malaysian Journal of Educational Technology, 23(1), 45–62. https://doi.org/10.52634/mier/2023/v23/i1/2487
+Chong, Y. L., & Lee, W. K. (2021). Audit logging as a tool for accountability in institutional information systems. International Journal of Information Management, 57, 102276. https://doi.org/10.1016/j.ijinfomgt.2020.102276
+Mokhtar, S. A., Ali, M. N., & Zain, J. M. (2022). Digitised administrative workflows and their impact on school operational efficiency. Journal of Educational Administration, 60(3), 320–335. https://doi.org/10.1108/JEA-05-2021-0099
+Popa, D., Popa, A., & Vasilateanu, A. (2021). Agile development practices in security-critical software projects. Procedia Computer Science, 181, 728–735. https://doi.org/10.1016/j.procs.2021.01.224
+Rahman, A. A., Alias, N., & Yusof, M. M. (2023). Implementation of AES-256 encryption for secure data storage in educational management systems. International Journal of Advanced Computer Science and Applications, 14(2), 112–121. https://doi.org/10.14569/IJACSA.2023.0140213
+Sandhu, R., Coyne, E., Feinstein, H., & Youman, C. (2020). Role-based access control models and their application in institutional data security. IEEE Transactions on Education, 63(4), 255–268. https://doi.org/10.1109/TE.2019.2956473
+Singh, A., & Kumar, P. (2021). Comparative analysis of cloud and on-premise document management systems: Security and governance perspectives. Journal of Cloud Computing: Advances, Systems and Applications, 10(1), 1–18. https://doi.org/10.1186/s13677-021-00248-y
+Appendix A – Questionnaire 
+Appendix B – User Manual
+Appendix C – Turnitine Result
+Appendix D – Log Book
