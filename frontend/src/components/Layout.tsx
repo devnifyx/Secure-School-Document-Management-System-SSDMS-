@@ -20,7 +20,6 @@ import {
     X,
     ChevronDown,
     Check,
-    GraduationCap,
     Clock,
     Sun,
     Moon,
@@ -158,12 +157,16 @@ const Layout: React.FC<LayoutProps> = ({ children, title, subtitle, actions }) =
             {/* Sidebar Drawer */}
             <nav className={`sidebar ${mobileOpen ? 'open' : ''}`}>
                 <div className="sidebar-brand" onClick={() => navigate('/')}>
-                    <div className="sidebar-brand-mark">
-                        <GraduationCap size={22} />
+                    <div className="sidebar-brand-mark" style={{ background: 'rgba(255, 255, 255, 0.08)', boxShadow: 'none' }}>
+                        <img
+                            src="/smkkp-logo.png"
+                            alt="SMK Kubor Panjang Crest"
+                            style={{ width: '34px', height: '34px', objectFit: 'contain' }}
+                        />
                     </div>
                     <div className="sidebar-brand-text">
-                        <div className="name">SSDMS {isAdmin ? 'Admin' : 'Portal'}</div>
-                        <div className="sub">Academic Document System</div>
+                        <div className="name">SMK Kubor Panjang</div>
+                        <div className="sub">SSDMS {isAdmin ? 'Admin' : 'Portal'}</div>
                     </div>
                 </div>
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
-import { GraduationCap, User, Mail, Lock, Layers, CheckCircle2, AlertCircle, ArrowLeft, ArrowRight } from 'lucide-react';
+import { User, Mail, Lock, Layers, CheckCircle2, AlertCircle, ArrowLeft, ArrowRight } from 'lucide-react';
 import CustomSelect from '../components/CustomSelect';
 import ThemeToggle from '../components/ThemeToggle';
 
@@ -117,24 +117,27 @@ const Register: React.FC = () => {
         }}>
             {/* Theme Toggle Button */}
             <ThemeToggle className="theme-toggle-floating" />
-            {/* Header Brand */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '1.75rem' }}>
-                <div style={{
-                    width: '42px',
-                    height: '42px',
-                    borderRadius: '12px',
-                    background: 'linear-gradient(135deg, #4F46E5 0%, #6366F1 100%)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: '#ffffff',
-                    boxShadow: '0 8px 16px rgba(79, 70, 229, 0.3)',
-                }}>
-                    <GraduationCap size={24} />
+            {/* School Identity Header */}
+            <div style={{ textAlign: 'center', marginBottom: '1.75rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <img
+                    src="/smkkp-logo.png"
+                    alt="SMK Kubor Panjang Crest"
+                    style={{
+                        width: '74px',
+                        height: '74px',
+                        objectFit: 'contain',
+                        marginBottom: '0.65rem',
+                        filter: 'drop-shadow(0 3px 8px rgba(0,0,0,0.12))',
+                    }}
+                />
+                <div style={{ fontWeight: 800, fontSize: '1.25rem', color: 'var(--text)', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
+                    SMK KUBOR PANJANG
                 </div>
-                <div>
-                    <div style={{ fontWeight: 800, fontSize: '1.2rem', color: 'var(--text)', letterSpacing: '-0.02em' }}>SSDMS</div>
-                    <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>Secure Academic Document Management</div>
+                <div style={{ fontSize: '0.84rem', fontWeight: 600, color: 'var(--primary)', marginTop: '0.2rem' }}>
+                    Secure School Document Management System
+                </div>
+                <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)', marginTop: '0.1rem' }}>
+                    Teacher Registration & Panitia Affiliation
                 </div>
             </div>
 

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { UploadCloud, FileText, CheckCircle, X, AlertCircle } from 'lucide-react';
 
 interface FileDropzoneProps {
@@ -40,7 +40,17 @@ const FileDropzone: React.FC<FileDropzoneProps> = ({
 }) => {
     const [isDragging, setIsDragging] = useState(false);
     const [localError, setLocalError] = useState('');
+    const [inspectFile, setInspectFile] = useState<File | null>(null);
     const inputRef = useRef<HTMLInputElement>(null);
+
+    // Sync external file prop into inspectFile if file is set or cleared
+    useEffect(() => {
+        if (file) {
+            setInspectFile(file);
+        } else if (file === null && (!inspectFile || inspectFile.size <= maxSizeMB * 1024 * 1024)) {
+            setInspectFile(null);
+        }
+    }, [file, maxSizeMB]);
 
     const validateFile = (f: File): boolean => {
         if (allowedTypes && allowedTypes.length > 0 && !allowedTypes.includes(f.type)) {
@@ -48,11 +58,21 @@ const FileDropzone: React.FC<FileDropzoneProps> = ({
             return false;
         }
         if (f.size > maxSizeMB * 1024 * 1024) {
-            setLocalError(`File exceeds maximum allowed size of ${maxSizeMB} MB.`);
+            setLocalError(`File exceeds the maximum allowed size of ${maxSizeMB} MB. Please select a smaller file.`);
             return false;
         }
         setLocalError('');
         return true;
+    };
+
+    const processSingleFile = (target: File) => {
+        setInspectFile(target);
+        const isValid = validateFile(target);
+        if (isValid) {
+            onFileSelect?.(target);
+        } else {
+            onFileSelect?.(null);
+        }
     };
 
     const handleDragOver = (e: React.DragEvent) => {
@@ -83,10 +103,7 @@ const FileDropzone: React.FC<FileDropzoneProps> = ({
                 onFilesSelect(combined);
             }
         } else if (onFileSelect) {
-            const target = dropped[0];
-            if (validateFile(target)) {
-                onFileSelect(target);
-            }
+            processSingleFile(dropped[0]);
         }
     };
 
@@ -101,12 +118,17 @@ const FileDropzone: React.FC<FileDropzoneProps> = ({
                 onFilesSelect(combined);
             }
         } else if (onFileSelect) {
-            const target = selected[0];
-            if (validateFile(target)) {
-                onFileSelect(target);
-            }
+            processSingleFile(selected[0]);
         }
         if (inputRef.current) inputRef.current.value = '';
+    };
+
+    const handleRemoveFile = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        setInspectFile(null);
+        setLocalError('');
+        if (inputRef.current) inputRef.current.value = '';
+        onFileSelect?.(null);
     };
 
     const removeFileAtIndex = (index: number) => {
@@ -117,6 +139,36 @@ const FileDropzone: React.FC<FileDropzoneProps> = ({
     };
 
     const displayError = error || localError;
+
+    // Active file calculations for single mode indicator
+    const activeFile = file || inspectFile;
+    const fileSizeMB = activeFile ? activeFile.size / (1024 * 1024) : 0;
+    const isExceeded = fileSizeMB > maxSizeMB;
+
+    // Visual states:
+    // GREEN: File size is small/light and safely below the limit (<= 7 MB)
+    // YELLOW: File size is approaching the maximum allowed size (> 7 MB and <= 9 MB)
+    // RED: File size is very close to the 10 MB limit (> 9 MB and <= 10 MB)
+    // INVALID: Exceeds 10 MB limit
+    let colorState: 'green' | 'yellow' | 'red' | 'invalid' = 'green';
+    let badgeText = 'Safe File Size';
+
+    if (isExceeded) {
+        colorState = 'invalid';
+        badgeText = `Exceeds ${maxSizeMB} MB`;
+    } else if (fileSizeMB > 9.0) {
+        colorState = 'red';
+        badgeText = 'Close to Limit';
+    } else if (fileSizeMB > 7.0) {
+        colorState = 'yellow';
+        badgeText = 'Approaching Limit';
+    } else {
+        colorState = 'green';
+        badgeText = 'Safe / Light File';
+    }
+
+    const percentage = activeFile ? Math.min(100, (fileSizeMB / maxSizeMB) * 100) : 0;
+    const barWidth = isExceeded ? 100 : Math.max(activeFile ? 3 : 0, percentage);
 
     return (
         <div className="dropzone-wrapper">
@@ -150,7 +202,7 @@ const FileDropzone: React.FC<FileDropzoneProps> = ({
                 </div>
             </div>
 
-            {displayError && (
+            {displayError && !activeFile && (
                 <div className="form-error dropzone-error">
                     <AlertCircle size={14} />
                     <span>{displayError}</span>
@@ -158,31 +210,69 @@ const FileDropzone: React.FC<FileDropzoneProps> = ({
             )}
 
             {/* Selected File (Single mode) */}
-            {!multiple && file && (
+            {!multiple && activeFile && (
                 <div className="file-chip-item">
                     <div className="file-chip-info">
-                        <FileText size={20} className="file-chip-icon" />
+                        <FileText
+                            size={20}
+                            className="file-chip-icon"
+                            style={{ color: isExceeded ? '#DC2626' : undefined }}
+                        />
                         <div>
-                            <div className="file-chip-name">{file.name}</div>
-                            <div className="file-chip-meta">{formatBytes(file.size)}</div>
+                            <div className="file-chip-name">{activeFile.name}</div>
+                            <div className="file-chip-meta">{formatBytes(activeFile.size)}</div>
                         </div>
                     </div>
                     <div className="file-chip-actions">
-                        <span className="badge badge-success file-chip-badge">
-                            <CheckCircle size={12} /> Ready
-                        </span>
+                        {isExceeded ? (
+                            <span className="badge badge-danger file-chip-badge">
+                                <AlertCircle size={12} /> Too Large
+                            </span>
+                        ) : (
+                            <span className="badge badge-success file-chip-badge">
+                                <CheckCircle size={12} /> Ready
+                            </span>
+                        )}
                         <button
                             type="button"
                             className="file-chip-remove"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                onFileSelect?.(null);
-                            }}
+                            onClick={handleRemoveFile}
                             title="Remove file"
                         >
                             <X size={16} />
                         </button>
                     </div>
+                </div>
+            )}
+
+            {/* Visual File Size Progress Indicator (Single mode) */}
+            {!multiple && activeFile && (
+                <div className={`file-size-indicator-card state-${colorState}`}>
+                    <div className="file-size-header">
+                        <span className="file-size-label">
+                            File size: <strong>{fileSizeMB.toFixed(2)} MB</strong> / {maxSizeMB} MB
+                        </span>
+                        <span className={`file-size-badge badge-${colorState}`}>
+                            {badgeText}
+                        </span>
+                    </div>
+                    <div className="file-size-track">
+                        <div
+                            className={`file-size-bar bar-${colorState}`}
+                            style={{ width: `${barWidth}%` }}
+                            role="progressbar"
+                            aria-valuenow={fileSizeMB}
+                            aria-valuemin={0}
+                            aria-valuemax={maxSizeMB}
+                            aria-label={`File size ${fileSizeMB.toFixed(2)} MB of ${maxSizeMB} MB limit`}
+                        />
+                    </div>
+                    {isExceeded && (
+                        <div className="file-size-error-text">
+                            <AlertCircle size={15} style={{ flexShrink: 0, marginTop: '0.1rem' }} />
+                            <span>File exceeds the maximum allowed size of {maxSizeMB} MB. Please select a smaller file.</span>
+                        </div>
+                    )}
                 </div>
             )}
 

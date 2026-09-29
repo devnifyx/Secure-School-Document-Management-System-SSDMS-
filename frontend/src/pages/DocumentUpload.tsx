@@ -47,7 +47,11 @@ const DocumentUpload: React.FC = () => {
         setError('');
 
         if (!file) {
-            setError('Please attach a document file.');
+            setError('Please attach a valid document file (up to 10 MB).');
+            return;
+        }
+        if (file.size > 10 * 1024 * 1024) {
+            setError('File exceeds the maximum allowed size of 10 MB. Please select a smaller file.');
             return;
         }
         if (!category) {
@@ -245,7 +249,7 @@ const DocumentUpload: React.FC = () => {
                                 <button
                                     type="submit"
                                     className="btn btn-primary"
-                                    disabled={loading}
+                                    disabled={loading || !file}
                                     style={{ padding: '0.7rem 1.4rem' }}
                                 >
                                     <UploadCloud size={17} />
