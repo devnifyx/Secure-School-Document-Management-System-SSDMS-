@@ -96,66 +96,84 @@ const AdminDashboard: React.FC = () => {
                 <>
                     {/* Summary KPI cards */}
                     <div className="summary-grid">
-                        <div className="summary-card" onClick={() => navigate('/documents')}>
-                            <div className="summary-card-header">
-                                <span className="label">Total Documents</span>
-                                <div className="summary-card-icon" style={{ background: 'var(--primary-soft)', color: 'var(--primary)' }}>
-                                    <FileText size={18} />
+                        <div
+                            className="teacher-status-card status-submitted"
+                            onClick={() => navigate('/documents')}
+                            title="View all documents"
+                        >
+                            <div className="status-card-header">
+                                <span className="status-title">TOTAL DOCUMENTS</span>
+                                <div className="status-icon">
+                                    <FileText size={17} color="#FFFFFF" />
                                 </div>
                             </div>
-                            <div className="value">{stats.documents.total}</div>
-                            <div className="subtext">All academic files recorded</div>
+                            <div className="status-value">{stats.documents.total}</div>
+                            <div className="status-subtext">All academic files recorded</div>
                         </div>
 
-                        <div className="summary-card" onClick={() => navigate('/approvals')}>
-                            <div className="summary-card-header">
-                                <span className="label">Pending Review</span>
-                                <div className="summary-card-icon" style={{ background: 'var(--warning-bg)', color: 'var(--warning)' }}>
-                                    <Clock size={18} />
+                        <div
+                            className="teacher-status-card status-pending"
+                            onClick={() => navigate('/approvals')}
+                            title="Review pending documents"
+                        >
+                            <div className="status-card-header">
+                                <span className="status-title">PENDING REVIEW</span>
+                                <div className="status-icon">
+                                    <Clock size={17} color="#FFFFFF" />
                                 </div>
                             </div>
-                            <div className="value" style={{ color: stats.documents.pending > 0 ? 'var(--warning)' : 'inherit' }}>
-                                {stats.documents.pending}
-                            </div>
-                            <div className="subtext">
+                            <div className="status-value">{stats.documents.pending}</div>
+                            <div className="status-subtext">
                                 {stats.documents.pending > 0 ? 'Requires attention in queue' : 'Queue is clear'}
                             </div>
                         </div>
 
-                        <div className="summary-card" onClick={() => navigate('/documents?status=Approved')}>
-                            <div className="summary-card-header">
-                                <span className="label">Approved</span>
-                                <div className="summary-card-icon" style={{ background: 'var(--success-bg)', color: 'var(--success)' }}>
-                                    <CheckCircle2 size={18} />
+                        <div
+                            className="teacher-status-card status-approved"
+                            onClick={() => navigate('/documents?status=Approved')}
+                            title="View approved documents"
+                        >
+                            <div className="status-card-header">
+                                <span className="status-title">APPROVED</span>
+                                <div className="status-icon">
+                                    <CheckCircle2 size={17} color="#FFFFFF" />
                                 </div>
                             </div>
-                            <div className="value" style={{ color: 'var(--success)' }}>{stats.documents.approved}</div>
-                            <div className="subtext">Verified & accessible</div>
+                            <div className="status-value">{stats.documents.approved}</div>
+                            <div className="status-subtext">Verified & accessible</div>
                         </div>
 
-                        <div className="summary-card" onClick={() => navigate('/documents?status=Rejected')}>
-                            <div className="summary-card-header">
-                                <span className="label">Rejected</span>
-                                <div className="summary-card-icon" style={{ background: 'var(--danger-bg)', color: 'var(--danger)' }}>
-                                    <XCircle size={18} />
+                        <div
+                            className="teacher-status-card status-rejected"
+                            onClick={() => navigate('/documents?status=Rejected')}
+                            title="View rejected documents"
+                        >
+                            <div className="status-card-header">
+                                <span className="status-title">REJECTED</span>
+                                <div className="status-icon">
+                                    <XCircle size={17} color="#FFFFFF" />
                                 </div>
                             </div>
-                            <div className="value" style={{ color: 'var(--danger)' }}>{stats.documents.rejected}</div>
-                            <div className="subtext">
-                                {stats.documents.rejected > 0 ? 'Action required by teachers' : 'Zero rejected'}
+                            <div className="status-value">{stats.documents.rejected}</div>
+                            <div className="status-subtext">
+                                {stats.documents.rejected > 0 ? 'Action required by teachers' : 'Zero rejections'}
                             </div>
                         </div>
 
                         {stats.pending_registrations > 0 && (
-                            <div className="summary-card" onClick={() => navigate('/users')} style={{ borderColor: 'var(--warning)' }}>
-                                <div className="summary-card-header">
-                                    <span className="label">Pending Users</span>
-                                    <div className="summary-card-icon" style={{ background: 'var(--warning-bg)', color: 'var(--warning)' }}>
-                                        <UserPlus size={18} />
+                            <div
+                                className="teacher-status-card status-pending-users"
+                                onClick={() => navigate('/users')}
+                                title="Review pending user registrations"
+                            >
+                                <div className="status-card-header">
+                                    <span className="status-title">PENDING USERS</span>
+                                    <div className="status-icon">
+                                        <UserPlus size={17} color="#FFFFFF" />
                                     </div>
                                 </div>
-                                <div className="value" style={{ color: 'var(--warning)' }}>{stats.pending_registrations}</div>
-                                <div className="subtext">New registrations awaiting review</div>
+                                <div className="status-value">{stats.pending_registrations}</div>
+                                <div className="status-subtext">New registrations awaiting review</div>
                             </div>
                         )}
                     </div>

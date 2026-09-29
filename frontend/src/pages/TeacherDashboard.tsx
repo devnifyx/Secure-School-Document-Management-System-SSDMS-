@@ -64,24 +64,19 @@ const TeacherDashboard: React.FC = () => {
                     <UploadCloud size={16} /> Upload Document
                 </button>
             }
+            withWallpaper={true}
         >
-            {/* Teacher School Background Wallpaper & Overlay */}
-            <div className="teacher-wallpaper-wrapper">
-                <div className="teacher-wallpaper-bg" aria-hidden="true" />
-                <div className="teacher-wallpaper-overlay" aria-hidden="true" />
-                <div className="teacher-wallpaper-content">
-                    {/* Header School Identity Card */}
-                    <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '1rem',
-                        marginBottom: '1.25rem',
-                        padding: '0.85rem 1.15rem',
-                        background: 'var(--surface)',
-                        borderRadius: 'var(--radius-lg)',
-                        border: '1px solid var(--border)',
-                        boxShadow: 'var(--shadow-xs)',
-                    }}>
+            {/* Header School Identity Card */}
+            <div className="teacher-brand-banner" style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '1rem',
+                marginBottom: '1.25rem',
+                padding: '0.85rem 1.15rem',
+                borderRadius: 'var(--radius-lg)',
+                border: '1px solid var(--border)',
+                boxShadow: 'var(--shadow-xs)',
+            }}>
                         <img
                             src="/smkkp-logo.png"
                             alt="SMK Kubor Panjang Crest"
@@ -289,8 +284,6 @@ const TeacherDashboard: React.FC = () => {
                             </div>
                         </>
                     )}
-                </div>
-            </div>
         </Layout>
     );
 };

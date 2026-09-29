@@ -38,15 +38,17 @@ interface LayoutProps {
     title?: string;
     subtitle?: string;
     actions?: React.ReactNode;
+    withWallpaper?: boolean;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children, title, subtitle, actions }) => {
+const Layout: React.FC<LayoutProps> = ({ children, title, subtitle, actions, withWallpaper }) => {
     const { user, logout, activePanitia, panitiaList, switchPanitia } = useAuth();
     const { success, error } = useToast();
     const { theme, toggleTheme } = useTheme();
     const navigate = useNavigate();
     const location = useLocation();
     const isAdmin = user?.role === 'Admin';
+    const showWallpaper = withWallpaper !== undefined ? withWallpaper : !isAdmin;
 
     const [notifications, setNotifications] = useState<NotificationItem[]>([]);
     const [unreadCount, setUnreadCount] = useState(0);
@@ -70,6 +72,18 @@ const Layout: React.FC<LayoutProps> = ({ children, title, subtitle, actions }) =
     useEffect(() => {
         setMobileOpen(false);
     }, [location.pathname]);
+
+    // Sync wallpaper class to document.body so wallpaper covers full viewport seamlessly
+    useEffect(() => {
+        if (showWallpaper) {
+            document.body.classList.add('has-teacher-wallpaper');
+        } else {
+            document.body.classList.remove('has-teacher-wallpaper');
+        }
+        return () => {
+            document.body.classList.remove('has-teacher-wallpaper');
+        };
+    }, [showWallpaper]);
 
     useEffect(() => {
         const handleClick = (e: MouseEvent) => {
@@ -147,7 +161,7 @@ const Layout: React.FC<LayoutProps> = ({ children, title, subtitle, actions }) =
         ];
 
     return (
-        <div className="app-shell">
+        <div className={`app-shell ${showWallpaper ? 'has-teacher-wallpaper' : ''}`}>
             {/* Mobile Backdrop Overlay */}
             <div
                 className={`sidebar-backdrop ${mobileOpen ? 'active' : ''}`}
@@ -412,7 +426,7 @@ const Layout: React.FC<LayoutProps> = ({ children, title, subtitle, actions }) =
             </header>
 
             {/* Page Main Content */}
-            <main className="content">
+            <main className={`content ${showWallpaper ? 'has-teacher-wallpaper' : ''}`}>
                 {(title || actions) && (
                     <div className="page-header">
                         <div>

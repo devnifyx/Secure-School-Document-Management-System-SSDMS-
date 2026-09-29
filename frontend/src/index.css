@@ -147,6 +147,8 @@ a {
   min-height: 100vh;
   background: var(--bg);
   position: relative;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Sidebar Drawer Overlay (Mobile) */
@@ -454,10 +456,11 @@ a {
   margin-left: var(--sidebar-w);
   margin-top: var(--topbar-h);
   min-height: calc(100vh - var(--topbar-h));
-  padding: 2rem 2.25rem;
+  padding: 2rem 2.25rem 2.5rem 2.25rem;
   min-width: 0;
   overflow-x: hidden;
   transition: margin-left 0.25s ease;
+  flex: 1;
 }
 
 .page-header {
@@ -2082,47 +2085,60 @@ textarea.form-control {
   line-height: 1.35;
 }
 
-/* ---------- Teacher Dashboard Status Cards ---------- */
+/* ---------- Teacher Dashboard Status Cards (Frosted Blur Glassmorphism) ---------- */
 .teacher-status-card {
   border-radius: var(--radius-lg);
-  padding: 1.1rem 1.25rem;
+  padding: 1.15rem 1.3rem;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
   transition: transform 0.18s ease, box-shadow 0.18s ease;
   position: relative;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  justifyContent: space-between;
-  min-height: 110px;
+  justify-content: space-between;
+  min-height: 112px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
 }
 
 .teacher-status-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.22);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
 }
 
+/* 1. SUBMITTED: Frosted Smoked Black Blur */
 .teacher-status-card.status-submitted {
-  background-color: #121212 !important;
-  border: 1px solid #27272A !important;
+  background: rgba(18, 18, 18, 0.72) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
   color: #FFFFFF !important;
 }
 
+/* 2. PENDING: Frosted Warm Brown Blur */
 .teacher-status-card.status-pending {
-  background-color: #6B4226 !important; /* Brown */
-  border: 1px solid #8B5A2B !important;
+  background: rgba(107, 66, 38, 0.74) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
   color: #FFFFFF !important;
 }
 
+/* 3. APPROVED: Frosted Green Blur */
 .teacher-status-card.status-approved {
-  background-color: #15803D !important; /* Green */
-  border: 1px solid #16A34A !important;
+  background: rgba(21, 128, 61, 0.74) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
   color: #FFFFFF !important;
 }
 
+/* 4. REJECTED: Frosted Red Blur */
 .teacher-status-card.status-rejected {
-  background-color: #DC2626 !important; /* Red */
-  border: 1px solid #EF4444 !important;
+  background: rgba(220, 38, 38, 0.74) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: #FFFFFF !important;
+}
+
+/* 5. PENDING USERS: Frosted Indigo Blur */
+.teacher-status-card.status-pending-users {
+  background: rgba(79, 70, 229, 0.74) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
   color: #FFFFFF !important;
 }
 
@@ -2135,17 +2151,17 @@ textarea.form-control {
 
 .teacher-status-card .status-title {
   color: #FFFFFF !important;
-  font-size: 0.78rem !important;
+  font-size: 0.75rem !important;
   font-weight: 800 !important;
   letter-spacing: 0.08em !important;
   text-transform: uppercase !important;
 }
 
 .teacher-status-card .status-icon {
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
   border-radius: var(--radius-sm);
-  background: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.2);
   color: #FFFFFF !important;
   display: flex;
   align-items: center;
@@ -2155,7 +2171,7 @@ textarea.form-control {
 
 .teacher-status-card .status-value {
   color: #FFFFFF !important;
-  font-size: 2.1rem !important;
+  font-size: 2.2rem !important;
   font-weight: 800 !important;
   line-height: 1.1 !important;
   letter-spacing: -0.02em !important;
@@ -2163,61 +2179,109 @@ textarea.form-control {
 }
 
 .teacher-status-card .status-subtext {
-  color: rgba(255, 255, 255, 0.85) !important;
+  color: rgba(255, 255, 255, 0.88) !important;
   font-size: 0.72rem !important;
   font-weight: 500 !important;
 }
 
-/* ---------- Teacher Dashboard School Wallpaper ---------- */
-.teacher-wallpaper-wrapper {
-  position: relative;
-  min-height: calc(100vh - 4.5rem);
-  margin: -1.75rem -1.75rem -1.75rem -1.75rem;
-  padding: 1.75rem;
-  overflow: visible;
-}
-
-@media (max-width: 768px) {
-  .teacher-wallpaper-wrapper {
-    margin: -1.25rem -0.9rem -1.25rem -0.9rem;
-    padding: 1.25rem 0.9rem;
-  }
-}
-
-.teacher-wallpaper-bg {
-  position: absolute;
-  inset: 0;
-  background-image: url('/school-wallpaper.jpg');
+/* ---------- Teacher/User Workspace School Wallpaper (Dashboard, Repository, Search, Weekly Reports, Notifications, Settings) ---------- */
+body.has-teacher-wallpaper,
+.app-shell.has-teacher-wallpaper,
+.content.has-teacher-wallpaper {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.42), rgba(248, 250, 252, 0.52)),
+    url('/school-wallpaper.jpg');
   background-size: cover;
   background-position: center center;
   background-repeat: no-repeat;
-  z-index: 0;
-  pointer-events: none;
+  background-attachment: fixed;
+  background-color: #f1f5f9;
 }
 
-.teacher-wallpaper-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(248, 250, 252, 0.88);
-  backdrop-filter: blur(2.5px);
-  -webkit-backdrop-filter: blur(2.5px);
-  z-index: 1;
-  pointer-events: none;
+[data-theme="dark"] body.has-teacher-wallpaper,
+[data-theme="dark"] .app-shell.has-teacher-wallpaper,
+[data-theme="dark"] .content.has-teacher-wallpaper {
+  background-image:
+    linear-gradient(rgba(15, 23, 42, 0.62), rgba(15, 23, 42, 0.72)),
+    url('/school-wallpaper.jpg');
+  background-color: #0b0f17;
 }
 
-[data-theme="dark"] .teacher-wallpaper-overlay {
-  background: rgba(15, 23, 42, 0.91);
+/* Ensure inner content container remains transparent when parent shell has wallpaper */
+.app-shell.has-teacher-wallpaper .content {
+  background: transparent !important;
 }
 
-.teacher-wallpaper-content {
-  position: relative;
-  z-index: 2;
+@media (max-width: 768px) {
+  body.has-teacher-wallpaper,
+  .app-shell.has-teacher-wallpaper,
+  .content.has-teacher-wallpaper {
+    background-attachment: scroll;
+  }
 }
 
-/* Ensure cards and panels look crisp on top of the subtle wallpaper */
-.teacher-wallpaper-content .panel {
+/* Translucent glassmorphism panels on Teacher Workspace so the school building is clearly visible */
+.has-teacher-wallpaper .panel {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.07);
+}
+
+[data-theme="dark"] .has-teacher-wallpaper .panel {
+  background: rgba(30, 41, 59, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.has-teacher-wallpaper .teacher-brand-banner {
+  background: rgba(255, 255, 255, 0.90) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.8) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="dark"] .has-teacher-wallpaper .teacher-brand-banner {
+  background: rgba(30, 41, 59, 0.88) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+
+.has-teacher-wallpaper .tab-group {
+  background: rgba(255, 255, 255, 0.82);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="dark"] .has-teacher-wallpaper .tab-group {
+  background: rgba(30, 41, 59, 0.8);
+}
+
+.has-teacher-wallpaper .data-table thead th {
+  background: rgba(248, 250, 252, 0.85);
+}
+
+[data-theme="dark"] .has-teacher-wallpaper .data-table thead th {
+  background: rgba(15, 23, 42, 0.7);
+}
+
+.has-teacher-wallpaper .data-table tbody tr:hover {
+  background: rgba(241, 245, 249, 0.65);
+}
+
+[data-theme="dark"] .has-teacher-wallpaper .data-table tbody tr:hover {
+  background: rgba(51, 65, 85, 0.5);
+}
+
+.has-teacher-wallpaper .notice-info {
+  background: rgba(238, 242, 255, 0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-color: rgba(99, 102, 241, 0.4);
+}
+
+[data-theme="dark"] .has-teacher-wallpaper .notice-info {
+  background: rgba(30, 41, 59, 0.9);
 }
 
