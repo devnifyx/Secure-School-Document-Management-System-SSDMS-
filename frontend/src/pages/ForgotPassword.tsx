@@ -98,9 +98,7 @@ const ForgotPassword: React.FC = () => {
             padding: '1.75rem 1rem',
             position: 'relative',
         }}>
-            {/* Theme Toggle Button */}
             <ThemeToggle className="theme-toggle-floating" />
-            {/* School Identity Header */}
             <div style={{ textAlign: 'center', marginBottom: '1.75rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                 <img
                     src="/smkkp-logo.png"
@@ -124,9 +122,7 @@ const ForgotPassword: React.FC = () => {
                 </div>
             </div>
 
-            {/* Recovery Card */}
             <div className="panel" style={{ width: '100%', maxWidth: '440px', boxShadow: 'var(--shadow-xl)' }}>
-                {/* Step indicator bar */}
                 <div style={{ display: 'flex', height: '4px', background: 'var(--border)' }}>
                     <div style={{
                         width: `${(stepIndex / 4) * 100}%`,

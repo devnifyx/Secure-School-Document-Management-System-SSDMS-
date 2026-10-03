@@ -76,7 +76,6 @@ const WeeklyReportRepository: React.FC = () => {
                 </button>
             }
         >
-            {/* Submission Window Banner */}
             {!windowOpen ? (
                 <div className="notice notice-warning" style={{ marginBottom: '1.5rem' }}>
                     <AlertCircle size={18} style={{ flexShrink: 0, marginTop: '0.1rem' }} />
@@ -93,7 +92,6 @@ const WeeklyReportRepository: React.FC = () => {
                 </div>
             )}
 
-            {/* Filter Bar */}
             <div className="filter-bar">
                 <CustomSelect
                     options={STATUS_OPTIONS}
@@ -195,7 +193,6 @@ const WeeklyReportRepository: React.FC = () => {
                 )}
             </div>
 
-            {/* Details Modal */}
             {selected && (
                 <WeeklyReportDetailsModal
                     report={selected}

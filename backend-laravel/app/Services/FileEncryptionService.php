@@ -6,13 +6,7 @@ class FileEncryptionService
 {
     private const CIPHER = 'aes-256-cbc';
 
-    /**
-     * Encrypts plaintext content with a fresh random key.
-     * Returns the IV-prepended ciphertext ready for storage, the base64-encoded
-     * key, and a SHA-256 hash of the original plaintext for integrity checks.
-     *
-     * @return array{content: string, key: string, hash: string}
-     */
+    // returns the IV + ciphertext to store, the base64 key and a SHA-256 of the plaintext
     public function encrypt(string $plaintext): array
     {
         $key = random_bytes(32);

@@ -41,10 +41,9 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
 
     const selectedOption = options.find((opt) => opt.value === value);
 
-    // Automatically enable search if there are 6 or more items, unless explicitly set
+    // search shows by default for 6+ options
     const shouldShowSearch = searchable !== undefined ? searchable : options.length >= 6;
 
-    // Filter options based on search query
     const filteredOptions = useMemo(() => {
         if (!searchQuery.trim()) return options;
         const q = searchQuery.toLowerCase();
@@ -54,7 +53,6 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
         );
     }, [options, searchQuery]);
 
-    // Handle outside clicks and keyboard navigation
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
             if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
@@ -94,7 +92,6 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
         };
     }, [isOpen, filteredOptions, focusedIndex]);
 
-    // Auto-focus search input when popover opens
     useEffect(() => {
         if (isOpen) {
             setSearchQuery('');
@@ -106,7 +103,6 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
         }
     }, [isOpen]);
 
-    // Scroll focused option into view
     useEffect(() => {
         if (isOpen && focusedIndex >= 0 && optionsListRef.current) {
             const focusedEl = optionsListRef.current.children[focusedIndex] as HTMLElement;
@@ -132,7 +128,6 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
             className={`custom-select-container ${className} ${disabled ? 'is-disabled' : ''}`}
             style={style}
         >
-            {/* Dropdown Trigger Button */}
             <button
                 type="button"
                 className={`custom-select-trigger ${isOpen ? 'is-open' : ''} ${!selectedOption ? 'has-placeholder' : ''}`}
@@ -182,10 +177,8 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
                 </div>
             </button>
 
-            {/* Custom Floating Options Menu */}
             {isOpen && (
                 <div className="custom-select-menu" role="listbox">
-                    {/* Optional Search Bar */}
                     {shouldShowSearch && (
                         <div className="custom-select-search-wrapper">
                             <Search size={14} className="custom-select-search-icon" />
@@ -217,7 +210,6 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
                         </div>
                     )}
 
-                    {/* Options List */}
                     <div className="custom-select-options-list" ref={optionsListRef}>
                         {filteredOptions.length === 0 ? (
                             <div className="custom-select-empty">

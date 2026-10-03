@@ -10,7 +10,6 @@ return new class extends Migration
     {
         Schema::create('notifications', function (Blueprint $table) {
             $table->id();
-            // A user's personal notifications are removed together with the user
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->text('message');
             $table->boolean('is_read')->default(false);

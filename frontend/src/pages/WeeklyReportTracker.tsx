@@ -129,7 +129,6 @@ const WeeklyReportTracker: React.FC = () => {
             title="Weekly Report Tracker"
             subtitle="Monitor and verify weekly activity reports submitted by teaching staff"
         >
-            {/* Tab navigation */}
             <div className="tab-group">
                 <button
                     className={`tab-btn ${tab === 'all' ? 'active' : ''}`}
@@ -147,7 +146,6 @@ const WeeklyReportTracker: React.FC = () => {
 
             {tab === 'all' ? (
                 <>
-                    {/* Filters */}
                     <div className="filter-bar">
                         <input
                             className="form-control"
@@ -297,7 +295,6 @@ const WeeklyReportTracker: React.FC = () => {
                     </div>
                 </>
             ) : (
-                /* Not Submitted Tracker */
                 <>
                     <div className="filter-bar">
                         <label style={{ fontSize: '0.84rem', fontWeight: 600, color: 'var(--text)' }}>
@@ -364,7 +361,6 @@ const WeeklyReportTracker: React.FC = () => {
                 </>
             )}
 
-            {/* Modal */}
             {selected && (
                 <WeeklyReportDetailsModal
                     report={selected}

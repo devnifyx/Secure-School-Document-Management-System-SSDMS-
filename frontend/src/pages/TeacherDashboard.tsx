@@ -66,7 +66,6 @@ const TeacherDashboard: React.FC = () => {
             }
             withWallpaper={true}
         >
-            {/* Header School Identity Card */}
             <div className="teacher-brand-banner" style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -107,9 +106,7 @@ const TeacherDashboard: React.FC = () => {
                         </>
                     ) : (
                         <>
-                            {/* Summary KPI Cards: Client Colors & White Text */}
                             <div className="summary-grid">
-                                {/* 1. Submitted: Black background, White text */}
                                 <div
                                     className="teacher-status-card status-submitted"
                                     onClick={() => navigate('/documents')}
@@ -125,7 +122,6 @@ const TeacherDashboard: React.FC = () => {
                                     <div className="status-subtext">All submitted documents</div>
                                 </div>
 
-                                {/* 2. Pending: Brown background, White text */}
                                 <div
                                     className="teacher-status-card status-pending"
                                     onClick={() => navigate('/documents?status=Pending')}
@@ -141,7 +137,6 @@ const TeacherDashboard: React.FC = () => {
                                     <div className="status-subtext">Awaiting administrative approval</div>
                                 </div>
 
-                                {/* 3. Approved: Green background, White text */}
                                 <div
                                     className="teacher-status-card status-approved"
                                     onClick={() => navigate('/documents?status=Approved')}
@@ -157,7 +152,6 @@ const TeacherDashboard: React.FC = () => {
                                     <div className="status-subtext">Ready & verified in repository</div>
                                 </div>
 
-                                {/* 4. Rejected: Red background, White text */}
                                 <div
                                     className="teacher-status-card status-rejected"
                                     onClick={() => navigate('/documents?status=Rejected')}
@@ -176,7 +170,6 @@ const TeacherDashboard: React.FC = () => {
                                 </div>
                             </div>
 
-                            {/* Weekly Report Banner Card */}
                             <div className="panel" style={{ marginBottom: '1.5rem', borderLeft: '4px solid var(--primary)' }}>
                                 <div className="panel-header">
                                     <h3>
@@ -229,7 +222,6 @@ const TeacherDashboard: React.FC = () => {
                                 </div>
                             </div>
 
-                            {/* Recent Documents Panel */}
                             <div className="panel" style={{ marginBottom: '1.5rem' }}>
                                 <div className="panel-header">
                                     <h3><FileText size={18} /> My Recent Documents</h3>
@@ -275,7 +267,6 @@ const TeacherDashboard: React.FC = () => {
                                 </div>
                             </div>
 
-                            {/* Information Guide Card */}
                             <div className="notice notice-info">
                                 <HelpCircle size={20} style={{ flexShrink: 0, marginTop: '0.1rem' }} />
                                 <div>

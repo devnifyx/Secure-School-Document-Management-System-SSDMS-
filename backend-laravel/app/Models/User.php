@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -18,11 +17,6 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     use HasApiTokens, HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
         'name',
         'username',
@@ -38,18 +32,12 @@ class User extends Authenticatable
         'approved_at',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
-        'photo_path', // internal storage path; clients use has_photo + /users/{id}/photo
+        'photo_path',
     ];
 
-    /** Shared validation for profile photos (registration + settings). */
     public const PHOTO_RULES = 'file|image|mimes:jpg,jpeg,png,webp|max:2048|dimensions:max_width=6000,max_height=6000';
 
     protected $appends = ['has_photo'];
@@ -59,11 +47,6 @@ class User extends Authenticatable
         return Attribute::get(fn () => !empty($this->photo_path));
     }
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [

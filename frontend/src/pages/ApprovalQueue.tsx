@@ -29,7 +29,6 @@ const ApprovalQueue: React.FC = () => {
 
     const [selected, setSelected] = useState<DocumentItem | null>(null);
 
-    // Confirmation & Action Modals
     const [approveTarget, setApproveTarget] = useState<DocumentItem | null>(null);
     const [approveLoading, setApproveLoading] = useState(false);
 
@@ -183,7 +182,6 @@ const ApprovalQueue: React.FC = () => {
                             </table>
                         </div>
 
-                        {/* Pagination */}
                         {meta && meta.last_page > 1 && (
                             <div className="pagination">
                                 <button
@@ -223,7 +221,6 @@ const ApprovalQueue: React.FC = () => {
                 )}
             </div>
 
-            {/* Document Details Modal */}
             {selected && (
                 <DocumentDetailsModal
                     document={selected}
@@ -232,7 +229,6 @@ const ApprovalQueue: React.FC = () => {
                 />
             )}
 
-            {/* Approve Confirmation Modal */}
             <ConfirmModal
                 isOpen={approveTarget !== null}
                 title="Approve Document"
@@ -243,7 +239,6 @@ const ApprovalQueue: React.FC = () => {
                 loading={approveLoading}
             />
 
-            {/* Reject Confirmation Modal with Input */}
             <ConfirmModal
                 isOpen={rejectTarget !== null}
                 title="Reject Document"

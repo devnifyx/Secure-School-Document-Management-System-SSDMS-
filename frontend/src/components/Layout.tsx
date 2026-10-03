@@ -69,12 +69,10 @@ const Layout: React.FC<LayoutProps> = ({ children, title, subtitle, actions, wit
         return () => clearInterval(interval);
     }, []);
 
-    // Close mobile menu upon navigation
     useEffect(() => {
         setMobileOpen(false);
     }, [location.pathname]);
 
-    // Sync wallpaper class to document.body so wallpaper covers full viewport seamlessly
     useEffect(() => {
         if (showWallpaper) {
             document.body.classList.add('has-teacher-wallpaper');
@@ -163,13 +161,11 @@ const Layout: React.FC<LayoutProps> = ({ children, title, subtitle, actions, wit
 
     return (
         <div className={`app-shell ${showWallpaper ? 'has-teacher-wallpaper' : ''}`}>
-            {/* Mobile Backdrop Overlay */}
             <div
                 className={`sidebar-backdrop ${mobileOpen ? 'active' : ''}`}
                 onClick={() => setMobileOpen(false)}
             />
 
-            {/* Sidebar Drawer */}
             <nav className={`sidebar ${mobileOpen ? 'open' : ''}`}>
                 <div className="sidebar-brand" onClick={() => navigate('/')}>
                     <div className="sidebar-brand-mark" style={{ background: 'rgba(255, 255, 255, 0.08)', boxShadow: 'none' }}>
@@ -222,9 +218,7 @@ const Layout: React.FC<LayoutProps> = ({ children, title, subtitle, actions, wit
                 </div>
             </nav>
 
-            {/* Topbar */}
             <header className="topbar">
-                {/* Mobile hamburger menu toggle button */}
                 <button
                     className="topbar-mobile-toggle"
                     onClick={() => setMobileOpen((v) => !v)}
@@ -234,7 +228,6 @@ const Layout: React.FC<LayoutProps> = ({ children, title, subtitle, actions, wit
                 </button>
 
                 <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    {/* Panitia Switcher (Teacher with multiple Panitia) */}
                     {!isAdmin && panitiaList.length > 1 && activePanitia && (
                         <div ref={panitiaRef} style={{ position: 'relative' }}>
                             <button
@@ -292,14 +285,12 @@ const Layout: React.FC<LayoutProps> = ({ children, title, subtitle, actions, wit
                         </div>
                     )}
 
-                    {/* Single Panitia indicator */}
                     {!isAdmin && panitiaList.length === 1 && activePanitia && (
                         <span className="badge badge-info" style={{ fontSize: '0.74rem' }}>
                             <Layers size={13} /> {activePanitia.name}
                         </span>
                     )}
 
-                    {/* Theme Toggle Button */}
                     <button
                         className="topbar-icon-btn"
                         onClick={toggleTheme}
@@ -313,7 +304,6 @@ const Layout: React.FC<LayoutProps> = ({ children, title, subtitle, actions, wit
                         )}
                     </button>
 
-                    {/* Notifications popover */}
                     <div ref={notifRef} style={{ position: 'relative' }}>
                         <button
                             className="topbar-icon-btn"
@@ -385,7 +375,6 @@ const Layout: React.FC<LayoutProps> = ({ children, title, subtitle, actions, wit
                         )}
                     </div>
 
-                    {/* User profile dropdown */}
                     <div ref={userRef} style={{ position: 'relative' }}>
                         <div className="topbar-user" onClick={() => setShowUserMenu((v) => !v)}>
                             {user && (
@@ -432,7 +421,6 @@ const Layout: React.FC<LayoutProps> = ({ children, title, subtitle, actions, wit
                 </div>
             </header>
 
-            {/* Page Main Content */}
             <main className={`content ${showWallpaper ? 'has-teacher-wallpaper' : ''}`}>
                 {(title || actions) && (
                     <div className="page-header">

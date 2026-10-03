@@ -58,7 +58,6 @@ const PanitiaManagement: React.FC = () => {
     const [assignUserId, setAssignUserId] = useState('');
     const [assignPrimary, setAssignPrimary] = useState(false);
 
-    // Confirm remove member
     const [removeTarget, setRemoveTarget] = useState<Member | null>(null);
     const [removeLoading, setRemoveLoading] = useState(false);
 
@@ -213,7 +212,6 @@ const PanitiaManagement: React.FC = () => {
                 </button>
             }
         >
-            {/* Create / Edit Modal */}
             {(showCreate || editItem) && (
                 <div className="modal-overlay" onClick={() => { setShowCreate(false); setEditItem(null); }}>
                     <div className="modal-box" style={{ maxWidth: '440px' }} onClick={(e) => e.stopPropagation()}>
@@ -259,7 +257,6 @@ const PanitiaManagement: React.FC = () => {
                 </div>
             ) : (
                 <div className="dashboard-grid">
-                    {/* Left Column: Panitia Table */}
                     <div className="panel">
                         <div className="panel-header">
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -335,7 +332,6 @@ const PanitiaManagement: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* Right Column: Member Assignment */}
                     <div className="panel">
                         <div className="panel-header">
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -358,7 +354,6 @@ const PanitiaManagement: React.FC = () => {
                                 </div>
                             ) : (
                                 <>
-                                    {/* Assign Form */}
                                     <form onSubmit={handleAssign} style={{ marginBottom: '1.5rem', paddingBottom: '1.25rem', borderBottom: '1px solid var(--border)' }}>
                                         <label className="form-label" style={{ fontSize: '0.82rem' }}>
                                             Assign Teacher to {selectedPanitia.name}
@@ -396,7 +391,6 @@ const PanitiaManagement: React.FC = () => {
                                         </label>
                                     </form>
 
-                                    {/* Member Roster List */}
                                     {members.length === 0 ? (
                                         <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '1.5rem 0', fontSize: '0.84rem' }}>
                                             No teachers currently assigned to this department.
@@ -463,7 +457,6 @@ const PanitiaManagement: React.FC = () => {
                 </div>
             )}
 
-            {/* Confirm Remove Member Dialog */}
             <ConfirmModal
                 isOpen={removeTarget !== null}
                 title="Remove Department Member"

@@ -211,7 +211,6 @@ const DocumentDetailsModal: React.FC<Props> = ({ document: doc, onClose, onChang
                 <div className="modal-body">
                     {!resubmitMode ? (
                         <>
-                            {/* Title & Status Header */}
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.25rem' }}>
                                 <div>
                                     <h2 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text)', marginBottom: '0.4rem' }}>
@@ -224,7 +223,6 @@ const DocumentDetailsModal: React.FC<Props> = ({ document: doc, onClose, onChang
                                 </div>
                             </div>
 
-                            {/* Description */}
                             {doc.description && (
                                 <div style={{
                                     padding: '0.85rem 1.1rem',
@@ -239,7 +237,6 @@ const DocumentDetailsModal: React.FC<Props> = ({ document: doc, onClose, onChang
                                 </div>
                             )}
 
-                            {/* Rejection Banner */}
                             {doc.rejection_reason && (
                                 <div className="notice notice-danger" style={{ marginBottom: '1.25rem' }}>
                                     <AlertTriangle size={20} style={{ flexShrink: 0 }} />
@@ -250,7 +247,6 @@ const DocumentDetailsModal: React.FC<Props> = ({ document: doc, onClose, onChang
                                 </div>
                             )}
 
-                            {/* Metadata Details Grid */}
                             <dl className="detail-grid" style={{ marginBottom: '1.5rem' }}>
                                 <dt>Author</dt>
                                 <dd>
@@ -291,7 +287,6 @@ const DocumentDetailsModal: React.FC<Props> = ({ document: doc, onClose, onChang
                                 <dd>{new Date(doc.updated_at).toLocaleString()}</dd>
                             </dl>
 
-                            {/* Verification Result Card for Admin */}
                             {isAdmin && (
                                 <div className="panel" style={{ marginBottom: '1.25rem', background: 'var(--surface-alt)' }}>
                                     <div className="panel-body" style={{ padding: '1rem 1.25rem' }}>
@@ -331,7 +326,6 @@ const DocumentDetailsModal: React.FC<Props> = ({ document: doc, onClose, onChang
                             )}
                         </>
                     ) : (
-                        /* Resubmission Mode Form */
                         <form onSubmit={handleResubmit}>
                             <h3 style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: '0.4rem' }}>
                                 Resubmit Document with Corrections
@@ -419,7 +413,6 @@ const DocumentDetailsModal: React.FC<Props> = ({ document: doc, onClose, onChang
                     )}
                 </div>
 
-                {/* Modal Footer Actions */}
                 {!resubmitMode && (
                     <div className="modal-footer">
                         <div style={{ display: 'flex', gap: '0.5rem', width: '100%', justifyContent: 'space-between', flexWrap: 'wrap' }}>
@@ -463,7 +456,6 @@ const DocumentDetailsModal: React.FC<Props> = ({ document: doc, onClose, onChang
                 )}
             </div>
 
-            {/* Approval Confirmation Modal */}
             <ConfirmModal
                 isOpen={showApproveConfirm}
                 title="Approve Document"
@@ -474,7 +466,6 @@ const DocumentDetailsModal: React.FC<Props> = ({ document: doc, onClose, onChang
                 loading={actionLoading}
             />
 
-            {/* Rejection Confirmation Modal with Reason */}
             <ConfirmModal
                 isOpen={showRejectConfirm}
                 title="Reject Document"

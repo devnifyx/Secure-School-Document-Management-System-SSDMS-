@@ -45,9 +45,7 @@ const Login: React.FC = () => {
             padding: '1.75rem 1rem',
             position: 'relative',
         }}>
-            {/* Theme Toggle Button */}
             <ThemeToggle className="theme-toggle-floating" />
-            {/* School Identity Header */}
             <div style={{ textAlign: 'center', marginBottom: '1.75rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                 <img
                     src="/smkkp-logo.png"
@@ -71,7 +69,6 @@ const Login: React.FC = () => {
                 </div>
             </div>
 
-            {/* Auth Card */}
             <div className="panel" style={{ width: '100%', maxWidth: '420px', boxShadow: 'var(--shadow-xl)' }}>
                 <div className="panel-body" style={{ padding: '2rem' }}>
                     <div style={{ fontWeight: 800, fontSize: '1.25rem', color: 'var(--text)', marginBottom: '0.35rem' }}>
@@ -200,7 +197,6 @@ const Login: React.FC = () => {
                 </div>
             </div>
 
-            {/* Security Guarantee Pill */}
             <div style={{
                 marginTop: '1.75rem',
                 display: 'flex',

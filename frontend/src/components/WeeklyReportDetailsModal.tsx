@@ -72,7 +72,6 @@ const WeeklyReportDetailsModal: React.FC<Props> = ({ report, onClose, onChanged 
     const [showApproveConfirm, setShowApproveConfirm] = useState(false);
     const [showRejectConfirm, setShowRejectConfirm] = useState(false);
 
-    // Edit/Resubmit mode
     const [editMode, setEditMode] = useState(false);
     const [editTitle, setEditTitle] = useState(report.title);
     const [editSummary, setEditSummary] = useState(report.activity_summary);
@@ -196,7 +195,6 @@ const WeeklyReportDetailsModal: React.FC<Props> = ({ report, onClose, onChanged 
                 <div className="modal-body">
                     {!editMode ? (
                         <>
-                            {/* Header details */}
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.25rem' }}>
                                 <div>
                                     <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text)', marginBottom: '0.4rem' }}>
@@ -212,7 +210,6 @@ const WeeklyReportDetailsModal: React.FC<Props> = ({ report, onClose, onChanged 
                                 </div>
                             </div>
 
-                            {/* Rejection Notice if any */}
                             {report.rejection_reason && (
                                 <div className="notice notice-danger" style={{ marginBottom: '1.25rem' }}>
                                     <AlertTriangle size={20} style={{ flexShrink: 0 }} />
@@ -222,7 +219,6 @@ const WeeklyReportDetailsModal: React.FC<Props> = ({ report, onClose, onChanged 
                                 </div>
                             )}
 
-                            {/* Metadata Grid */}
                             <dl className="detail-grid" style={{ marginBottom: '1.5rem' }}>
                                 <dt>Teacher</dt>
                                 <dd>
@@ -245,7 +241,6 @@ const WeeklyReportDetailsModal: React.FC<Props> = ({ report, onClose, onChanged 
                                 <dd>{new Date(report.created_at).toLocaleString()}</dd>
                             </dl>
 
-                            {/* Structured Content Sections */}
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', marginBottom: '1.5rem' }}>
                                 <div className="panel" style={{ background: 'var(--surface-alt)' }}>
                                     <div className="panel-body" style={{ padding: '1rem 1.25rem' }}>
@@ -298,7 +293,6 @@ const WeeklyReportDetailsModal: React.FC<Props> = ({ report, onClose, onChanged 
                                 )}
                             </div>
 
-                            {/* Attachments Section */}
                             {report.attachments && report.attachments.length > 0 && (
                                 <div style={{ marginBottom: '1.25rem' }}>
                                     <strong style={{ fontSize: '0.86rem', display: 'block', marginBottom: '0.6rem' }}>
@@ -352,7 +346,6 @@ const WeeklyReportDetailsModal: React.FC<Props> = ({ report, onClose, onChanged 
                             )}
                         </>
                     ) : (
-                        /* Edit / Resubmit Form */
                         <form onSubmit={handleResubmit}>
                             <h3 style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: '0.4rem' }}>
                                 Edit & Resubmit Weekly Report
@@ -447,7 +440,6 @@ const WeeklyReportDetailsModal: React.FC<Props> = ({ report, onClose, onChanged 
                     )}
                 </div>
 
-                {/* Footer Controls */}
                 {!editMode && (
                     <div className="modal-footer">
                         <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', flexWrap: 'wrap', gap: '0.5rem' }}>
@@ -479,7 +471,6 @@ const WeeklyReportDetailsModal: React.FC<Props> = ({ report, onClose, onChanged 
                 )}
             </div>
 
-            {/* Approval Confirm Modal */}
             <ConfirmModal
                 isOpen={showApproveConfirm}
                 title="Approve Weekly Report"
@@ -490,7 +481,6 @@ const WeeklyReportDetailsModal: React.FC<Props> = ({ report, onClose, onChanged 
                 loading={actionLoading}
             />
 
-            {/* Rejection Confirm Modal with Feedback Input */}
             <ConfirmModal
                 isOpen={showRejectConfirm}
                 title="Reject Weekly Report"

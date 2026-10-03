@@ -170,7 +170,6 @@ const AuditLogs: React.FC = () => {
                 </button>
             }
         >
-            {/* Filter toolbar */}
             <div className="filter-bar">
                 <CustomSelect
                     options={actionOptions}
@@ -269,7 +268,6 @@ const AuditLogs: React.FC = () => {
                             </table>
                         </div>
 
-                        {/* Pagination */}
                         {meta && meta.last_page > 1 && (
                             <div className="pagination">
                                 <button className="page-btn" disabled={page === 1} onClick={() => setPage(1)}>«</button>

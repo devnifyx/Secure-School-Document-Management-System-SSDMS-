@@ -43,7 +43,6 @@ const FileDropzone: React.FC<FileDropzoneProps> = ({
     const [inspectFile, setInspectFile] = useState<File | null>(null);
     const inputRef = useRef<HTMLInputElement>(null);
 
-    // Sync external file prop into inspectFile if file is set or cleared
     useEffect(() => {
         if (file) {
             setInspectFile(file);
@@ -140,16 +139,10 @@ const FileDropzone: React.FC<FileDropzoneProps> = ({
 
     const displayError = error || localError;
 
-    // Active file calculations for single mode indicator
     const activeFile = file || inspectFile;
     const fileSizeMB = activeFile ? activeFile.size / (1024 * 1024) : 0;
     const isExceeded = fileSizeMB > maxSizeMB;
 
-    // Visual states:
-    // GREEN: File size is small/light and safely below the limit (<= 7 MB)
-    // YELLOW: File size is approaching the maximum allowed size (> 7 MB and <= 9 MB)
-    // RED: File size is very close to the 10 MB limit (> 9 MB and <= 10 MB)
-    // INVALID: Exceeds 10 MB limit
     let colorState: 'green' | 'yellow' | 'red' | 'invalid' = 'green';
     let badgeText = 'Safe File Size';
 
@@ -209,7 +202,6 @@ const FileDropzone: React.FC<FileDropzoneProps> = ({
                 </div>
             )}
 
-            {/* Selected File (Single mode) */}
             {!multiple && activeFile && (
                 <div className="file-chip-item">
                     <div className="file-chip-info">
@@ -245,7 +237,6 @@ const FileDropzone: React.FC<FileDropzoneProps> = ({
                 </div>
             )}
 
-            {/* Visual File Size Progress Indicator (Single mode) */}
             {!multiple && activeFile && (
                 <div className={`file-size-indicator-card state-${colorState}`}>
                     <div className="file-size-header">
@@ -276,7 +267,6 @@ const FileDropzone: React.FC<FileDropzoneProps> = ({
                 </div>
             )}
 
-            {/* Selected Files (Multiple mode) */}
             {multiple && files && files.length > 0 && (
                 <div className="file-chips-list">
                     {files.map((f, idx) => (

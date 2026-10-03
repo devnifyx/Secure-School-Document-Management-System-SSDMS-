@@ -12,7 +12,7 @@ Route::post('/login', [\App\Http\Controllers\AuthController::class, 'login']);
 Route::post('/register', [\App\Http\Controllers\RegistrationController::class, 'register']);
 Route::get('/panitia/public', [\App\Http\Controllers\RegistrationController::class, 'publicPanitiaList']);
 
-// Forgot password (email verification)
+// Password reset
 Route::post('/forgot-password', [\App\Http\Controllers\PasswordResetController::class, 'forgotPassword'])->middleware('throttle:password-reset-request');
 Route::post('/verify-reset-code', [\App\Http\Controllers\PasswordResetController::class, 'verifyCode']);
 Route::post('/reset-password', [\App\Http\Controllers\PasswordResetController::class, 'resetPassword']);
@@ -21,22 +21,20 @@ Route::post('/logout', [\App\Http\Controllers\AuthController::class, 'logout'])-
 
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
-    // Panitia selection (post-login)
     Route::post('auth/select-panitia', [\App\Http\Controllers\AuthController::class, 'selectPanitia']);
     Route::post('auth/switch-panitia', [\App\Http\Controllers\AuthController::class, 'switchPanitia']);
     Route::get('auth/my-panitia', [\App\Http\Controllers\AuthController::class, 'myPanitia']);
 
-    // Profile photo (owner or Admin only; stored on the private disk)
+    // Profile photos
     Route::get('users/{user}/photo', [\App\Http\Controllers\UserPhotoController::class, 'show']);
 
-    // User management (Admin only)
+    // Admin only
     Route::middleware('role:Admin')->group(function () {
         Route::apiResource('users', \App\Http\Controllers\UserController::class);
         Route::post('users/{user}/approve', [\App\Http\Controllers\UserController::class, 'approve']);
         Route::post('users/{user}/reject', [\App\Http\Controllers\UserController::class, 'reject']);
         Route::get('registrations/pending', [\App\Http\Controllers\UserController::class, 'pendingRegistrations']);
 
-        // Panitia management
         Route::apiResource('panitia', \App\Http\Controllers\PanitiaController::class);
         Route::get('panitia/{panitia}/members', [\App\Http\Controllers\PanitiaController::class, 'members']);
         Route::post('panitia/{panitia}/assign', [\App\Http\Controllers\PanitiaController::class, 'assignUser']);
@@ -44,7 +42,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('panitia/{panitia}/members/{user}/primary', [\App\Http\Controllers\PanitiaController::class, 'setPrimary']);
     });
 
-    // Documents (with Panitia access control)
+    // Panitia-scoped
     Route::middleware('panitia.access')->group(function () {
         Route::apiResource('documents', \App\Http\Controllers\DocumentController::class);
         Route::get('documents/{document}/download', [\App\Http\Controllers\DocumentController::class, 'download']);
@@ -53,7 +51,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('documents/{document}/reject', [\App\Http\Controllers\DocumentController::class, 'reject'])->middleware('role:Admin');
         Route::post('documents/{document}/verify', [\App\Http\Controllers\DocumentController::class, 'verify'])->middleware('role:Admin');
 
-        // Weekly reports (with Panitia access control)
         Route::apiResource('weekly-reports', \App\Http\Controllers\WeeklyReportController::class);
         Route::get('weekly-reports/{weeklyReport}/attachments/{attachment}/download', [\App\Http\Controllers\WeeklyReportController::class, 'downloadAttachment']);
         Route::get('weekly-reports/{weeklyReport}/attachments/{attachment}/preview', [\App\Http\Controllers\WeeklyReportController::class, 'previewAttachment']);
@@ -61,7 +58,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('weekly-reports/{weeklyReport}/reject', [\App\Http\Controllers\WeeklyReportController::class, 'reject'])->middleware('role:Admin');
         Route::get('weekly-reports-not-submitted', [\App\Http\Controllers\WeeklyReportController::class, 'notSubmitted'])->middleware('role:Admin');
 
-        // Dashboard stats
         Route::get('dashboard/stats', [\App\Http\Controllers\DashboardController::class, 'stats']);
     });
 
@@ -71,7 +67,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('profile/photo', [\App\Http\Controllers\ProfileController::class, 'updatePhoto']);
     Route::delete('profile/photo', [\App\Http\Controllers\ProfileController::class, 'removePhoto']);
 
-    // Audit logs (Admin only)
     Route::get('audit-logs', [\App\Http\Controllers\AuditLogController::class, 'index'])->middleware('role:Admin');
     Route::get('audit-logs/export', [\App\Http\Controllers\AuditLogController::class, 'export'])->middleware('role:Admin');
 

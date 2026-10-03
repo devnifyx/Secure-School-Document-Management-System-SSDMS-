@@ -23,7 +23,6 @@ return new class extends Migration
             $table->enum('status', ['Pending', 'Approved', 'Rejected'])->default('Pending');
             $table->text('rejection_reason')->nullable();
             $table->text('encrypted_key');
-            // SHA-256 hex digest of the original plaintext file content
             $table->string('file_hash', 64)->nullable();
             $table->timestamps();
         });

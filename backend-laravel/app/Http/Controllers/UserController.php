@@ -112,7 +112,6 @@ class UserController extends Controller
             return response()->json(['message' => 'You cannot delete your own account.'], 422);
         }
 
-        // Documents and weekly reports are school records: never orphan or silently remove them.
         $documents = $user->documents()->count();
         $reports = $user->weeklyReports()->count();
         if ($documents > 0 || $reports > 0) {
@@ -125,7 +124,6 @@ class UserController extends Controller
             ], 422);
         }
 
-        // Login tokens are polymorphic (no FK), so remove them explicitly.
         $user->tokens()->delete();
         $user->delete();
 

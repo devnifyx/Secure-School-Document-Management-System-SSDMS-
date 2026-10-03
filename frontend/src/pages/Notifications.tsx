@@ -91,7 +91,6 @@ const Notifications: React.FC = () => {
                 ) : undefined
             }
         >
-            {/* Filter segmented tabs */}
             <div className="tab-group">
                 <button
                     className={`tab-btn ${filter === 'all' ? 'active' : ''}`}
@@ -195,7 +194,6 @@ const Notifications: React.FC = () => {
                             ))}
                         </div>
 
-                        {/* Pagination */}
                         {meta && meta.last_page > 1 && (
                             <div className="pagination">
                                 <button className="page-btn" disabled={page === 1} onClick={() => setPage(1)}>«</button>

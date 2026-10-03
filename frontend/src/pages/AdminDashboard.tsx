@@ -94,7 +94,6 @@ const AdminDashboard: React.FC = () => {
                 </>
             ) : (
                 <>
-                    {/* Summary KPI cards */}
                     <div className="summary-grid">
                         <div
                             className="teacher-status-card status-submitted"
@@ -179,9 +178,7 @@ const AdminDashboard: React.FC = () => {
                     </div>
 
                     <div className="dashboard-grid">
-                        {/* Left Column: Queues & Logs */}
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                            {/* Pending Review Table */}
                             <div className="panel">
                                 <div className="panel-header">
                                     <h3>
@@ -230,7 +227,6 @@ const AdminDashboard: React.FC = () => {
                                 </div>
                             </div>
 
-                            {/* Recent Activity Timeline */}
                             <div className="panel">
                                 <div className="panel-header">
                                     <h3>
@@ -274,9 +270,7 @@ const AdminDashboard: React.FC = () => {
                             </div>
                         </div>
 
-                        {/* Right Column: Summaries & System Health */}
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                            {/* User Overview */}
                             <div className="panel">
                                 <div className="panel-header">
                                     <h3><Users size={17} /> User Overview</h3>
@@ -297,7 +291,6 @@ const AdminDashboard: React.FC = () => {
                                 </div>
                             </div>
 
-                            {/* Weekly Reports Overview */}
                             <div className="panel">
                                 <div className="panel-header">
                                     <h3><Calendar size={17} /> Weekly Reports (Week {stats.weekly_reports.current_week})</h3>
@@ -324,7 +317,6 @@ const AdminDashboard: React.FC = () => {
                                 </div>
                             </div>
 
-                            {/* Panitia Overview */}
                             <div className="panel">
                                 <div className="panel-header">
                                     <h3><Layers size={17} /> Panitia Overview</h3>
@@ -345,7 +337,6 @@ const AdminDashboard: React.FC = () => {
                                 </div>
                             </div>
 
-                            {/* System Status */}
                             <div className="panel" style={{ background: 'linear-gradient(180deg, var(--surface) 0%, var(--surface-alt) 100%)' }}>
                                 <div className="panel-header">
                                     <h3><ShieldCheck size={17} style={{ color: 'var(--success)' }} /> Security Status</h3>

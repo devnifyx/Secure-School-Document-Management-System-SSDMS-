@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import api from '../services/api';
 
-// Photos are private (served from an authenticated endpoint), so <img src> can't load them
-// directly. Fetch as a blob with the auth header and cache the object URL per user.
-// `version` (e.g. the user's updated_at) invalidates the cache when the photo changes.
+// Photos need the auth header, so they are fetched as blobs and cached per user.
+// `version` (the user's updated_at) busts the cache when the photo changes.
 const urlCache = new Map<number, { version: string; url: string }>();
 const inflight = new Map<string, Promise<string | null>>();
 
@@ -38,10 +37,6 @@ interface UserAvatarProps {
     style?: React.CSSProperties;
 }
 
-/**
- * Round avatar that shows the user's photo when they have one, otherwise their initial.
- * Pass the same className/style you'd use for a plain initial avatar.
- */
 const UserAvatar: React.FC<UserAvatarProps> = ({ userId, name, hasPhoto, version, className, style }) => {
     const ver = String(version ?? '');
     const cachedNow = urlCache.get(userId);

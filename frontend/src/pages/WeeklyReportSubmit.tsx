@@ -78,7 +78,6 @@ const WeeklyReportSubmit: React.FC = () => {
             subtitle="Record and summarize your curriculum progress, classroom activities, and forward planning"
         >
             <div style={{ maxWidth: '820px' }}>
-                {/* Window Notice */}
                 {!windowOpen ? (
                     <div className="notice notice-warning" style={{ marginBottom: '1.5rem' }}>
                         <AlertTriangle size={18} style={{ flexShrink: 0, marginTop: '0.1rem' }} />
@@ -102,7 +101,6 @@ const WeeklyReportSubmit: React.FC = () => {
                 )}
 
                 <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                    {/* Section 1: Overview */}
                     <div className="panel">
                         <div className="panel-header">
                             <h3><Calendar size={17} style={{ color: 'var(--primary)' }} /> Period & Report Details</h3>
@@ -178,7 +176,6 @@ const WeeklyReportSubmit: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* Section 2: Summary & Progress */}
                     <div className="panel">
                         <div className="panel-header">
                             <h3><FileText size={17} style={{ color: 'var(--primary)' }} /> Weekly Activities & Reflection</h3>
@@ -239,7 +236,6 @@ const WeeklyReportSubmit: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* Section 3: Evidence & Attachments */}
                     <div className="panel">
                         <div className="panel-header">
                             <h3><FileText size={17} style={{ color: 'var(--primary)' }} /> Supporting Evidence & Attachments</h3>
@@ -255,7 +251,6 @@ const WeeklyReportSubmit: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* Actions */}
                     <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '2rem' }}>
                         <button
                             type="submit"

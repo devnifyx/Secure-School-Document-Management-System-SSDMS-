@@ -8,10 +8,6 @@ use Illuminate\Support\Facades\Storage;
 
 class UserPhotoController extends Controller
 {
-    /**
-     * Stream a user's profile photo. Photos live on the private disk, so only the
-     * owner and Administrators may fetch them.
-     */
     public function show(Request $request, User $user)
     {
         $viewer = $request->user();

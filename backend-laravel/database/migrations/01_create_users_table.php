@@ -19,13 +19,11 @@ return new class extends Migration
             $table->rememberToken();
             $table->timestamps();
 
-            // Access control
             $table->enum('role', ['Admin', 'Teacher'])->default('Teacher');
             $table->boolean('is_active')->default(true);
             $table->integer('failed_attempts')->default(0);
             $table->timestamp('locked_until')->nullable();
 
-            // Registration approval
             $table->enum('account_status', ['Pending', 'Approved', 'Rejected'])->default('Pending');
             $table->foreignId('approved_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamp('approved_at')->nullable();

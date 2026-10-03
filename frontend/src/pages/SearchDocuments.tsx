@@ -120,7 +120,6 @@ const SearchDocuments: React.FC = () => {
             title="Search Documents"
             subtitle="Deep search repository files by keyword, curriculum category, tag, or date"
         >
-            {/* Search Hero Card */}
             <div className="panel" style={{ marginBottom: '1.75rem' }}>
                 <div className="panel-body">
                     <form onSubmit={runSearch}>
@@ -155,7 +154,6 @@ const SearchDocuments: React.FC = () => {
                             )}
                         </div>
 
-                        {/* Collapsible Advanced Filters */}
                         {showAdvanced && (
                             <div style={{
                                 marginTop: '1.25rem',
@@ -223,7 +221,6 @@ const SearchDocuments: React.FC = () => {
                 </div>
             </div>
 
-            {/* Results Section */}
             {loading ? (
                 <div className="panel" style={{ padding: '1.5rem' }}>
                     <SkeletonTable rows={5} columns={5} />
@@ -315,7 +312,6 @@ const SearchDocuments: React.FC = () => {
                 </div>
             )}
 
-            {/* Document Details Modal */}
             {selected && (
                 <DocumentDetailsModal
                     document={selected}

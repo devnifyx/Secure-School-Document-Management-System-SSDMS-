@@ -105,7 +105,6 @@ const DocumentUpload: React.FC = () => {
                         )}
 
                         <form onSubmit={handleSubmit}>
-                            {/* Document Title */}
                             <div className="form-group">
                                 <label className="form-label">
                                     Document Title <span style={{ color: 'var(--danger)' }}>*</span>
@@ -121,7 +120,6 @@ const DocumentUpload: React.FC = () => {
                                 />
                             </div>
 
-                            {/* Category & Panitia */}
                             <div className="form-row">
                                 <div className="form-group">
                                     <label className="form-label">
@@ -168,7 +166,6 @@ const DocumentUpload: React.FC = () => {
                                 </div>
                             </div>
 
-                            {/* File Upload Dropzone */}
                             <div className="form-group">
                                 <FileDropzone
                                     label="Attach File Document *"
@@ -179,7 +176,6 @@ const DocumentUpload: React.FC = () => {
                                 />
                             </div>
 
-                            {/* Tags Input */}
                             <div className="form-group">
                                 <label className="form-label">
                                     Keywords & Tags <span className="form-hint">(Press Enter or comma to add tags)</span>
@@ -222,7 +218,6 @@ const DocumentUpload: React.FC = () => {
                                 )}
                             </div>
 
-                            {/* Description */}
                             <div className="form-group">
                                 <label className="form-label">
                                     Description & Context <span className="form-hint">(optional)</span>
@@ -236,7 +231,6 @@ const DocumentUpload: React.FC = () => {
                                 />
                             </div>
 
-                            {/* Security Notice */}
                             <div className="notice notice-info" style={{ margin: '1.5rem 0' }}>
                                 <ShieldCheck size={22} style={{ flexShrink: 0, marginTop: '0.1rem', color: 'var(--primary)' }} />
                                 <div>
@@ -244,7 +238,6 @@ const DocumentUpload: React.FC = () => {
                                 </div>
                             </div>
 
-                            {/* Actions */}
                             <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.5rem' }}>
                                 <button
                                     type="submit"

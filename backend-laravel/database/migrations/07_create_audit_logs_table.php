@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('audit_logs', function (Blueprint $table) {
             $table->id();
-            // Audit history is kept when a user is deleted (user becomes null)
+            // keep the log when a user is deleted
             $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->string('action');
             $table->string('entity_type')->nullable();

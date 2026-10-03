@@ -154,7 +154,7 @@ a {
   text-decoration: none;
 }
 
-/* ---------- Layout Structure ---------- */
+/* Layout Structure */
 .app-shell {
   min-height: 100vh;
   background: var(--bg);
@@ -218,7 +218,7 @@ a {
   line-height: 1.2;
 }
 
-/* Logo tile: white card with a soft border so the crest reads on light and dark sidebars */
+/* Logo tile */
 .sidebar-brand-mark {
   background: #FFFFFF !important;
   border: 1px solid var(--sidebar-border);
@@ -311,7 +311,7 @@ a {
   border-top: 1px solid var(--sidebar-border);
 }
 
-/* Logout link is red via inline style; keep it readable on the light sidebar */
+/* Logout is coloured red in Layout.tsx */
 .sidebar-footer .sidebar-link[title="Logout"] {
   color: var(--sidebar-logout) !important;
 }
@@ -514,7 +514,7 @@ a {
   color: var(--text-secondary);
 }
 
-/* ---------- Panels & Cards ---------- */
+/* Panels & Cards */
 .panel {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -618,7 +618,7 @@ a {
   line-height: 1.3;
 }
 
-/* ---------- Tables ---------- */
+/* Tables */
 .table-wrap {
   overflow-x: auto;
   border-radius: var(--radius-md);
@@ -671,7 +671,7 @@ table.data-table {
   font-size: 0.88rem;
 }
 
-/* ---------- Badges ---------- */
+/* Badges */
 .badge {
   display: inline-flex;
   align-items: center;
@@ -736,7 +736,7 @@ table.data-table {
   color: var(--info);
 }
 
-/* ---------- Buttons ---------- */
+/* Buttons */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -850,7 +850,7 @@ table.data-table {
   background: var(--danger-bg);
 }
 
-/* ---------- Forms & Inputs ---------- */
+/* Forms & Inputs */
 .form-group {
   margin-bottom: 1.15rem;
 }
@@ -925,7 +925,7 @@ select.form-control:focus {
   background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234F46E5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
 }
 
-/* ---------- Custom Select Component ---------- */
+/* Custom Select Component */
 .custom-select-container {
   position: relative;
   width: 100%;
@@ -1335,7 +1335,7 @@ textarea.form-control {
   background: var(--primary-dark);
 }
 
-/* ---------- Dropzone Component ---------- */
+/* Dropzone Component */
 .dropzone-wrapper {
   margin-bottom: 1.2rem;
 }
@@ -1471,7 +1471,7 @@ textarea.form-control {
   gap: 0.5rem;
 }
 
-/* ---------- Toast Notifications ---------- */
+/* Toast Notifications */
 .toast-container {
   position: fixed;
   bottom: 1.5rem;
@@ -1553,7 +1553,7 @@ textarea.form-control {
 .toast-warning .toast-progress { background: var(--warning); }
 .toast-info .toast-progress { background: var(--info); }
 
-/* ---------- Modals & Dialogs ---------- */
+/* Modals & Dialogs */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -1686,7 +1686,7 @@ textarea.form-control {
   margin-top: 1.25rem;
 }
 
-/* ---------- Skeleton Loader ---------- */
+/* Skeleton Loader */
 .skeleton-shimmer {
   background: linear-gradient(90deg, #E2E8F0 25%, #F1F5F9 50%, #E2E8F0 75%);
   background-size: 200% 100%;
@@ -1694,7 +1694,7 @@ textarea.form-control {
   border-radius: var(--radius-sm);
 }
 
-/* ---------- Empty State ---------- */
+/* Empty State */
 .empty-state-modern {
   text-align: center;
   padding: 3.5rem 1.5rem;
@@ -1735,7 +1735,7 @@ textarea.form-control {
   gap: 0.6rem;
 }
 
-/* Legacy Empty State support */
+/* Simple empty state */
 .empty-state {
   text-align: center;
   padding: 3.5rem 1.5rem;
@@ -1747,7 +1747,7 @@ textarea.form-control {
   opacity: 0.6;
 }
 
-/* ---------- Detail Grid ---------- */
+/* Detail Grid */
 .detail-grid {
   display: grid;
   grid-template-columns: 140px 1fr;
@@ -1806,7 +1806,7 @@ textarea.form-control {
   padding: 0 0.6rem;
 }
 
-/* ---------- Dashboard Grid ---------- */
+/* Dashboard Grid */
 .dashboard-grid {
   display: grid;
   grid-template-columns: 1.85fr 1.15fr;
@@ -1850,7 +1850,7 @@ textarea.form-control {
   box-shadow: var(--shadow-xs);
 }
 
-/* ---------- Keyframe Animations ---------- */
+/* Keyframe Animations */
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -1876,7 +1876,7 @@ textarea.form-control {
   100% { background-position: -200% 0; }
 }
 
-/* ---------- Responsive Breakpoints ---------- */
+/* Responsive Breakpoints */
 
 /* Tablet & Moderate Zoom (< 1150px) */
 @media (max-width: 1150px) {
@@ -1967,11 +1967,8 @@ textarea.form-control {
   }
 }
 
-/* ==================================================
-   CLIENT CUSTOMIZATIONS (SMK KUBOR PANJANG & SSDMS)
-   ================================================== */
 
-/* ---------- File Upload Size Progress Indicator ---------- */
+/* File Upload Size Progress Indicator */
 .file-size-indicator-card {
   margin-top: 0.85rem;
   padding: 0.85rem 1.1rem;
@@ -2114,7 +2111,7 @@ textarea.form-control {
   line-height: 1.35;
 }
 
-/* ---------- Dashboard Status Cards (Gradient Glass KPI Cards) ---------- */
+/* Dashboard status cards */
 .teacher-status-card {
   --card-from: #1f2937;
   --card-to: #0b0f17;
@@ -2180,35 +2177,35 @@ textarea.form-control {
   transform: scale(1.12) translate(-4px, -4px);
 }
 
-/* 1. TOTAL / SUBMITTED: Midnight slate */
+/* total */
 .teacher-status-card.status-submitted {
   --card-from: #2b3446;
   --card-to: #0d1118;
   --card-glow: 100, 116, 139;
 }
 
-/* 2. PENDING: Warm amber-brown */
+/* pending */
 .teacher-status-card.status-pending {
   --card-from: #a8642c;
   --card-to: #4a2a14;
   --card-glow: 217, 119, 6;
 }
 
-/* 3. APPROVED: Emerald */
+/* approved */
 .teacher-status-card.status-approved {
   --card-from: #1f9d55;
   --card-to: #0c4a2a;
   --card-glow: 16, 185, 129;
 }
 
-/* 4. REJECTED: Ruby */
+/* rejected */
 .teacher-status-card.status-rejected {
   --card-from: #e03a3a;
   --card-to: #7a1414;
   --card-glow: 239, 68, 68;
 }
 
-/* 5. PENDING USERS: Indigo */
+/* pending registrations */
 .teacher-status-card.status-pending-users {
   --card-from: #6366f1;
   --card-to: #312e81;
@@ -2304,7 +2301,7 @@ textarea.form-control {
   }
 }
 
-/* ---------- Teacher/User Workspace School Wallpaper (Dashboard, Repository, Search, Weekly Reports, Notifications, Settings) ---------- */
+/* School wallpaper */
 body.has-teacher-wallpaper,
 .app-shell.has-teacher-wallpaper,
 .content.has-teacher-wallpaper {
@@ -2327,7 +2324,6 @@ body.has-teacher-wallpaper,
   background-color: #0b0f17;
 }
 
-/* Ensure inner content container remains transparent when parent shell has wallpaper */
 .app-shell.has-teacher-wallpaper .content {
   background: transparent !important;
 }
@@ -2340,7 +2336,7 @@ body.has-teacher-wallpaper,
   }
 }
 
-/* Translucent glassmorphism panels on Teacher Workspace so the school building is clearly visible */
+/* Translucent panels so the wallpaper shows through */
 .has-teacher-wallpaper .panel {
   background: rgba(255, 255, 255, 0.88);
   backdrop-filter: blur(12px);
@@ -2406,7 +2402,7 @@ body.has-teacher-wallpaper,
 }
 
 
-/* ---------- Registration profile photo picker ---------- */
+/* Registration profile photo picker */
 .photo-picker {
   position: relative;
   width: 104px;
@@ -2461,7 +2457,7 @@ body.has-teacher-wallpaper,
   box-shadow: 0 2px 6px rgba(79, 70, 229, 0.35);
 }
 
-/* ---------- Settings: profile photo row ---------- */
+/* Settings: profile photo row */
 .profile-photo-row {
   display: flex;
   align-items: center;

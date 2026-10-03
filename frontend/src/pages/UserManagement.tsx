@@ -73,7 +73,6 @@ const UserManagement: React.FC = () => {
     const [formError, setFormError] = useState('');
     const [panitiaOptions, setPanitiaOptions] = useState<PanitiaOption[]>([]);
 
-    // Confirmation dialog states
     const [deleteTarget, setDeleteTarget] = useState<User | null>(null);
     const [deleteLoading, setDeleteLoading] = useState(false);
 
@@ -272,7 +271,6 @@ const UserManagement: React.FC = () => {
                 </button>
             }
         >
-            {/* Segmented Tab Controls */}
             <div className="tab-group">
                 <button
                     className={`tab-btn ${tab === 'all' ? 'active' : ''}`}
@@ -438,7 +436,6 @@ const UserManagement: React.FC = () => {
                 )}
             </div>
 
-            {/* Create / Edit User Modal */}
             {modal !== 'none' && (
                 <div className="modal-overlay" onClick={() => setModal('none')}>
                     <div className="modal-box" style={{ maxWidth: '520px' }} onClick={(e) => e.stopPropagation()}>
@@ -607,7 +604,6 @@ const UserManagement: React.FC = () => {
                 </div>
             )}
 
-            {/* Confirm Deactivation / Activation Modal */}
             <ConfirmModal
                 isOpen={toggleTarget !== null}
                 title={`${toggleTarget?.is_active ? 'Deactivate' : 'Activate'} User Account`}
@@ -619,7 +615,6 @@ const UserManagement: React.FC = () => {
                 loading={toggleLoading}
             />
 
-            {/* Confirm Delete User Modal */}
             <ConfirmModal
                 isOpen={deleteTarget !== null}
                 title="Delete User Account"
@@ -631,7 +626,6 @@ const UserManagement: React.FC = () => {
                 loading={deleteLoading}
             />
 
-            {/* Confirm Reject Registration Modal */}
             <ConfirmModal
                 isOpen={rejectTarget !== null}
                 title="Reject Registration"

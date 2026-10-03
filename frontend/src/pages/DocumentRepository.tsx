@@ -132,7 +132,6 @@ const DocumentRepository: React.FC = () => {
                 ) : undefined
             }
         >
-            {/* Filter & Toolbar */}
             <div className="filter-bar">
                 <input
                     className="form-control"
@@ -181,7 +180,6 @@ const DocumentRepository: React.FC = () => {
                         <strong>{meta?.total ?? 0}</strong> {meta?.total === 1 ? 'document' : 'documents'}
                     </span>
 
-                    {/* View Switcher Toggle */}
                     <div className="tab-group" style={{ margin: 0 }}>
                         <button
                             type="button"
@@ -203,7 +201,6 @@ const DocumentRepository: React.FC = () => {
                 </div>
             </div>
 
-            {/* Content Area */}
             {loading ? (
                 <div className="panel" style={{ padding: '1.5rem' }}>
                     <SkeletonTable rows={6} columns={6} />
@@ -291,7 +288,6 @@ const DocumentRepository: React.FC = () => {
                         </table>
                     </div>
 
-                    {/* Pagination */}
                     {meta && meta.last_page > 1 && (
                         <div className="pagination">
                             <button
@@ -329,7 +325,6 @@ const DocumentRepository: React.FC = () => {
                     )}
                 </div>
             ) : (
-                /* Grid Card View */
                 <>
                     <div style={{
                         display: 'grid',
@@ -424,7 +419,6 @@ const DocumentRepository: React.FC = () => {
                 </>
             )}
 
-            {/* Document Details Modal */}
             {selected && (
                 <DocumentDetailsModal
                     document={selected}

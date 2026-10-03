@@ -1,6 +1,4 @@
-// ISO-8601 week numbering (Monday-start week, week 1 contains the year's first Thursday) —
-// matches PHP Carbon's weekOfYear used on the backend, so week numbers computed here
-// line up with whatever the server records.
+// ISO-8601 week numbers, same as Carbon's weekOfYear on the server
 export function getISOWeek(date: Date): number {
     const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
     const dayNum = d.getUTCDay() || 7;

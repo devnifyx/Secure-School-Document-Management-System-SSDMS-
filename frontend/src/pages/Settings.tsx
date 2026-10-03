@@ -35,18 +35,15 @@ const Settings: React.FC = () => {
 
     const [tab, setTab] = useState<'profile' | 'password' | 'appearance' | 'session'>('profile');
 
-    // Profile form
     const [name, setName] = useState(user?.name ?? '');
     const [nameLoading, setNameLoading] = useState(false);
     const [nameMsg, setNameMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-    // Profile photo
     const photoInputRef = useRef<HTMLInputElement>(null);
     const [photoLoading, setPhotoLoading] = useState(false);
     const [photoMsg, setPhotoMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
     const [confirmRemovePhoto, setConfirmRemovePhoto] = useState(false);
 
-    // Password form
     const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -55,7 +52,6 @@ const Settings: React.FC = () => {
     const [pwLoading, setPwLoading] = useState(false);
     const [pwMsg, setPwMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-    // Session info & live countdown
     const loginTime = localStorage.getItem('loginTime');
     const loginDate = loginTime ? new Date(loginTime) : null;
     const expiryDate = loginDate ? new Date(loginDate.getTime() + 8 * 60 * 60 * 1000) : null;
@@ -193,7 +189,6 @@ const Settings: React.FC = () => {
             subtitle="Manage your personal profile, update your password, and inspect active session policies"
         >
             <div style={{ maxWidth: '680px' }}>
-                {/* Segmented settings navigation */}
                 <div className="tab-group" style={{ marginBottom: '1.5rem' }}>
                     <button
                         className={`tab-btn ${tab === 'profile' ? 'active' : ''}`}
@@ -221,14 +216,12 @@ const Settings: React.FC = () => {
                     </button>
                 </div>
 
-                {/* Profile Tab */}
                 {tab === 'profile' && (
                     <div className="panel">
                         <div className="panel-header">
                             <h3><User size={17} style={{ color: 'var(--primary)' }} /> Profile Information</h3>
                         </div>
                         <div className="panel-body">
-                            {/* Profile photo */}
                             <div className="profile-photo-row">
                                 <button
                                     type="button"
@@ -367,7 +360,6 @@ const Settings: React.FC = () => {
                     </div>
                 )}
 
-                {/* Change Password Tab */}
                 {tab === 'password' && (
                     <div className="panel">
                         <div className="panel-header">
@@ -464,7 +456,6 @@ const Settings: React.FC = () => {
                     </div>
                 )}
 
-                {/* Appearance Tab */}
                 {tab === 'appearance' && (
                     <div className="panel">
                         <div className="panel-header">
@@ -476,7 +467,6 @@ const Settings: React.FC = () => {
                             </p>
 
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem', marginBottom: '1rem' }}>
-                                {/* Light Mode Option Card */}
                                 <div
                                     onClick={() => {
                                         setTheme('light');
@@ -507,7 +497,6 @@ const Settings: React.FC = () => {
                                     </p>
                                 </div>
 
-                                {/* Dark Mode Option Card */}
                                 <div
                                     onClick={() => {
                                         setTheme('dark');
@@ -542,7 +531,6 @@ const Settings: React.FC = () => {
                     </div>
                 )}
 
-                {/* Session Security Tab */}
                 {tab === 'session' && (
                     <div className="panel">
                         <div className="panel-header">

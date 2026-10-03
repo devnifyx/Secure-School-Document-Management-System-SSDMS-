@@ -35,7 +35,6 @@ const Register: React.FC = () => {
         api.get('/panitia/public').then((res) => setPanitiaOptions(res.data)).catch(() => {});
     }, []);
 
-    // Release the preview object URL when it changes or the page unmounts
     useEffect(() => {
         return () => {
             if (photoPreview) URL.revokeObjectURL(photoPreview);
@@ -156,9 +155,7 @@ const Register: React.FC = () => {
             padding: '2.5rem 1rem',
             position: 'relative',
         }}>
-            {/* Theme Toggle Button */}
             <ThemeToggle className="theme-toggle-floating" />
-            {/* School Identity Header */}
             <div style={{ textAlign: 'center', marginBottom: '1.75rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                 <img
                     src="/smkkp-logo.png"
@@ -182,7 +179,6 @@ const Register: React.FC = () => {
                 </div>
             </div>
 
-            {/* Registration Card */}
             <div className="panel" style={{ width: '100%', maxWidth: '560px', boxShadow: 'var(--shadow-xl)' }}>
                 <div className="panel-body" style={{ padding: '2rem 2.25rem' }}>
                     <div style={{ fontWeight: 800, fontSize: '1.3rem', color: 'var(--text)', marginBottom: '0.35rem' }}>
@@ -200,7 +196,6 @@ const Register: React.FC = () => {
                     )}
 
                     <form onSubmit={handleSubmit}>
-                        {/* Profile photo (optional) */}
                         <div className="form-group" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '1.5rem' }}>
                             <input
                                 ref={photoInputRef}

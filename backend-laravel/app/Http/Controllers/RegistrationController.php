@@ -25,7 +25,6 @@ class RegistrationController extends Controller
                           ->where('status', 'active')
                           ->firstOrFail();
 
-        // Stored on the private disk (never web-accessible); served only through GET /users/{id}/photo
         $photoPath = $request->hasFile('photo')
             ? $request->file('photo')->store('profile-photos', 'local')
             : null;
