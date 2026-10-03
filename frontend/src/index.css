@@ -16,9 +16,15 @@
   --navy-dark: #080C15;
   --navy-light: #1E293B;
 
-  --sidebar-bg: #0F172A;
-  --sidebar-text: #94A3B8;
-  --sidebar-hover: #1E293B;
+  --sidebar-bg: #FFFFFF;
+  --sidebar-text: #475569;
+  --sidebar-sub: #64748B;
+  --sidebar-hover: #F1F5F9;
+  --sidebar-hover-text: #0F172A;
+  --sidebar-brand-text: #0F172A;
+  --sidebar-border: #E2E8F0;
+  --sidebar-shadow: 4px 0 24px rgba(15, 23, 42, 0.06);
+  --sidebar-logout: #DC2626;
   --sidebar-active: #4F46E5;
 
   --bg: #F8FAFC;
@@ -80,7 +86,13 @@
 
   --sidebar-bg: #0B0F17;
   --sidebar-text: #94A3B8;
-  --sidebar-hover: #162032;
+  --sidebar-sub: #94A3B8;
+  --sidebar-hover: rgba(255, 255, 255, 0.06);
+  --sidebar-hover-text: #F8FAFC;
+  --sidebar-brand-text: #FFFFFF;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+  --sidebar-logout: #F87171;
   --sidebar-active: #6366F1;
 
   --bg: #0B0F17;
@@ -175,8 +187,9 @@ a {
   flex-direction: column;
   padding: 1.25rem 1rem;
   z-index: 100;
-  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), background 0.2s ease;
+  border-right: 1px solid var(--sidebar-border);
+  box-shadow: var(--sidebar-shadow);
 }
 
 .sidebar-brand {
@@ -205,15 +218,22 @@ a {
   line-height: 1.2;
 }
 
+/* Logo tile: white card with a soft border so the crest reads on light and dark sidebars */
+.sidebar-brand-mark {
+  background: #FFFFFF !important;
+  border: 1px solid var(--sidebar-border);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1) !important;
+}
+
 .sidebar-brand-text .name {
-  color: #FFFFFF;
+  color: var(--sidebar-brand-text);
   font-weight: 700;
   font-size: 1rem;
   letter-spacing: -0.01em;
 }
 
 .sidebar-brand-text .sub {
-  color: var(--sidebar-text);
+  color: var(--sidebar-sub);
   font-size: 0.68rem;
   font-weight: 500;
   letter-spacing: 0.02em;
@@ -265,8 +285,8 @@ a {
 }
 
 .sidebar-link:hover {
-  background: rgba(255, 255, 255, 0.06);
-  color: #F8FAFC;
+  background: var(--sidebar-hover);
+  color: var(--sidebar-hover-text);
 }
 
 .sidebar-link.active {
@@ -288,7 +308,16 @@ a {
   flex-direction: column;
   gap: 0.3rem;
   padding-top: 1rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid var(--sidebar-border);
+}
+
+/* Logout link is red via inline style; keep it readable on the light sidebar */
+.sidebar-footer .sidebar-link[title="Logout"] {
+  color: var(--sidebar-logout) !important;
+}
+
+.sidebar-footer .sidebar-link[title="Logout"]:hover {
+  background: var(--danger-bg);
 }
 
 /* Topbar */
@@ -2085,103 +2114,194 @@ textarea.form-control {
   line-height: 1.35;
 }
 
-/* ---------- Teacher Dashboard Status Cards (Frosted Blur Glassmorphism) ---------- */
+/* ---------- Dashboard Status Cards (Gradient Glass KPI Cards) ---------- */
 .teacher-status-card {
+  --card-from: #1f2937;
+  --card-to: #0b0f17;
+  --card-glow: 99, 102, 241;
+
   border-radius: var(--radius-lg);
-  padding: 1.15rem 1.3rem;
+  padding: 1.2rem 1.35rem 1.1rem;
   cursor: pointer;
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
   position: relative;
   overflow: hidden;
+  isolation: isolate;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 112px;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  min-height: 132px;
+  background: linear-gradient(140deg, var(--card-from) 0%, var(--card-to) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  color: #FFFFFF !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.22) inset,
+    0 10px 24px -10px rgba(var(--card-glow), 0.55),
+    0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+/* Soft top-right light sheen */
+.teacher-status-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(120% 90% at 100% 0%, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0) 55%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0) 40%);
+  pointer-events: none;
+}
+
+/* Large faded ring watermark, bottom-right */
+.teacher-status-card::after {
+  content: '';
+  position: absolute;
+  right: -34px;
+  bottom: -44px;
+  width: 140px;
+  height: 140px;
+  z-index: -1;
+  border-radius: 50%;
+  border: 22px solid rgba(255, 255, 255, 0.07);
+  pointer-events: none;
+  transition: transform 0.35s ease;
 }
 
 .teacher-status-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+  transform: translateY(-3px);
+  border-color: rgba(255, 255, 255, 0.34) !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.28) inset,
+    0 18px 32px -10px rgba(var(--card-glow), 0.7),
+    0 4px 10px rgba(0, 0, 0, 0.16);
 }
 
-/* 1. SUBMITTED: Frosted Smoked Black Blur */
+.teacher-status-card:hover::after {
+  transform: scale(1.12) translate(-4px, -4px);
+}
+
+/* 1. TOTAL / SUBMITTED: Midnight slate */
 .teacher-status-card.status-submitted {
-  background: rgba(18, 18, 18, 0.72) !important;
-  border: 1px solid rgba(255, 255, 255, 0.16) !important;
-  color: #FFFFFF !important;
+  --card-from: #2b3446;
+  --card-to: #0d1118;
+  --card-glow: 100, 116, 139;
 }
 
-/* 2. PENDING: Frosted Warm Brown Blur */
+/* 2. PENDING: Warm amber-brown */
 .teacher-status-card.status-pending {
-  background: rgba(107, 66, 38, 0.74) !important;
-  border: 1px solid rgba(255, 255, 255, 0.2) !important;
-  color: #FFFFFF !important;
+  --card-from: #a8642c;
+  --card-to: #4a2a14;
+  --card-glow: 217, 119, 6;
 }
 
-/* 3. APPROVED: Frosted Green Blur */
+/* 3. APPROVED: Emerald */
 .teacher-status-card.status-approved {
-  background: rgba(21, 128, 61, 0.74) !important;
-  border: 1px solid rgba(255, 255, 255, 0.2) !important;
-  color: #FFFFFF !important;
+  --card-from: #1f9d55;
+  --card-to: #0c4a2a;
+  --card-glow: 16, 185, 129;
 }
 
-/* 4. REJECTED: Frosted Red Blur */
+/* 4. REJECTED: Ruby */
 .teacher-status-card.status-rejected {
-  background: rgba(220, 38, 38, 0.74) !important;
-  border: 1px solid rgba(255, 255, 255, 0.2) !important;
-  color: #FFFFFF !important;
+  --card-from: #e03a3a;
+  --card-to: #7a1414;
+  --card-glow: 239, 68, 68;
 }
 
-/* 5. PENDING USERS: Frosted Indigo Blur */
+/* 5. PENDING USERS: Indigo */
 .teacher-status-card.status-pending-users {
-  background: rgba(79, 70, 229, 0.74) !important;
-  border: 1px solid rgba(255, 255, 255, 0.2) !important;
-  color: #FFFFFF !important;
+  --card-from: #6366f1;
+  --card-to: #312e81;
+  --card-glow: 99, 102, 241;
 }
 
 .teacher-status-card .status-card-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 0.45rem;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
 }
 
 .teacher-status-card .status-title {
-  color: #FFFFFF !important;
-  font-size: 0.75rem !important;
+  color: rgba(255, 255, 255, 0.92) !important;
+  font-size: 0.7rem !important;
   font-weight: 800 !important;
-  letter-spacing: 0.08em !important;
+  letter-spacing: 0.12em !important;
   text-transform: uppercase !important;
 }
 
 .teacher-status-card .status-icon {
-  width: 30px;
-  height: 30px;
-  border-radius: var(--radius-sm);
-  background: rgba(255, 255, 255, 0.2);
+  width: 34px;
+  height: 34px;
+  border-radius: 11px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.32), rgba(255, 255, 255, 0.1));
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18), 0 1px 0 rgba(255, 255, 255, 0.35) inset;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   color: #FFFFFF !important;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  transition: transform 0.22s ease;
+}
+
+.teacher-status-card:hover .status-icon {
+  transform: scale(1.08) rotate(-4deg);
 }
 
 .teacher-status-card .status-value {
   color: #FFFFFF !important;
-  font-size: 2.2rem !important;
+  font-size: 2.6rem !important;
   font-weight: 800 !important;
-  line-height: 1.1 !important;
-  letter-spacing: -0.02em !important;
-  margin: 0.25rem 0 0.15rem !important;
+  line-height: 1 !important;
+  letter-spacing: -0.03em !important;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+  margin: 0.2rem 0 0.4rem !important;
 }
 
 .teacher-status-card .status-subtext {
-  color: rgba(255, 255, 255, 0.88) !important;
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 0.4rem;
+  color: rgba(255, 255, 255, 0.92) !important;
   font-size: 0.72rem !important;
-  font-weight: 500 !important;
+  font-weight: 600 !important;
+  max-width: 100%;
+  line-height: 1.3;
+  padding: 0.22rem 0.65rem 0.22rem 0.55rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.teacher-status-card .status-subtext::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  margin-top: 1px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  opacity: 0.85;
+  flex-shrink: 0;
+}
+
+@media (max-width: 640px) {
+  .teacher-status-card {
+    min-height: 120px;
+    padding: 1rem 1.05rem;
+  }
+  .teacher-status-card .status-value {
+    font-size: 2.2rem !important;
+  }
+  .teacher-status-card .status-subtext {
+    font-size: 0.68rem !important;
+    padding: 0.15rem 0.5rem 0.15rem 0.45rem;
+  }
 }
 
 /* ---------- Teacher/User Workspace School Wallpaper (Dashboard, Repository, Search, Weekly Reports, Notifications, Settings) ---------- */
