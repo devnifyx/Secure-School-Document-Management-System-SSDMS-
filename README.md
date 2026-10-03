@@ -244,6 +244,17 @@ npm run dev
 
 Open `http://localhost:5174`.
 
+## Running the tests
+
+The backend has an automated test suite (75 tests) covering login and lockout, department access,
+document encryption and approval, weekly reports, password reset, audit export and user deletion.
+It runs on an in-memory database, so it never touches your real data:
+
+```bash
+cd backend-laravel
+php artisan test
+```
+
 ## Accounts
 
 The seeder creates one account:

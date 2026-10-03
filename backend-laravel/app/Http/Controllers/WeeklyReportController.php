@@ -125,15 +125,20 @@ class WeeklyReportController extends Controller
 
             Storage::disk('local')->put('weekly-reports/' . $fileName, $encrypted['content']);
 
-            WeeklyReportAttachment::create([
-                'weekly_report_id' => $report->id,
-                'file_path' => 'weekly-reports/' . $fileName,
-                'file_name' => $file->getClientOriginalName(),
-                'file_type' => $file->getMimeType(),
-                'file_size' => $file->getSize(),
-                'encrypted_key' => $encrypted['key'],
-                'file_hash' => $encrypted['hash'],
-            ]);
+            try {
+                WeeklyReportAttachment::create([
+                    'weekly_report_id' => $report->id,
+                    'file_path' => 'weekly-reports/' . $fileName,
+                    'file_name' => $file->getClientOriginalName(),
+                    'file_type' => $file->getMimeType(),
+                    'file_size' => $file->getSize(),
+                    'encrypted_key' => $encrypted['key'],
+                    'file_hash' => $encrypted['hash'],
+                ]);
+            } catch (\Throwable $e) {
+                Storage::disk('local')->delete('weekly-reports/' . $fileName);
+                throw $e;
+            }
         }
     }
 

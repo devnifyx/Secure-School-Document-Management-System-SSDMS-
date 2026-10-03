@@ -86,21 +86,26 @@ class DocumentController extends Controller
         $fileName = $file->hashName();
         Storage::disk('local')->put('documents/' . $fileName, $fileToStore);
 
-        $document = Document::create([
-            'title'         => $request->title,
-            'description'   => $request->description,
-            'file_path'     => 'documents/' . $fileName,
-            'file_name'     => $file->getClientOriginalName(),
-            'file_type'     => $file->getMimeType(),
-            'file_size'     => $file->getSize(),
-            'category'      => $request->category,
-            'tags'          => $request->tags,
-            'uploaded_by'   => $user->id,
-            'panitia_id'    => $request->panitia_id,
-            'status'        => 'Pending',
-            'encrypted_key' => $encryptedKey,
-            'file_hash'     => $fileHash,
-        ]);
+        try {
+            $document = Document::create([
+                'title'         => $request->title,
+                'description'   => $request->description,
+                'file_path'     => 'documents/' . $fileName,
+                'file_name'     => $file->getClientOriginalName(),
+                'file_type'     => $file->getMimeType(),
+                'file_size'     => $file->getSize(),
+                'category'      => $request->category,
+                'tags'          => $request->tags,
+                'uploaded_by'   => $user->id,
+                'panitia_id'    => $request->panitia_id,
+                'status'        => 'Pending',
+                'encrypted_key' => $encryptedKey,
+                'file_hash'     => $fileHash,
+            ]);
+        } catch (\Throwable $e) {
+            Storage::disk('local')->delete('documents/' . $fileName);
+            throw $e;
+        }
 
         logAudit('DOCUMENT_UPLOADED', 'Document', $document->id, "Document uploaded: " . $document->title);
 
