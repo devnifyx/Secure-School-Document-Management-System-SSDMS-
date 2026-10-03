@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Layout from '../components/Layout';
+import UserAvatar from '../components/UserAvatar';
+import ConfirmModal from '../components/ConfirmModal';
 import api from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
@@ -19,7 +21,12 @@ import {
     Sun,
     Moon,
     Palette,
+    Camera,
+    Trash2,
 } from 'lucide-react';
+
+const PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+const PHOTO_MAX_BYTES = 2 * 1024 * 1024;
 
 const Settings: React.FC = () => {
     const { user, updateUser } = useAuth();
@@ -32,6 +39,12 @@ const Settings: React.FC = () => {
     const [name, setName] = useState(user?.name ?? '');
     const [nameLoading, setNameLoading] = useState(false);
     const [nameMsg, setNameMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+    // Profile photo
+    const photoInputRef = useRef<HTMLInputElement>(null);
+    const [photoLoading, setPhotoLoading] = useState(false);
+    const [photoMsg, setPhotoMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+    const [confirmRemovePhoto, setConfirmRemovePhoto] = useState(false);
 
     // Password form
     const [currentPassword, setCurrentPassword] = useState('');
@@ -87,6 +100,57 @@ const Settings: React.FC = () => {
             toastError(errText);
         } finally {
             setNameLoading(false);
+        }
+    };
+
+    const handlePhotoSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        e.target.value = ''; // allow picking the same file again later
+        if (!file) return;
+
+        setPhotoMsg(null);
+        if (!PHOTO_TYPES.includes(file.type)) {
+            setPhotoMsg({ type: 'error', text: 'Photo must be a JPG, PNG or WebP image.' });
+            return;
+        }
+        if (file.size > PHOTO_MAX_BYTES) {
+            setPhotoMsg({ type: 'error', text: 'Photo must be 2 MB or smaller.' });
+            return;
+        }
+
+        setPhotoLoading(true);
+        try {
+            const formData = new FormData();
+            formData.append('photo', file);
+            const res = await api.post('/profile/photo', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+            updateUser({ has_photo: res.data.has_photo, updated_at: res.data.updated_at });
+            setPhotoMsg({ type: 'success', text: 'Profile photo updated.' });
+            success('Profile photo updated.');
+        } catch (err: any) {
+            const data = err.response?.data;
+            const errText = data?.errors?.photo?.[0] || data?.message || 'Failed to upload photo.';
+            setPhotoMsg({ type: 'error', text: errText });
+            toastError(errText);
+        } finally {
+            setPhotoLoading(false);
+        }
+    };
+
+    const handlePhotoRemove = async () => {
+        setPhotoLoading(true);
+        setPhotoMsg(null);
+        try {
+            const res = await api.delete('/profile/photo');
+            updateUser({ has_photo: res.data.has_photo, updated_at: res.data.updated_at });
+            setPhotoMsg({ type: 'success', text: 'Profile photo removed.' });
+            success('Profile photo removed.');
+        } catch (err: any) {
+            const errText = err.response?.data?.message || 'Failed to remove photo.';
+            setPhotoMsg({ type: 'error', text: errText });
+            toastError(errText);
+        } finally {
+            setPhotoLoading(false);
+            setConfirmRemovePhoto(false);
         }
     };
 
@@ -164,6 +228,82 @@ const Settings: React.FC = () => {
                             <h3><User size={17} style={{ color: 'var(--primary)' }} /> Profile Information</h3>
                         </div>
                         <div className="panel-body">
+                            {/* Profile photo */}
+                            <div className="profile-photo-row">
+                                <button
+                                    type="button"
+                                    className="profile-photo-avatar"
+                                    onClick={() => photoInputRef.current?.click()}
+                                    disabled={photoLoading}
+                                    aria-label="Change profile photo"
+                                >
+                                    {user && (
+                                        <UserAvatar
+                                            userId={user.id}
+                                            name={user.name}
+                                            hasPhoto={user.has_photo}
+                                            version={user.updated_at}
+                                            style={{
+                                                width: '100%',
+                                                height: '100%',
+                                                borderRadius: '50%',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                fontSize: '2rem',
+                                                fontWeight: 700,
+                                                color: '#FFFFFF',
+                                                background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)',
+                                            }}
+                                        />
+                                    )}
+                                    <span className="photo-picker-badge"><Camera size={14} /></span>
+                                </button>
+
+                                <div style={{ minWidth: 0 }}>
+                                    <div style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--text)' }}>Profile Photo</div>
+                                    <div className="form-hint" style={{ margin: '0.15rem 0 0.7rem' }}>
+                                        JPG, PNG or WebP, up to 2 MB. Only you and administrators can see it.
+                                    </div>
+                                    <input
+                                        ref={photoInputRef}
+                                        type="file"
+                                        accept="image/jpeg,image/png,image/webp"
+                                        onChange={handlePhotoSelected}
+                                        style={{ display: 'none' }}
+                                    />
+                                    <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
+                                        <button
+                                            type="button"
+                                            className="btn btn-secondary btn-sm"
+                                            disabled={photoLoading}
+                                            onClick={() => photoInputRef.current?.click()}
+                                        >
+                                            <Camera size={14} />
+                                            {photoLoading ? 'Uploading…' : user?.has_photo ? 'Change photo' : 'Upload photo'}
+                                        </button>
+                                        {user?.has_photo && (
+                                            <button
+                                                type="button"
+                                                className="btn btn-secondary btn-sm"
+                                                disabled={photoLoading}
+                                                onClick={() => setConfirmRemovePhoto(true)}
+                                                style={{ color: 'var(--danger)' }}
+                                            >
+                                                <Trash2 size={14} /> Remove
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {photoMsg && (
+                                <div className={`notice ${photoMsg.type === 'success' ? 'notice-success' : 'notice-danger'}`} style={{ marginBottom: '1.25rem' }}>
+                                    {photoMsg.type === 'success' ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}
+                                    <div>{photoMsg.text}</div>
+                                </div>
+                            )}
+
                             <dl className="detail-grid" style={{ marginBottom: '1.75rem', paddingBottom: '1.25rem', borderBottom: '1px solid var(--border)' }}>
                                 <dt>Email Address</dt>
                                 <dd>
@@ -448,6 +588,16 @@ const Settings: React.FC = () => {
                     </div>
                 )}
             </div>
+            <ConfirmModal
+                isOpen={confirmRemovePhoto}
+                title="Remove profile photo?"
+                message="Your photo will be deleted and your initial will be shown instead. You can upload a new one at any time."
+                confirmText="Remove photo"
+                isDanger
+                loading={photoLoading}
+                onConfirm={handlePhotoRemove}
+                onCancel={() => setConfirmRemovePhoto(false)}
+            />
         </Layout>
     );
 };

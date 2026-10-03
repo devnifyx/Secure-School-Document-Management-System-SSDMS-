@@ -107,8 +107,34 @@ class UserController extends Controller
     public function destroy($id)
     {
         $user = User::findOrFail($id);
-        logAudit('USER_DELETED', 'User', $user->id, "Deleted user: {$user->name}");
+
+        if ($user->id === auth()->id()) {
+            return response()->json(['message' => 'You cannot delete your own account.'], 422);
+        }
+
+        // Documents and weekly reports are school records: never orphan or silently remove them.
+        $documents = $user->documents()->count();
+        $reports = $user->weeklyReports()->count();
+        if ($documents > 0 || $reports > 0) {
+            $parts = array_filter([
+                $documents > 0 ? "{$documents} document(s)" : null,
+                $reports > 0 ? "{$reports} weekly report(s)" : null,
+            ]);
+            return response()->json([
+                'message' => "{$user->name} has " . implode(' and ', $parts) . " on record and cannot be deleted. Deactivate the account instead.",
+            ], 422);
+        }
+
+        // Login tokens are polymorphic (no FK), so remove them explicitly.
+        $user->tokens()->delete();
         $user->delete();
+
+        if ($user->photo_path) {
+            \Illuminate\Support\Facades\Storage::disk('local')->delete($user->photo_path);
+        }
+
+        logAudit('USER_DELETED', 'User', $user->id, "Deleted user: {$user->name}");
+
         return response()->json(null, 204);
     }
 

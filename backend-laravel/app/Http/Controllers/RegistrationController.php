@@ -18,16 +18,23 @@ class RegistrationController extends Controller
             'username' => 'required|string|max:50|alpha_dash|unique:users',
             'password' => 'required|string|min:8|confirmed',
             'primary_panitia_id' => 'required|exists:panitia,id',
+            'photo' => 'nullable|' . User::PHOTO_RULES,
         ]);
 
         $panitia = Panitia::where('id', $request->primary_panitia_id)
                           ->where('status', 'active')
                           ->firstOrFail();
 
+        // Stored on the private disk (never web-accessible); served only through GET /users/{id}/photo
+        $photoPath = $request->hasFile('photo')
+            ? $request->file('photo')->store('profile-photos', 'local')
+            : null;
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'username' => $request->username,
+            'photo_path' => $photoPath,
             'password' => Hash::make($request->password),
             'role' => 'Teacher',
             'is_active' => true,
@@ -44,7 +51,7 @@ class RegistrationController extends Controller
             ]);
         }
 
-        logAudit('REGISTRATION_SUBMITTED', 'User', $user->id, "New teacher registration: {$user->name}", $user->id);
+        logAudit('REGISTRATION_SUBMITTED', 'User', $user->id, "New teacher registration: {$user->name}" . ($photoPath ? ' (with photo)' : ''), $user->id);
 
         return response()->json([
             'message' => 'Registration submitted successfully. Your account is pending administrator approval.',

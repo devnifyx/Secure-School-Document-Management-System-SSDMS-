@@ -25,6 +25,7 @@ import {
     Moon,
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
+import UserAvatar from './UserAvatar';
 
 interface NotificationItem {
     id: number;
@@ -387,9 +388,15 @@ const Layout: React.FC<LayoutProps> = ({ children, title, subtitle, actions, wit
                     {/* User profile dropdown */}
                     <div ref={userRef} style={{ position: 'relative' }}>
                         <div className="topbar-user" onClick={() => setShowUserMenu((v) => !v)}>
-                            <div className="topbar-avatar">
-                                {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
-                            </div>
+                            {user && (
+                                <UserAvatar
+                                    className="topbar-avatar"
+                                    userId={user.id}
+                                    name={user.name}
+                                    hasPhoto={user.has_photo}
+                                    version={user.updated_at}
+                                />
+                            )}
                             <div className="topbar-user-info">
                                 <div className="name">{user?.name}</div>
                                 <div className="role">{user?.role}</div>

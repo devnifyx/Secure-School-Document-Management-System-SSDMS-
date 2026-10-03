@@ -2405,3 +2405,107 @@ body.has-teacher-wallpaper,
   background: rgba(30, 41, 59, 0.9);
 }
 
+
+/* ---------- Registration profile photo picker ---------- */
+.photo-picker {
+  position: relative;
+  width: 104px;
+  height: 104px;
+  border-radius: 50%;
+  border: 2px dashed var(--border-strong);
+  background: var(--surface-alt);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: var(--transition);
+}
+
+.photo-picker img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+
+.photo-picker:hover,
+.photo-picker:focus-visible {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--primary-soft);
+  outline: none;
+  box-shadow: 0 0 0 4px var(--primary-focus);
+}
+
+.photo-picker.has-photo {
+  border-style: solid;
+  border-color: var(--primary);
+}
+
+.photo-picker-badge {
+  position: absolute;
+  right: 2px;
+  bottom: 2px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #FFFFFF;
+  border: 3px solid var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.35);
+}
+
+/* ---------- Settings: profile photo row ---------- */
+.profile-photo-row {
+  display: flex;
+  align-items: center;
+  gap: 1.4rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.profile-photo-avatar {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 3px solid var(--surface);
+  padding: 0;
+  cursor: pointer;
+  background: transparent;
+  box-shadow: 0 0 0 2px var(--border-strong), var(--shadow-md);
+  transition: var(--transition);
+}
+
+.profile-photo-avatar:hover:not(:disabled),
+.profile-photo-avatar:focus-visible {
+  box-shadow: 0 0 0 3px var(--primary), 0 0 0 7px var(--primary-focus);
+  outline: none;
+}
+
+.profile-photo-avatar:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+@media (max-width: 520px) {
+  .profile-photo-row {
+    flex-direction: column;
+    text-align: center;
+  }
+  .profile-photo-row .form-hint {
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .profile-photo-row > div:last-child > div:last-child {
+    justify-content: center;
+  }
+}

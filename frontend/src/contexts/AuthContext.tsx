@@ -9,6 +9,8 @@ interface User {
   role: 'Admin' | 'Teacher';
   is_active: boolean;
   account_status: 'Pending' | 'Approved' | 'Rejected';
+  has_photo?: boolean;
+  updated_at?: string;
 }
 
 export interface PanitiaItem {

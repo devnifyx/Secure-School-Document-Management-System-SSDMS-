@@ -7,6 +7,7 @@ import ConfirmModal from '../components/ConfirmModal';
 import { SkeletonTable } from '../components/SkeletonLoader';
 import EmptyState from '../components/EmptyState';
 import CustomSelect from '../components/CustomSelect';
+import UserAvatar from '../components/UserAvatar';
 import {
     Users,
     UserPlus,
@@ -38,6 +39,8 @@ interface User {
     role: 'Admin' | 'Teacher';
     is_active: boolean;
     account_status: 'Pending' | 'Approved' | 'Rejected';
+    has_photo?: boolean;
+    updated_at?: string;
     created_at: string;
     panitia: PanitiaRef[];
 }
@@ -321,21 +324,25 @@ const UserManagement: React.FC = () => {
                                     <tr key={u.id}>
                                         <td style={{ fontWeight: 600 }}>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                                <div style={{
-                                                    width: '32px',
-                                                    height: '32px',
-                                                    borderRadius: '50%',
-                                                    background: u.role === 'Admin' ? 'var(--primary)' : 'var(--surface-alt)',
-                                                    color: u.role === 'Admin' ? '#ffffff' : 'var(--text)',
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    justifyContent: 'center',
-                                                    fontSize: '0.78rem',
-                                                    fontWeight: 700,
-                                                    flexShrink: 0,
-                                                }}>
-                                                    {u.name.charAt(0).toUpperCase()}
-                                                </div>
+                                                <UserAvatar
+                                                    userId={u.id}
+                                                    name={u.name}
+                                                    hasPhoto={u.has_photo}
+                                                    version={u.updated_at}
+                                                    style={{
+                                                        width: '32px',
+                                                        height: '32px',
+                                                        borderRadius: '50%',
+                                                        background: u.role === 'Admin' ? 'var(--primary)' : 'var(--surface-alt)',
+                                                        color: u.role === 'Admin' ? '#ffffff' : 'var(--text)',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        fontSize: '0.78rem',
+                                                        fontWeight: 700,
+                                                        flexShrink: 0,
+                                                    }}
+                                                />
                                                 <div>
                                                     <span>{u.name}</span>
                                                     {u.id === me?.id && (

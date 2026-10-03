@@ -6,14 +6,12 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('documents', function (Blueprint $table) {
             $table->id();
             $table->string('title');
+            $table->text('description')->nullable();
             $table->string('file_path');
             $table->string('file_name');
             $table->string('file_type');
@@ -21,16 +19,16 @@ return new class extends Migration
             $table->string('category');
             $table->text('tags')->nullable();
             $table->foreignId('uploaded_by')->constrained('users');
+            $table->foreignId('panitia_id')->nullable()->constrained('panitia')->nullOnDelete();
             $table->enum('status', ['Pending', 'Approved', 'Rejected'])->default('Pending');
             $table->text('rejection_reason')->nullable();
             $table->text('encrypted_key');
+            // SHA-256 hex digest of the original plaintext file content
+            $table->string('file_hash', 64)->nullable();
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('documents');

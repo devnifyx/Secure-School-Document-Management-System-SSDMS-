@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -25,6 +26,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'username',
+        'photo_path',
         'email',
         'password',
         'role',
@@ -44,7 +46,18 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'photo_path', // internal storage path; clients use has_photo + /users/{id}/photo
     ];
+
+    /** Shared validation for profile photos (registration + settings). */
+    public const PHOTO_RULES = 'file|image|mimes:jpg,jpeg,png,webp|max:2048|dimensions:max_width=6000,max_height=6000';
+
+    protected $appends = ['has_photo'];
+
+    protected function hasPhoto(): Attribute
+    {
+        return Attribute::get(fn () => !empty($this->photo_path));
+    }
 
     /**
      * Get the attributes that should be cast.
@@ -80,6 +93,11 @@ class User extends Authenticatable
     public function approvedByUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    public function documents(): HasMany
+    {
+        return $this->hasMany(Document::class, 'uploaded_by');
     }
 
     public function weeklyReports(): HasMany

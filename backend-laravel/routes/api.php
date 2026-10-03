@@ -26,6 +26,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('auth/switch-panitia', [\App\Http\Controllers\AuthController::class, 'switchPanitia']);
     Route::get('auth/my-panitia', [\App\Http\Controllers\AuthController::class, 'myPanitia']);
 
+    // Profile photo (owner or Admin only; stored on the private disk)
+    Route::get('users/{user}/photo', [\App\Http\Controllers\UserPhotoController::class, 'show']);
+
     // User management (Admin only)
     Route::middleware('role:Admin')->group(function () {
         Route::apiResource('users', \App\Http\Controllers\UserController::class);
@@ -65,6 +68,8 @@ Route::middleware('auth:sanctum')->group(function () {
     // Profile
     Route::get('profile', [\App\Http\Controllers\ProfileController::class, 'show']);
     Route::put('profile', [\App\Http\Controllers\ProfileController::class, 'update']);
+    Route::post('profile/photo', [\App\Http\Controllers\ProfileController::class, 'updatePhoto']);
+    Route::delete('profile/photo', [\App\Http\Controllers\ProfileController::class, 'removePhoto']);
 
     // Audit logs (Admin only)
     Route::get('audit-logs', [\App\Http\Controllers\AuditLogController::class, 'index'])->middleware('role:Admin');

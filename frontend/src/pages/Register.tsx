@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
-import { User, Mail, Lock, Layers, CheckCircle2, AlertCircle, ArrowLeft, ArrowRight } from 'lucide-react';
+import { User, Mail, Lock, Layers, CheckCircle2, AlertCircle, ArrowLeft, ArrowRight, Camera, Trash2 } from 'lucide-react';
 import CustomSelect from '../components/CustomSelect';
 import ThemeToggle from '../components/ThemeToggle';
 
@@ -9,6 +9,9 @@ interface PanitiaOption {
     id: number;
     name: string;
 }
+
+const PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+const PHOTO_MAX_BYTES = 2 * 1024 * 1024;
 
 const Register: React.FC = () => {
     const [name, setName] = useState('');
@@ -22,11 +25,47 @@ const Register: React.FC = () => {
     const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
     const [success, setSuccess] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [photo, setPhoto] = useState<File | null>(null);
+    const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+    const [photoError, setPhotoError] = useState('');
+    const photoInputRef = useRef<HTMLInputElement>(null);
     const navigate = useNavigate();
 
     useEffect(() => {
         api.get('/panitia/public').then((res) => setPanitiaOptions(res.data)).catch(() => {});
     }, []);
+
+    // Release the preview object URL when it changes or the page unmounts
+    useEffect(() => {
+        return () => {
+            if (photoPreview) URL.revokeObjectURL(photoPreview);
+        };
+    }, [photoPreview]);
+
+    const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        e.target.value = ''; // allow re-selecting the same file after removing it
+        if (!file) return;
+
+        if (!PHOTO_TYPES.includes(file.type)) {
+            setPhotoError('Photo must be a JPG, PNG or WebP image.');
+            return;
+        }
+        if (file.size > PHOTO_MAX_BYTES) {
+            setPhotoError('Photo must be 2 MB or smaller.');
+            return;
+        }
+
+        setPhotoError('');
+        setPhoto(file);
+        setPhotoPreview(URL.createObjectURL(file));
+    };
+
+    const removePhoto = () => {
+        setPhoto(null);
+        setPhotoPreview(null);
+        setPhotoError('');
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -40,14 +79,16 @@ const Register: React.FC = () => {
 
         setLoading(true);
         try {
-            await api.post('/register', {
-                name,
-                email,
-                username,
-                password,
-                password_confirmation: passwordConfirmation,
-                primary_panitia_id: Number(primaryPanitiaId),
-            });
+            const formData = new FormData();
+            formData.append('name', name);
+            formData.append('email', email);
+            formData.append('username', username);
+            formData.append('password', password);
+            formData.append('password_confirmation', passwordConfirmation);
+            formData.append('primary_panitia_id', primaryPanitiaId);
+            if (photo) formData.append('photo', photo);
+
+            await api.post('/register', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
             setSuccess(true);
         } catch (err: any) {
             const data = err.response?.data;
@@ -159,6 +200,49 @@ const Register: React.FC = () => {
                     )}
 
                     <form onSubmit={handleSubmit}>
+                        {/* Profile photo (optional) */}
+                        <div className="form-group" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '1.5rem' }}>
+                            <input
+                                ref={photoInputRef}
+                                type="file"
+                                accept="image/jpeg,image/png,image/webp"
+                                onChange={handlePhotoChange}
+                                style={{ display: 'none' }}
+                            />
+                            <button
+                                type="button"
+                                className={`photo-picker ${photoPreview ? 'has-photo' : ''}`}
+                                onClick={() => photoInputRef.current?.click()}
+                                aria-label={photoPreview ? 'Change profile photo' : 'Add profile photo'}
+                            >
+                                {photoPreview ? (
+                                    <img src={photoPreview} alt="Profile preview" />
+                                ) : (
+                                    <Camera size={28} />
+                                )}
+                                <span className="photo-picker-badge"><Camera size={13} /></span>
+                            </button>
+                            <div style={{ marginTop: '0.6rem', fontSize: '0.84rem', fontWeight: 600, color: 'var(--text)' }}>
+                                Profile Photo <span className="form-hint" style={{ fontWeight: 500 }}>(optional)</span>
+                            </div>
+                            <div style={{ display: 'flex', gap: '0.9rem', marginTop: '0.25rem', minHeight: '1.2rem' }}>
+                                <button type="button" className="btn-link" onClick={() => photoInputRef.current?.click()}>
+                                    {photoPreview ? 'Change photo' : 'Upload photo'}
+                                </button>
+                                {photoPreview && (
+                                    <button type="button" className="btn-link" onClick={removePhoto} style={{ color: 'var(--danger)' }}>
+                                        <Trash2 size={13} /> Remove
+                                    </button>
+                                )}
+                            </div>
+                            <span className="form-hint" style={{ marginTop: '0.25rem', textAlign: 'center' }}>
+                                JPG, PNG or WebP, up to 2 MB. A clear photo helps the administrator verify your account.
+                            </span>
+                            {(photoError || firstError('photo')) && (
+                                <div className="form-error" style={{ marginTop: '0.35rem' }}>{photoError || firstError('photo')}</div>
+                            )}
+                        </div>
+
                         <div className="form-group">
                             <label className="form-label">Full Name <span style={{ color: 'var(--danger)' }}>*</span></label>
                             <div style={{ position: 'relative' }}>

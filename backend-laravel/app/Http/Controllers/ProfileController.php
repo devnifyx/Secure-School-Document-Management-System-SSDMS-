@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 class ProfileController extends Controller
@@ -36,6 +38,42 @@ class ProfileController extends Controller
         if ($request->filled('name')) {
             $user->update(['name' => $request->name]);
             logAudit('PROFILE_UPDATED', 'User', $user->id, 'Profile name updated');
+        }
+
+        return response()->json($user->fresh());
+    }
+
+    public function updatePhoto(Request $request)
+    {
+        $user = $request->user();
+
+        $request->validate([
+            'photo' => 'required|' . User::PHOTO_RULES,
+        ]);
+
+        $newPath = $request->file('photo')->store('profile-photos', 'local');
+        $oldPath = $user->photo_path;
+
+        $user->update(['photo_path' => $newPath]);
+
+        if ($oldPath) {
+            Storage::disk('local')->delete($oldPath);
+        }
+
+        logAudit('PROFILE_PHOTO_CHANGED', 'User', $user->id, 'Profile photo updated');
+
+        return response()->json($user->fresh());
+    }
+
+    public function removePhoto(Request $request)
+    {
+        $user = $request->user();
+
+        if ($user->photo_path) {
+            $oldPath = $user->photo_path;
+            $user->update(['photo_path' => null]);
+            Storage::disk('local')->delete($oldPath);
+            logAudit('PROFILE_PHOTO_REMOVED', 'User', $user->id, 'Profile photo removed');
         }
 
         return response()->json($user->fresh());
